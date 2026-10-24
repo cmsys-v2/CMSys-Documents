@@ -56,7 +56,7 @@ const state = {
         m02Text: 'නිර්දේශ කර ඉදිරිපත් කරමි.',
         m02Date: '2026 ඔක්තෝබර් මස 24',
         m02Signatory: 'කොට්ඨාස සිවිල් ඉංජිනේරු නිලධාරී (නැගෙනහිර)',
-        dividerWidth: 33, // percent
+        dividerWidth: 100, // percent (50% to 100%)
         rightMargin: 20, // mm
         fontFamily: "'Abhaya Libre', 'Noto Serif Sinhala', serif",
         fontSize: 11, // pt
@@ -897,9 +897,9 @@ function initMinuteSheetBuilder() {
 
     // Sync sliders with initial state
     const divSlider = document.getElementById('msDividerWidthSlider');
-    if (divSlider) divSlider.value = state.ms.dividerWidth || 33;
+    if (divSlider) divSlider.value = state.ms.dividerWidth || 100;
     const divBadge = document.getElementById('msDividerWidthBadge');
-    if (divBadge) divBadge.textContent = `${state.ms.dividerWidth || 33}%`;
+    if (divBadge) divBadge.textContent = `${state.ms.dividerWidth || 100}%`;
 
     const rmSlider = document.getElementById('msRightMarginSlider');
     if (rmSlider) rmSlider.value = state.ms.rightMargin || 20;
