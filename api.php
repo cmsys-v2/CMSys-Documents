@@ -27,8 +27,9 @@ switch ($action) {
     // =========================================================================
     // 1. MASTER DOCUMENT & CORRESPONDENCE REGISTRY
     // =========================================================================
+    case 'get_documents':
     case 'documents':
-        if ($method === 'GET') {
+        if ($method === 'GET' || $action === 'get_documents') {
             $id = $_GET['id'] ?? null;
             $section = $_GET['section'] ?? 'ALL'; // cced_writer, admin_office, drawing_office, minute_sheet, or ALL
             $flowType = $_GET['flow_type'] ?? 'ALL'; // INCOMING, OUTGOING, or ALL
@@ -42,7 +43,7 @@ switch ($action) {
             if ($id) {
                 $doc = null;
                 if ($pdo) {
-                    $stmt = $pdo->prepare("SELECT * FROM document_registry WHERE id = ?");
+                    $stmt = $pdo->prepare("SELECT *, DATEDIFF(CURRENT_DATE, date_recorded) AS days_in_position FROM document_registry WHERE id = ?");
                     $stmt->execute([$id]);
                     $doc = $stmt->fetch();
                 }
@@ -124,12 +125,13 @@ switch ($action) {
                             break;
                     }
 
-                    $sql = "SELECT * FROM document_registry WHERE " . implode(" AND ", $where) . " ORDER BY " . $order . " LIMIT 500";
+                    $sql = "SELECT *, DATEDIFF(CURRENT_DATE, date_recorded) AS days_in_position FROM document_registry WHERE " . implode(" AND ", $where) . " ORDER BY " . $order . " LIMIT 500";
                     $stmt = $pdo->prepare($sql);
                     $stmt->execute($params);
                     $list = $stmt->fetchAll();
 
                     foreach ($list as &$item) {
+                        $item['days_in_position'] = isset($item['days_in_position']) ? (int)$item['days_in_position'] : 0;
                         if (isset($item['position_trail']) && is_string($item['position_trail'])) {
                             $item['position_trail'] = json_decode($item['position_trail'], true) ?? [];
                         }
@@ -334,6 +336,7 @@ switch ($action) {
     // =========================================================================
     // 1B. PRESENT POSITION UPDATE & AUDIT TRAIL
     // =========================================================================
+    case 'save_position':
     case 'update_position':
         $data = !empty($input) ? $input : $_POST;
         $id = $data['id'] ?? null;
@@ -862,8 +865,9 @@ switch ($action) {
     // =========================================================================
     // 5. LETTER STUDIO — NAVAL BR 7 CORRESPONDENCE
     // =========================================================================
+    case 'save_letter':
     case 'naval_letters':
-        if ($method === 'GET') {
+        if ($method === 'GET' && $action !== 'save_letter') {
             $id = $_GET['id'] ?? null;
             $search = trim($_GET['search'] ?? '');
             $status = $_GET['status'] ?? 'ALL';
@@ -913,7 +917,7 @@ switch ($action) {
             jsonResponse(['success' => true, 'count' => count($list), 'data' => $list]);
         }
 
-        if ($method === 'POST') {
+        if ($method === 'POST' || $action === 'save_letter') {
             $data = !empty($input) ? $input : $_POST;
 
             $id = $data['id'] ?? ('ltr_' . date('Ymd_His') . '_' . bin2hex(random_bytes(3)));

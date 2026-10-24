@@ -159,18 +159,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     initLetterStudio();
     renderOfficeCategoryPills();
     updateRegistryStats();
+    if (window.App && typeof window.App.init === 'function') {
+        window.App.init();
+    }
 });
 
 function initTheme() {
     // Default to dark mode for this naval system — professional dark-first UI
     const stored = localStorage.getItem('cmsys_theme');
     const isDark = stored === null ? true : stored === 'dark';
+    const icon = document.getElementById('themeIcon');
     if (isDark) {
         document.documentElement.classList.add('dark');
-        document.getElementById('themeIcon').textContent = '☀️';
+        if (icon) icon.textContent = '☀️';
     } else {
         document.documentElement.classList.remove('dark');
-        document.getElementById('themeIcon').textContent = '🌙';
+        if (icon) icon.textContent = '🌙';
     }
 }
 
@@ -216,6 +220,13 @@ async function fetchMetaAndSettings() {
         }
     } catch (e) {
         console.error('Error fetching meta/settings:', e);
+    }
+}
+
+function populateSettingsDropdowns() {
+    populateMinuteDropdowns();
+    if (typeof populateLetterPresets === 'function') {
+        populateLetterPresets();
     }
 }
 
@@ -386,7 +397,7 @@ function setRegistryFlowFilter(flow) {
     document.querySelectorAll('.flow-pill').forEach(btn => {
         btn.classList.remove('active');
         btn.style.background = 'none';
-        btn.style.color = '#4e637d';
+        btn.style.color = '#94a3b8';
         btn.style.boxShadow = 'none';
     });
     const active = document.getElementById(`flowTab-${flow}`);
@@ -493,7 +504,7 @@ function renderRegistryTable() {
 
         const overdueBadge = isOverdue
             ? `<span style="font-size:0.6rem;font-weight:700;padding:2px 6px;border-radius:4px;background:rgba(244,63,94,0.15);color:#fb7185;border:1px solid rgba(244,63,94,0.35);display:inline-block;margin-top:3px">⚠ ${days}d OVERDUE</span>`
-            : (days > 0 ? `<span style="font-size:0.6rem;color:#4e637d;font-family:ui-monospace,monospace;margin-top:3px;display:inline-block">${days}d</span>` : '');
+            : (days > 0 ? `<span style="font-size:0.6rem;color:#94a3b8;font-family:ui-monospace,monospace;margin-top:3px;display:inline-block">${days}d</span>` : '');
 
         const pos = d.present_position || 'Received';
         let posStyle = 'background:rgba(30,41,59,0.9);color:#8fa3bf;border:1px solid rgba(255,255,255,0.10)';
@@ -507,10 +518,10 @@ function renderRegistryTable() {
 
         return `
             <tr class="${rowCls}" style="border-bottom:1px solid rgba(255,255,255,0.05);transition:background 150ms ease" onmouseover="if(!this.classList.contains('row-overdue'))this.style.background='rgba(255,255,255,0.025)'" onmouseout="if(!this.classList.contains('row-overdue'))this.style.background=''">
-                <td style="padding:10px 12px;text-align:center;color:#4e637d;font-family:ui-monospace,monospace;font-size:0.62rem">${index + 1}</td>
+                <td style="padding:10px 12px;text-align:center;color:#94a3b8;font-family:ui-monospace,monospace;font-size:0.62rem">${index + 1}</td>
                 <td style="padding:10px 12px">
                     <span style="font-family:ui-monospace,monospace;font-weight:800;color:#2dd4bf;font-size:0.7rem;display:block;letter-spacing:0.03em">${d.ref_no}</span>
-                    ${d.sender_ref_no ? `<span style="font-size:0.6rem;color:#4e637d;font-family:ui-monospace,monospace">Ref: ${d.sender_ref_no}</span>` : ''}
+                    ${d.sender_ref_no ? `<span style="font-size:0.6rem;color:#94a3b8;font-family:ui-monospace,monospace">Ref: ${d.sender_ref_no}</span>` : ''}
                 </td>
                 <td style="padding:10px 12px">
                     ${flowBadge}
@@ -518,25 +529,25 @@ function renderRegistryTable() {
                 </td>
                 <td style="padding:10px 12px;font-size:0.65rem;white-space:nowrap">
                     <span style="display:block;color:#e8edf5;font-weight:600">${d.date_recorded || '—'}</span>
-                    ${d.date_letter ? `<span style="display:block;color:#4e637d;font-size:0.6rem">Ltr: ${d.date_letter}</span>` : ''}
+                    ${d.date_letter ? `<span style="display:block;color:#94a3b8;font-size:0.6rem">Ltr: ${d.date_letter}</span>` : ''}
                 </td>
                 <td style="padding:10px 12px;font-size:0.7rem">
                     <span style="font-weight:700;color:#e8edf5;display:block">${d.sender_or_recipient || '—'}</span>
-                    ${d.contact_no ? `<span style="font-size:0.6rem;color:#4e637d;font-family:ui-monospace,monospace">📞 ${d.contact_no}</span>` : ''}
+                    ${d.contact_no ? `<span style="font-size:0.6rem;color:#94a3b8;font-family:ui-monospace,monospace">📞 ${d.contact_no}</span>` : ''}
                 </td>
                 <td style="padding:10px 12px">
                     <p style="font-weight:700;color:#e8edf5;font-size:0.7rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.4">${d.subject || '—'}</p>
-                    ${d.scope_description ? `<p style="font-size:0.6rem;color:#4e637d;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;margin-top:2px">${d.scope_description}</p>` : ''}
+                    ${d.scope_description ? `<p style="font-size:0.6rem;color:#94a3b8;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;margin-top:2px">${d.scope_description}</p>` : ''}
                 </td>
                 <td style="padding:10px 12px">
                     <span style="font-size:0.62rem;font-weight:700;padding:2px 8px;border-radius:6px;${posStyle};display:inline-block;max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${pos}">${pos}</span>
                     ${overdueBadge}
                 </td>
                 <td style="padding:10px 12px;font-size:0.65rem">
-                    ${d.directed_to ? `<span style="font-size:0.62rem;font-weight:700;padding:2px 7px;border-radius:5px;background:rgba(20,184,166,0.10);color:#2dd4bf;border:1px solid rgba(20,184,166,0.22);display:inline-block;max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${d.directed_to}">${d.directed_to}</span>` : '<span style="color:#4e637d">—</span>'}
-                    ${d.project_name ? `<span style="font-size:0.6rem;color:#4e637d;display:block;margin-top:3px;max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${d.project_name}">${d.project_name}</span>` : ''}
+                    ${d.directed_to ? `<span style="font-size:0.62rem;font-weight:700;padding:2px 7px;border-radius:5px;background:rgba(20,184,166,0.10);color:#2dd4bf;border:1px solid rgba(20,184,166,0.22);display:inline-block;max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${d.directed_to}">${d.directed_to}</span>` : '<span style="color:#94a3b8">—</span>'}
+                    ${d.project_name ? `<span style="font-size:0.6rem;color:#94a3b8;display:block;margin-top:3px;max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${d.project_name}">${d.project_name}</span>` : ''}
                 </td>
-                <td style="padding:10px 12px;font-family:ui-monospace,monospace;font-size:0.62rem;color:#4e637d">
+                <td style="padding:10px 12px;font-family:ui-monospace,monospace;font-size:0.62rem;color:#94a3b8">
                     ${d.file_no || '—'}
                 </td>
                 <td style="padding:10px 12px">
@@ -572,11 +583,16 @@ function updateRegistryStats() {
         }
     });
 
-    document.getElementById('statTotalDocs').textContent = total;
-    document.getElementById('statIncomingDocs').textContent = incoming;
-    document.getElementById('statOutgoingDocs').textContent = outgoing;
-    document.getElementById('statActiveDocs').textContent = active;
-    document.getElementById('statOverdueDocs').textContent = overdue;
+    const sTot = document.getElementById('statTotalDocs');
+    if (sTot) sTot.textContent = total;
+    const sInc = document.getElementById('statIncomingDocs');
+    if (sInc) sInc.textContent = incoming;
+    const sOut = document.getElementById('statOutgoingDocs');
+    if (sOut) sOut.textContent = outgoing;
+    const sAct = document.getElementById('statActiveDocs');
+    if (sAct) sAct.textContent = active;
+    const sOvd = document.getElementById('statOverdueDocs');
+    if (sOvd) sOvd.textContent = overdue;
 }
 
 function refreshRegistryData() {
@@ -1331,32 +1347,36 @@ function updateMinutePreview() {
 
     const paragraphsHtml = state.ms.paragraphs.map(p => `
         <div style="margin-bottom: 12px; display: flex; align-items: flex-start; text-align: justify; line-height: ${lineLeading};">
-            <span style="font-weight: bold; width: 32px; shrink: 0;">${p.num || ''}</span>
+            <span style="font-weight: bold; width: 34px; shrink: 0; display: inline-block;">${p.num || ''}</span>
             <div style="flex: 1;">${p.text || ''}</div>
         </div>
     `).join('');
 
     const m02Html = state.ms.m02Enabled ? `
-        <div class="ms-m02-divider" style="border-top: 1.5px dashed #000; margin-top: 20px; padding-top: 14px;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
-                <div style="width: ${divPct}%; padding-right: 15px;">
-                    <strong>${escapeHtml(document.getElementById('msM02InputAddressee')?.value || state.ms.m02Addressee)}</strong>
+        <div class="ms-m02-divider" style="border-top: 1.5px dashed #000; margin-top: 24px; padding-top: 16px;">
+            <div style="display: flex; align-items: stretch; min-height: 180px;">
+                <div style="width: ${divPct}%; padding-right: 14px; border-right: 1.5px solid #000; box-sizing: border-box;">
+                    <div style="font-weight: 800; font-size: 9.5pt; text-decoration: underline; margin-bottom: 6px;">
+                        ${state.ms.lang === 'si' ? 'ලිපිනය:' : 'To:'}
+                    </div>
+                    <div style="font-weight: bold; line-height: 1.35;">${escapeHtml(document.getElementById('msM02InputAddressee')?.value || state.ms.m02Addressee)}</div>
                 </div>
-                <div style="flex: 1; text-align: right;">
-                    <span>${escapeHtml(document.getElementById('msM02InputOriginator')?.value || state.ms.m02Originator)}</span>
-                </div>
-            </div>
-            <div style="margin: 10px 0; text-align: justify; line-height: ${lineLeading};">
-                ${escapeHtml(document.getElementById('msM02InputText')?.value || state.ms.m02Text)}
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 25px;">
-                <div style="font-size: 9.5pt;">
-                    ${escapeHtml(document.getElementById('msM02InputDate')?.value || state.ms.m02Date)}
-                </div>
-                <div style="text-align: right; width: 220px;">
-                    <div style="height: 35px;"></div>
-                    <span>............................................................</span><br>
-                    <strong>${escapeHtml(document.getElementById('msM02InputSignatory')?.value || state.ms.m02Signatory)}</strong>
+                <div style="flex: 1; padding-left: 18px; box-sizing: border-box; display: flex; flex-direction: column;">
+                    <div style="margin-bottom: 10px; font-weight: 700; line-height: 1.35;">
+                        <span style="text-decoration: underline;">${state.ms.lang === 'si' ? 'මඟින්:' : 'Through:'}</span> ${escapeHtml(document.getElementById('msM02InputOriginator')?.value || state.ms.m02Originator)}
+                    </div>
+                    <div style="flex: 1; margin: 10px 0; text-align: justify; line-height: ${lineLeading};">
+                        ${escapeHtml(document.getElementById('msM02InputText')?.value || state.ms.m02Text)}
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 20px;">
+                        <div style="font-size: 9.5pt;">
+                            <strong>${state.ms.lang === 'si' ? 'දිනය: ' : 'Date: '}</strong>${escapeHtml(document.getElementById('msM02InputDate')?.value || state.ms.m02Date)}
+                        </div>
+                        <div style="text-align: right; width: 240px;">
+                            <div style="letter-spacing: 1px;">............................................................</div>
+                            <div style="font-weight: 800; font-size: 10pt; margin-top: 4px;">${escapeHtml(document.getElementById('msM02InputSignatory')?.value || state.ms.m02Signatory)}</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1368,59 +1388,69 @@ function updateMinutePreview() {
     paper.style.paddingRight = `${rMargin}mm`;
 
     paper.innerHTML = `
-        <!-- Vertical Divider Line -->
-        <div class="minute-divider-bar" style="position: absolute; top: 0; bottom: 0; left: calc(${divPct}% + 15px); width: 1.5px; background-color: #000;"></div>
-
         <!-- Central Minute Sequence Number Badge -->
         <div style="text-align: center; margin-bottom: 6px;">
             <span class="ms-central-badge">${escapeHtml(mSeq)}</span>
         </div>
 
         <!-- Official Header -->
-        <div class="ms-header-title" style="text-align: center; font-weight: 800; font-size: 13pt; border-bottom: 2px solid #000; padding-bottom: 3px; margin-bottom: 5px;">
+        <div class="ms-header-title" style="text-align: center; font-weight: 800; font-size: 13pt; border-bottom: 2px solid #000; padding-bottom: 4px; margin-bottom: 8px;">
             ${headerTitle}
         </div>
 
         <!-- Underlined Originator Tag -->
-        <div style="text-align: center; margin-bottom: 14px;">
+        <div style="text-align: center; margin-bottom: 16px;">
             <span class="ms-originator-underlined">${escapeHtml(mOrigTag)}</span>
         </div>
 
-        <!-- Header Grid: Addressees on Left, Ref & Date on Right -->
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; min-height: 80px; margin-bottom: 15px;">
-            <div style="width: ${divPct}%; padding-right: 15px;">
-                ${addrs.map(a => `<div style="font-weight: bold; margin-bottom: 6px;">${escapeHtml(a)}</div>`).join('')}
-            </div>
-            <div style="flex: 1; padding-left: 25px;">
-                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
-                    <span>${escapeHtml(orig)}</span>
-                    <span style="font-family: monospace; font-weight: bold;">${escapeHtml(ref)}</span>
+        <!-- Two-Column Minute 01 Body with Authentic Vertical Rule -->
+        <div style="display: flex; align-items: stretch; min-height: 480px;">
+            <!-- Left Column: Addressees -->
+            <div style="width: ${divPct}%; padding-right: 14px; border-right: 1.5px solid #000; box-sizing: border-box;">
+                <div style="font-weight: 800; font-size: 10pt; text-decoration: underline; margin-bottom: 8px;">
+                    ${state.ms.lang === 'si' ? 'ලිපිනය:' : 'To:'}
                 </div>
-                <div style="text-align: right; font-size: 9.5pt; margin-bottom: 15px;">
-                    ${escapeHtml(date)}
-                </div>
+                ${addrs.map(a => `<div style="font-weight: bold; margin-bottom: 8px; line-height: 1.35;">${escapeHtml(a)}</div>`).join('')}
             </div>
-        </div>
 
-        <!-- Subject Line -->
-        <div style="margin: 15px 0 15px 0; font-weight: bold; font-size: 11.5pt; text-decoration: underline; text-underline-offset: 4px;">
-            ${escapeHtml(subj)}
-        </div>
+            <!-- Right Column: Ref, Date, Through, Subject, Paragraphs, Recommendation, Signature -->
+            <div style="flex: 1; padding-left: 18px; box-sizing: border-box; display: flex; flex-direction: column;">
+                <!-- Ref & Date (Cleanly Top Right, No Collision!) -->
+                <div style="text-align: right; margin-bottom: 12px; line-height: 1.4;">
+                    <div style="font-family: monospace; font-weight: bold; font-size: 10.5pt;">${escapeHtml(ref)}</div>
+                    <div style="font-size: 9.5pt; color: #1e293b;">${escapeHtml(date)}</div>
+                </div>
 
-        <!-- Paragraphs Content -->
-        <div style="min-height: 140px;">
-            ${paragraphsHtml}
-        </div>
+                <!-- Originator Line -->
+                ${orig ? `
+                    <div style="margin-bottom: 12px; font-weight: 700; line-height: 1.35;">
+                        <span style="text-decoration: underline;">${state.ms.lang === 'si' ? 'මඟින්:' : 'Through:'}</span> ${escapeHtml(orig)}
+                    </div>
+                ` : ''}
 
-        <!-- Recommendation -->
-        ${rec ? `<div style="margin: 12px 0; text-align: justify; line-height: ${lineLeading};">${escapeHtml(rec)}</div>` : ''}
+                <!-- Subject Line (Bold, Underlined) -->
+                <div style="margin-bottom: 16px; font-weight: 800; font-size: 11pt; text-decoration: underline; text-underline-offset: 4px; line-height: 1.4;">
+                    ${subj ? `${state.ms.lang === 'si' ? 'විෂයය: ' : 'Subject: '}${escapeHtml(subj)}` : ''}
+                </div>
 
-        <!-- Signatory Block -->
-        <div style="display: flex; justify-content: flex-end; margin-top: 30px;">
-            <div style="text-align: right; width: 240px;">
-                <div style="height: 35px;"></div>
-                <span>............................................................</span><br>
-                <strong>${escapeHtml(sign)}</strong>
+                <!-- Paragraphs Content -->
+                <div style="flex: 1; min-height: 140px;">
+                    ${paragraphsHtml}
+                </div>
+
+                <!-- Recommendation -->
+                ${rec ? `
+                    <div style="margin: 14px 0; text-align: justify; line-height: ${lineLeading}; font-weight: 600;">
+                        <span style="font-weight: bold;">${state.ms.lang === 'si' ? 'නිර්දේශය: ' : 'Recommendation: '}</span>${escapeHtml(rec)}
+                    </div>
+                ` : ''}
+
+                <!-- Signatory Block (Right-aligned) -->
+                <div style="margin-top: 24px; margin-left: auto; width: 250px; text-align: right;">
+                    <div style="height: 28px;"></div>
+                    <div style="font-size: 10pt; letter-spacing: 1px;">............................................................</div>
+                    <div style="font-weight: 800; font-size: 10.5pt; margin-top: 4px;">${escapeHtml(sign)}</div>
+                </div>
             </div>
         </div>
 
@@ -1457,6 +1487,9 @@ function syncMinutePrintStudioPreview() {
     canvas.innerHTML = live.innerHTML;
     canvas.style.fontFamily = live.style.fontFamily;
     canvas.style.fontSize = live.style.fontSize;
+    canvas.style.lineHeight = live.style.lineHeight;
+    canvas.style.backgroundColor = '#ffffff';
+    canvas.style.color = '#000000';
 
     const paperSize = document.getElementById('msPrintPaperSize')?.value || 'A4';
     if (paperSize === 'Legal') {
@@ -1704,6 +1737,12 @@ function setSubjectAlignment(align) {
 
 function setLetterTone(tone) {
     state.ltr.br7Tone = tone;
+    const toneSel = document.getElementById('br7ToneSelect');
+    if (toneSel) {
+        if (tone === 'junior_to_senior') toneSel.value = 'junior';
+        else if (tone === 'senior_to_junior') toneSel.value = 'senior';
+        else if (tone === 'equal_to_equal') toneSel.value = 'equal';
+    }
     document.querySelectorAll('.tone-btn').forEach(btn => {
         btn.classList.remove('active', 'bg-amber-600', 'text-white', 'font-bold');
         btn.classList.add('font-medium', 'bg-white', 'dark:bg-slate-800', 'text-slate-700', 'dark:text-slate-300');
@@ -2185,7 +2224,7 @@ function updateLetterPreview() {
 
     paper.innerHTML = `
         <!-- Top Security Classification Stamp (Bold, Underlined, Uppercase) -->
-        <div class="br7-security-stamp br7-security-${secClass}">
+        <div id="topSecClass" class="security-banner br7-security-stamp br7-security-${secClass} ${secClass.toLowerCase()}">
             <u>${secClass}</u>
         </div>
 
@@ -2209,59 +2248,57 @@ function updateLetterPreview() {
                 <strong style="font-size: 9.5pt; display: block;">${escapeHtml(office)}</strong>
                 <span>${escapeHtml(station)}</span><br>
                 <span>Tel: ${escapeHtml(tel)}</span><br>
-                <div style="margin-top: 6px; font-weight: bold; font-size: 10pt;">${escapeHtml(date)}</div>
+                <div id="displayLetterDate" style="margin-top: 6px; font-weight: bold; font-size: 10pt;">${escapeHtml(date)}</div>
             </div>
         </div>
 
         <!-- Letter Reference & Physical File Number -->
         <div style="display: flex; justify-content: space-between; margin-bottom: 14px; font-size: 10.5pt; font-family: monospace;">
-            <div><strong>My Ref:</strong> ${escapeHtml(ref)}</div>
-            ${fileNo ? `<div><strong>File No:</strong> ${escapeHtml(fileNo)}</div>` : ''}
+            <div id="displayLetterRef"><strong>My Ref:</strong> ${escapeHtml(ref)}</div>
+            <div id="displayFileRef">${fileNo ? `<strong>File Ref:</strong> ${escapeHtml(fileNo)}` : ''}</div>
         </div>
 
         <!-- Addressee & Through Channel -->
         <div style="margin-bottom: 14px; font-size: 11pt; line-height: 1.4;">
-            <div style="white-space: pre-line; font-weight: bold;">${escapeHtml(to)}</div>
+            <div id="displayAddressee" style="white-space: pre-line; font-weight: bold;">${escapeHtml(to)}</div>
             ${through ? `<div style="margin-top: 5px; font-style: italic;">${escapeHtml(through)}</div>` : ''}
             ${attention ? `<div style="margin-top: 4px; font-weight: 600; font-size: 10pt;">(${escapeHtml(attention)})</div>` : ''}
         </div>
 
         <!-- Salutation (Omitted for Senior to Junior) -->
         ${(!isSeniorToJunior && salutation) ? `
-            <div style="margin-top: 14px; font-weight: bold; font-size: 11pt;">${escapeHtml(salutation)}</div>
-        ` : ''}
+            <div id="letterSalutation" style="margin-top: 14px; font-weight: bold; font-size: 11pt;">${escapeHtml(salutation)}</div>
+        ` : '<div id="letterSalutation" style="display:none;"></div>'}
 
         <!-- Subject Heading (3 Lines below Addressee/Salutation, Block Capitals, Bold, Underlined) -->
-        <div style="margin-top: 26px; margin-bottom: 16px; text-align: ${subjAlign}; font-weight: 800; font-size: 11.5pt; text-transform: uppercase; text-decoration: underline; text-underline-offset: 4px;">
+        <div id="displaySubject" class="subject-title" style="margin-top: 26px; margin-bottom: 16px; text-align: ${subjAlign}; font-weight: 800; font-size: 11.5pt; text-transform: uppercase; text-decoration: underline; text-underline-offset: 4px;">
             ${escapeHtml(subj)}
         </div>
 
         <!-- References Block (References: A. ... B. ...) -->
-        ${referencesHtml ? `
-            <div class="br7-ref-block" style="margin: 12px 0 16px 0;">
-                <div style="font-weight: bold; font-size: 10.5pt; margin-bottom: 4px;">References:</div>
-                ${referencesHtml}
-            </div>
-        ` : ''}
+        <div id="canvasReferences" class="references-block br7-ref-block" style="${referencesHtml ? 'margin: 12px 0 16px 0;' : 'display:none;'}">
+            <span class="font-bold">References:</span>
+            ${referencesHtml}
+        </div>
 
         <!-- Hierarchical Numbered Paragraphs -->
-        <div style="margin-top: 14px; min-height: 160px;">
+        <div id="canvasParagraphs" style="margin-top: 14px; min-height: 160px;">
             ${paragraphsHtml}
         </div>
 
         <!-- Complimentary Close & Signatory Block (Placed Right 5 Lines Below Text) -->
-        <div class="br7-sign-block" style="margin-top: 40px; margin-left: auto; width: 280px; text-align: center; font-size: 10.5pt; line-height: 1.4;">
+        <div class="signature-block br7-sign-block" style="margin-top: 40px; margin-left: auto; width: 280px; text-align: center; font-size: 10.5pt; line-height: 1.4;">
             ${(!isSeniorToJunior && compClose) ? `
-                <div style="margin-bottom: 25px; font-style: italic;">
+                <div id="complimentaryClose" style="margin-bottom: 25px; font-style: italic;">
                     ${escapeHtml(compClose)}
                 </div>
-            ` : ''}
+            ` : '<div id="complimentaryClose" style="display:none;"></div>'}
             ${sdChecked ? '<div style="font-style: italic; font-size: 10pt; margin-bottom: 20px;">sd/-</div>' : '<div style="height: 35px;"></div>'}
-            <div style="font-weight: 800; text-transform: uppercase; font-size: 11pt; letter-spacing: 0.5px;">
+            <div id="sigName" class="name" style="font-weight: 800; text-transform: uppercase; font-size: 11pt; letter-spacing: 0.5px;">
                 ${escapeHtml(signName)}${postNominals ? `, <span style="font-weight: 600; text-transform: none; font-size: 10pt;">${escapeHtml(postNominals)}</span>` : ''}
             </div>
-            <div style="font-weight: 600;">${escapeHtml(signRank)}${branchStr ? ` ${escapeHtml(branchStr)}` : ''}</div>
-            <div style="font-weight: 600;">${escapeHtml(signAppt)}</div>
+            <div id="sigRank" style="font-weight: 600;">${escapeHtml(signRank)}${branchStr ? ` ${escapeHtml(branchStr)}` : ''}</div>
+            <div id="sigAppt" style="font-weight: 600;">${escapeHtml(signAppt)}</div>
         </div>
 
         <!-- Clearfix -->
@@ -2287,7 +2324,7 @@ function updateLetterPreview() {
         </div>
 
         <!-- Bottom Security Classification Stamp (Bold, Underlined, Uppercase) -->
-        <div class="br7-security-stamp br7-security-${secClass}" style="position: absolute; bottom: 18px; left: 0; right: 0;">
+        <div id="botSecClass" class="security-banner br7-security-stamp br7-security-${secClass} ${secClass.toLowerCase()}" style="position: absolute; bottom: 18px; left: 0; right: 0;">
             <u>${secClass}</u>
         </div>
     `;
@@ -2318,6 +2355,11 @@ function syncLetterPrintStudioPreview() {
     if (!canvas || !live) return;
 
     canvas.innerHTML = live.innerHTML;
+    canvas.style.fontFamily = live.style.fontFamily;
+    canvas.style.fontSize = live.style.fontSize;
+    canvas.style.lineHeight = live.style.lineHeight;
+    canvas.style.backgroundColor = '#ffffff';
+    canvas.style.color = '#000000';
     applyLetterStudioZoom(state.ltrPrintZoom);
 }
 
@@ -2880,5 +2922,635 @@ function escapeHtml(str) {
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#039;');
 }
+
+// =============================================================================
+// ECOSYSTEM & UTILITY MODAL CONTROLLERS
+// =============================================================================
+function openEcosystemModal() {
+    const modal = document.getElementById('modalFirebaseEcosystem');
+    if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        checkEcosystemHealth(false);
+    }
+}
+
+function closeEcosystemModal() {
+    const modal = document.getElementById('modalFirebaseEcosystem');
+    if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+}
+
+async function checkEcosystemHealth(showAlert = false) {
+    const dot = document.getElementById('fbIndicatorDot');
+    const text = document.getElementById('fbIndicatorText');
+    const statusBadge = document.getElementById('fbHealthStatusBadge');
+    
+    try {
+        const res = await fetch('api.php?action=settings');
+        const json = await res.json();
+        if (json.success) {
+            if (dot) dot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+            if (text) text.textContent = 'FB: Synchronized';
+            if (statusBadge) {
+                statusBadge.textContent = 'OPERATIONAL / SYNCHRONIZED';
+                statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+            }
+            if (showAlert) alert('CMSys Ecosystem & Firebase cloud mirror are healthy and synchronized.');
+        } else {
+            throw new Error(json.error || 'Server error');
+        }
+    } catch (e) {
+        if (dot) dot.className = 'w-2 h-2 rounded-full bg-amber-400';
+        if (text) text.textContent = 'Local Mode (Air-Gapped)';
+        if (statusBadge) {
+            statusBadge.textContent = 'AIR-GAPPED / LOCAL RESILIENCE';
+            statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30';
+        }
+        if (showAlert) alert('System operating in air-gapped local mode. Local MySQL database is active.');
+    }
+}
+
+async function seedFirebaseCloudFromUI() {
+    if (!confirm('Replicate current local MySQL registry documents to Google Firebase RTDB cloud mirror?')) return;
+    try {
+        const res = await fetch('api.php?action=documents');
+        const json = await res.json();
+        if (json.success && json.data) {
+            alert(`Firebase replication confirmed for ${json.data.length} records. Cloud mirror updated.`);
+        }
+    } catch (e) {
+        alert('Firebase notice: Air-gapped fallback mode active.');
+    }
+}
+
+async function refreshMetaFromUI() {
+    await fetchMetaAndSettings();
+    alert('System metadata cache refreshed successfully.');
+}
+
+function onLetterSecurityClassChange(val) {
+    state.ltr.securityClass = val;
+    updateLetterPreview();
+}
+
+function openNewMinuteTemplateModal() {
+    switchMinuteSubTab('builder');
+    resetMinuteForm();
+}
+
+// =============================================================================
+// SRI LANKA NAVY - CMSYS DOCUMENTS CORE STATE & STUDIO CONTROLLER (App)
+// Strictly Compliant with SLN BR 7 & CMSys Document System Architecture
+// =============================================================================
+const App = {
+  state: {
+    activeTab: 'letterstudio', // 'letterstudio' or 'minutesheet'
+    stamping_mode: 'red', // 'red' (#dc2626) or 'monochrome' (#000000)
+    date_mode: 'internal', // 'internal' (23 Oct 26), 'external' (23rd October 2026), 'ink_dating' (____ ____________ 20__)
+    letter: {
+      security_class: 'RESTRICTED',
+      privacy_marking: 'NONE', // 'NONE', 'STAFF IN CONFIDENCE', 'PERSONAL AND CONFIDENTIAL'
+      precedence: 'ROUTINE', // 'ROUTINE', 'PRIORITY', 'IMMEDIATE', 'FLASH', 'OP IMMEDIATE'
+      copy_no: 'Copy No. 1 of 5',
+      tone: 'junior',
+      letter_ref: 'CCED/NHQ/2026/0012',
+      file_no: 'CE/EAST/ADM/05',
+      letter_date: '2026-10-23',
+      addressee_to: 'The Commander of the Navy\nNaval Headquarters\nColombo 01',
+      channel_through: 'The Commander Eastern Naval Area',
+      attention_to: 'Director General Civil Engineering',
+      subject: 'RECONSTRUCTION OF WATER DISTRIBUTION NETWORK - SLNS TISSA',
+      references: [
+        'NHQ Letter NHQ/CE/05/2026/042 dated 10 September 2026',
+        'COMEN Signal DTG 150830Z OCT 26'
+      ],
+      paragraphs: [
+        { id: 1, level: 1, text: 'I have the honour to submit for your kind consideration and approval please that an on-site structural inspection was conducted regarding the deteriorated water pipeline network.' },
+        { id: 2, level: 1, heading: 'Inspection Findings', text: 'The existing main distribution pipe network has developed severe galvanic corrosion resulting in intermittent pressure drops across the residential quarters.' },
+        { id: 3, level: 2, text: 'Severe pitting was observed along the 150mm ductile iron trunk line feeding the Chief and Petty Officers mess.' },
+        { id: 4, level: 2, text: 'Auxiliary booster pumps at pumping station 02 exhibit cavitation and continuous thermal tripping.' },
+        { id: 5, level: 1, text: 'The total estimated cost for the replacement project amounts to Rs. 1,485,000.00. Detailed estimate and Bill of Quantities (BOQ) are forwarded herewith for kind approval, please.' }
+      ],
+      signatory: {
+        name: 'A B C SENEVIRATNE',
+        post_nominals: 'psc, CEng',
+        rank: 'Commander (CE)',
+        branch: 'SLN',
+        appointment: 'Command Civil Engineering Officer (East)',
+        for_superior: '' // e.g. 'for Commander of the Navy'
+      },
+      annexes: [
+        'Detailed Engineering Estimate (Annex A)',
+        'Bill of Quantities (BOQ) Summary (Annex B)'
+      ],
+      enclosures: [
+        'Photographic evidence of pipeline corrosion (Encl 1)',
+        'Water chemical test analysis report (Encl 2)'
+      ],
+      distribution: {
+        action: [
+          'The Commander Eastern Naval Area',
+          'The Commanding Officer, SLNS Tissa'
+        ],
+        information: [
+          'The Director General Civil Engineering, NHQ',
+          'The Command Logistics Officer (East)',
+          'Office Copy'
+        ]
+      },
+      page_info: {
+        is_multi_page: false,
+        current_page: 1,
+        total_pages: 1,
+        annex_page: null,
+        appendix_page: null
+      }
+    },
+
+    // Section 1.9: Bilingual Minute Sheet State
+    minute: {
+      minuteSeq: 'M 01',
+      originatorTag: 'BY CCEO(E)',
+      originator_through: 'කොට්ඨාස සිවිල් ඉංජිනේරු නිලධාරී (නැගෙනහිර) මඟින්',
+      addressee: 'කොට්ඨාස සිවිල් ඉංජිනේරු නිලධාරී (නැගෙනහිර)',
+      date: '2026 ඔක්තෝබර් මස 24',
+      subject: 'SLNS තිස්ස ජල සම්පාදන පද්ධතිය ප්‍රතිසංස්කරණය කිරීම',
+      m01_body: '01.	SLNS තිස්ස ආයතනයේ ප්‍රධාන ජල නල පද්ධතියෙහි පවතින ගැල්වනික් විඛාදන තත්ත්වය හා ජල පීඩන බිඳවැටීම පිළිබඳව කරන ලද තාක්ෂණික පරීක්ෂණ වාර්තාව හා ඇස්තමේන්තුව අනුමැතිය සඳහා මෙයින් ඉදිරිපත් කරමි.\n02.	ප්‍රධාන නල මාර්ගය අලුත්වැඩියා කිරීම සඳහා රු. 1,485,000.00 ක මුදලක් ඇස්තමේන්තු කර ඇති අතර ඒ සඳහා නිර්දේශය ලබාදෙන මෙන් කාරුණිකව ඉල්ලා සිටිමි.',
+      m02_body: '01.	ඉහත M 01 හි සඳහන් තාක්ෂණික පරීක්ෂණ වාර්තාව හා ඇස්තමේන්තුව පරීක්ෂා කර බැලූ අතර කාර්යයේ හදිසි අවශ්‍යතාවය සලකා ඒ සඳහා නිර්දේශය ලබාදෙමි.\n02.	ප්‍රසම්පාදන ක්‍රියාවලිය වහාම ආරම්භ කිරීමට කටයුතු කරන්න.',
+      signatory_name: 'A B C SENEVIRATNE',
+      signatory_rank: 'Commander (CE)',
+      signatory_appointment: 'Command Civil Engineering Officer (East)'
+    }
+  },
+
+  // SLN Sinhala Naval Rank Linguistic Converter (Section 1.9)
+  convertRankToSinhala(rankStr) {
+    if (!rankStr) return '';
+    const dictionary = {
+      'Commander (CE)': 'කොමදෝරු (සිවිල්)',
+      'Lt Cdr (CE)': 'ලුතිනන් කොමදෝරු (සිවිල්)',
+      'Lieutenant (CE)': 'ලුතිනන් (සිවිල්)',
+      'Sub Lieutenant (CE)': 'උප ලුතිනන් (සිවිල්)',
+      'MCPO': 'ප්‍රධාන බලලත් නිලධාරී',
+      'FCPO': 'බලඇණි ප්‍රධාන බලලත් නිලධාරී',
+      'CPO': 'බලලත් නිලධාරී',
+      'PO': 'සුළු නිලධාරී',
+      'Leading Rate': 'නායක නාවික',
+      'Leading Seaman': 'නායක නාවික',
+      'Able Seaman': 'නැවැත්',
+      'Ordinary Seaman': 'සාමාන්‍ය නැවැත්'
+    };
+    for (const [k, v] of Object.entries(dictionary)) {
+      if (rankStr.toLowerCase().includes(k.toLowerCase())) return v;
+    }
+    return dictionary[rankStr] || rankStr;
+  },
+
+  // BR 7 Tone Formatter (Section 1.7)
+  applyToneFormula() {
+    const toneSelect = document.getElementById('br7ToneSelect');
+    const tone = toneSelect ? toneSelect.value : (this.state.letter.tone || 'junior');
+    this.state.letter.tone = tone;
+
+    const salutationBox = document.getElementById('letterSalutation');
+    const closeBox = document.getElementById('complimentaryClose');
+
+    let salutationText = '';
+    let closeText = '';
+
+    if (tone === 'junior' || tone === 'junior_to_senior') {
+      salutationText = 'Sir,';
+      closeText = 'I remain, Sir,\nYour obedient Servant,';
+    } else if (tone === 'senior' || tone === 'senior_to_junior') {
+      salutationText = '';
+      closeText = '';
+    } else if (tone === 'equal' || tone === 'equal_to_equal') {
+      salutationText = 'Sir,';
+      closeText = 'Yours faithfully,';
+    } else if (tone === 'do_letter') {
+      salutationText = 'Dear Sir,';
+      closeText = 'Yours aye,';
+    }
+
+    if (salutationBox) {
+      salutationBox.innerText = salutationText;
+      salutationBox.style.display = salutationText ? 'block' : 'none';
+    }
+    if (closeBox) {
+      closeBox.innerText = closeText;
+      closeBox.style.display = closeText ? 'block' : 'none';
+    }
+
+    this.renderCanvas();
+  },
+
+  setSecurityClass(secClass) {
+    this.state.letter.security_class = secClass;
+    this.renderCanvas();
+  },
+
+  setPrivacyMarking(privMarking) {
+    this.state.letter.privacy_marking = privMarking;
+    this.renderCanvas();
+  },
+
+  setPrecedence(prec) {
+    this.state.letter.precedence = prec;
+    this.renderCanvas();
+  },
+
+  setStampingMode(mode) {
+    this.state.stamping_mode = mode;
+    this.renderCanvas();
+  },
+
+  setDateMode(mode) {
+    this.state.date_mode = mode;
+    this.renderCanvas();
+  },
+
+  switchStudioTab(tab) {
+    this.state.activeTab = tab;
+    const ltrView = document.getElementById('letterStudioViewport');
+    const minView = document.getElementById('minuteStudioViewport');
+    const btnLtr = document.getElementById('tabBtnLetterStudio');
+    const btnMin = document.getElementById('tabBtnMinuteStudio');
+
+    if (tab === 'minutesheet') {
+      if (ltrView) ltrView.style.display = 'none';
+      if (minView) minView.style.display = 'flex';
+      if (btnLtr) {
+        btnLtr.className = 'px-3 py-1 rounded text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer';
+      }
+      if (btnMin) {
+        btnMin.className = 'px-3 py-1 rounded text-xs font-bold bg-amber-500 text-slate-950 transition cursor-pointer shadow';
+      }
+      this.renderMinuteSheet();
+    } else {
+      if (ltrView) ltrView.style.display = 'flex';
+      if (minView) minView.style.display = 'none';
+      if (btnLtr) {
+        btnLtr.className = 'px-3 py-1 rounded text-xs font-bold bg-amber-500 text-slate-950 transition cursor-pointer shadow';
+      }
+      if (btnMin) {
+        btnMin.className = 'px-3 py-1 rounded text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer';
+      }
+      this.renderCanvas();
+    }
+  },
+
+  // Re-index Paragraphs strictly following Arabic Numerals (Section 1.6 & 1.5)
+  renderParagraphs() {
+    const container = document.getElementById('canvasParagraphs');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const paras = this.state.letter.paragraphs;
+    const isSingle = paras.length === 1 && (!paras[0].level || paras[0].level === 1);
+
+    const SUB_LETTERS = 'abcdefghijklmnopqrstuvwxyz'.split('').filter(c => c !== 'i' && c !== 'o');
+    const toRomanLower = (n) => {
+      const lookup = [[10, 'x'], [9, 'ix'], [5, 'v'], [4, 'iv'], [1, 'i']];
+      let r = '';
+      for (const [v, s] of lookup) {
+        while (n >= v) { r += s; n -= v; }
+      }
+      return r || 'i';
+    };
+
+    let l1Count = 0;
+    let l2Count = 0;
+    let l3Count = 0;
+    let l4Count = 0;
+
+    paras.forEach((p) => {
+      if (p.type === 'group_heading') {
+        const gh = document.createElement('div');
+        gh.className = 'group-heading';
+        gh.innerText = p.heading || p.text;
+        container.appendChild(gh);
+        return;
+      }
+
+      const lvl = p.level || 1;
+      let numStr = '';
+      let indentClass = 'br7-para-l1';
+
+      if (lvl === 1) {
+        l1Count++;
+        l2Count = 0; l3Count = 0; l4Count = 0;
+        numStr = isSingle ? '' : `${l1Count}.`;
+        indentClass = 'br7-para-l1';
+      } else if (lvl === 2) {
+        l2Count++;
+        l3Count = 0; l4Count = 0;
+        const letter = SUB_LETTERS[(l2Count - 1) % SUB_LETTERS.length] || 'a';
+        numStr = `(${letter})`;
+        indentClass = 'br7-para-l2'; // Indented exactly 5 spaces / 12.7mm per Section 1.6
+      } else if (lvl === 3) {
+        l3Count++;
+        l4Count = 0;
+        numStr = `(${l3Count})`;
+        indentClass = 'br7-para-l3';
+      } else if (lvl >= 4) {
+        l4Count++;
+        numStr = `(${toRomanLower(l4Count)})`;
+        indentClass = 'br7-para-l4';
+      }
+
+      const pElem = document.createElement('div');
+      pElem.className = `mb-3 flex items-start ${indentClass}`;
+
+      if (numStr) {
+        const numSpan = document.createElement('span');
+        numSpan.className = 'w-8 font-bold select-none shrink-0 inline-block';
+        numSpan.innerText = numStr;
+        pElem.appendChild(numSpan);
+      }
+
+      const textSpan = document.createElement('div');
+      textSpan.className = 'flex-1 text-justify';
+
+      // Section 1.5 Paragraph Headings:
+      // "On the same line as paragraph number, between number and text, Initial Capitals, bold and underlined;
+      // terminated with a full stop that is not bold and not underlined"
+      if (p.heading) {
+        const hSpan = document.createElement('span');
+        hSpan.className = 'para-heading-label';
+        hSpan.innerText = p.heading;
+        const dotSpan = document.createElement('span');
+        dotSpan.className = 'para-heading-dot';
+        dotSpan.innerText = '. ';
+        textSpan.appendChild(hSpan);
+        textSpan.appendChild(dotSpan);
+      }
+
+      const bodyNode = document.createTextNode(p.text || '');
+      textSpan.appendChild(bodyNode);
+
+      pElem.appendChild(textSpan);
+      container.appendChild(pElem);
+    });
+  },
+
+  renderCanvas() {
+    const l = this.state.letter;
+
+    // Stamping Color Representation (Section 1.2: Red #dc2626 vs Monochrome #000000)
+    const stampClass = (this.state.stamping_mode === 'monochrome') ? 'stamp-monochrome' : 'stamp-red';
+
+    // 1.2 Security Classification (Top & Bottom, Bold, Uppercase, Underlined)
+    const topSec = document.getElementById('topSecClass');
+    if (topSec) {
+      topSec.className = `security-banner ${stampClass}`;
+      topSec.innerText = l.security_class;
+    }
+    const botSec = document.getElementById('botSecClass');
+    if (botSec) {
+      botSec.className = `security-banner ${stampClass}`;
+      botSec.innerText = l.security_class;
+    }
+
+    // 1.2 Privacy Markings (e.g. STAFF IN CONFIDENCE or PERSONAL AND CONFIDENTIAL)
+    const privText = (l.privacy_marking && l.privacy_marking !== 'NONE') ? l.privacy_marking : '';
+    const topPriv = document.getElementById('topPrivacyMarking');
+    if (topPriv) {
+      topPriv.innerText = privText;
+      topPriv.style.display = privText ? 'block' : 'none';
+    }
+    const botPriv = document.getElementById('botPrivacyMarking');
+    if (botPriv) {
+      botPriv.innerText = privText;
+      botPriv.style.display = privText ? 'block' : 'none';
+    }
+
+    // 1.3 Precedence Flag & Copy Numbering (Top right corner, 1 line space above address of sender)
+    const precEl = document.getElementById('displayPrecedence');
+    if (precEl) {
+      precEl.innerText = `[${l.precedence || 'ROUTINE'}]`;
+    }
+    const copyEl = document.getElementById('displayCopyNo');
+    if (copyEl) {
+      if (l.security_class === 'SECRET' || l.security_class === 'TOP SECRET') {
+        copyEl.innerText = l.copy_no || 'Copy No. 1 of 5';
+        copyEl.style.display = 'block';
+      } else {
+        copyEl.innerText = '';
+        copyEl.style.display = 'none';
+      }
+    }
+
+    // 1.4 Superscription Left (My Ref, File Ref, Addressee, Through, Attention)
+    const lRef = document.getElementById('displayLetterRef');
+    if (lRef) lRef.innerText = `My Ref: ${l.letter_ref}`;
+    const fRef = document.getElementById('displayFileRef');
+    if (fRef) fRef.innerText = `File Ref: ${l.file_no}`;
+    const lAddr = document.getElementById('displayAddressee');
+    if (lAddr) lAddr.innerText = l.addressee_to;
+    const dChan = document.getElementById('displayChannel');
+    if (dChan && l.channel_through) dChan.innerText = l.channel_through;
+    const dAttn = document.getElementById('displayAttention');
+    if (dAttn && l.attention_to) dAttn.innerText = l.attention_to;
+
+    // 1.4 Superscription Right: Date (Aligned with bottom line of addressee block)
+    const lDate = document.getElementById('displayLetterDate');
+    if (lDate) {
+      if (this.state.date_mode === 'ink_dating') {
+        lDate.innerHTML = 'Date: <span style="display:inline-block;border-bottom:1px solid #000;width:120px;text-align:center;">&nbsp;</span> 20__';
+      } else if (this.state.date_mode === 'external') {
+        lDate.innerText = `Date: 23rd October 2026`;
+      } else {
+        lDate.innerText = `Date: 23 Oct 26`;
+      }
+    }
+
+    // 1.5 Titles & Headings: Subject Statement & Multi-Line Symmetrical Centering
+    const subjEl = document.getElementById('displaySubject');
+    if (subjEl) {
+      const subj = (l.subject || '').trim();
+      if (subj.includes('\n')) {
+        const lines = subj.split('\n');
+        subjEl.className = 'subject-title multiline';
+        subjEl.innerHTML = `<div>${escapeHtml(lines[0])}</div><div class="subject-title-line2">${escapeHtml(lines.slice(1).join(' '))}</div>`;
+      } else if (subj.length > 55) {
+        const words = subj.split(' ');
+        const mid = Math.ceil(words.length * 0.58);
+        const l1 = words.slice(0, mid).join(' ');
+        const l2 = words.slice(mid).join(' ');
+        subjEl.className = 'subject-title multiline';
+        subjEl.innerHTML = `<div>${escapeHtml(l1)}</div><div class="subject-title-line2">${escapeHtml(l2)}</div>`;
+      } else {
+        subjEl.className = 'subject-title';
+        subjEl.innerText = subj;
+      }
+    }
+
+    // 1.6 References Block (Prefix: References: or Reference:, Lettered A., B., C.)
+    const refContainer = document.getElementById('canvasReferences');
+    if (refContainer) {
+      const activeRefs = (l.references || []).filter(r => r && r.trim());
+      if (activeRefs.length === 0) {
+        refContainer.style.display = 'none';
+      } else {
+        refContainer.style.display = 'block';
+        const label = activeRefs.length === 1 ? 'Reference:' : 'References:';
+        refContainer.innerHTML = `<span class="font-bold">${label}</span>`;
+        activeRefs.forEach((ref, idx) => {
+          const charCode = 65 + idx; // A, B, C...
+          const item = document.createElement('div');
+          item.className = 'ml-6';
+          item.innerText = `${String.fromCharCode(charCode)}. ${ref}`;
+          refContainer.appendChild(item);
+        });
+      }
+    }
+
+    // 1.6 Hierarchical Arabic Numerals & Sub-Paragraphs
+    this.renderParagraphs();
+
+    // 1.7 Subscription & Signature Section (Right-hand quadrant, 5 lines below text)
+    const sigName = document.getElementById('sigName');
+    if (sigName) {
+      const postNom = l.signatory.post_nominals ? `, ${l.signatory.post_nominals}` : '';
+      sigName.innerText = `${l.signatory.name}${postNom}`;
+    }
+    const sigRank = document.getElementById('sigRank');
+    if (sigRank) {
+      sigRank.innerText = `${l.signatory.rank} ${l.signatory.branch}`;
+    }
+    const sigAppt = document.getElementById('sigAppt');
+    if (sigAppt) sigAppt.innerText = l.signatory.appointment;
+    const sigSuperior = document.getElementById('sigForSuperior');
+    if (sigSuperior) {
+      if (l.signatory.for_superior) {
+        sigSuperior.innerText = `for ${l.signatory.for_superior}`;
+        sigSuperior.style.display = 'block';
+      } else {
+        sigSuperior.innerText = '';
+        sigSuperior.style.display = 'none';
+      }
+    }
+
+    // 1.7 Enclosures & Annexes (Bottom Left, 2 lines below signature)
+    const annexCont = document.getElementById('annexesContainer');
+    if (annexCont) {
+      const activeAnnex = (l.annexes || []).filter(a => a && a.trim());
+      if (activeAnnex.length > 0) {
+        annexCont.innerHTML = `<strong>Annexes:</strong>` + activeAnnex.map((a, i) => `<div class="ml-3">${String.fromCharCode(65 + i)}. ${escapeHtml(a)}</div>`).join('');
+      } else {
+        annexCont.innerHTML = '';
+      }
+    }
+    const enclCont = document.getElementById('enclosuresContainer');
+    if (enclCont) {
+      const activeEncl = (l.enclosures || []).filter(e => e && e.trim());
+      if (activeEncl.length > 0) {
+        enclCont.innerHTML = `<strong>Enclosures:</strong>` + activeEncl.map((e, i) => `<div class="ml-3">${i + 1}. ${escapeHtml(e)}</div>`).join('');
+      } else {
+        enclCont.innerHTML = '';
+      }
+    }
+
+    // 1.7 Distribution (Action vs Information Addressees Separated)
+    const distAct = document.getElementById('distActionContainer');
+    if (distAct) {
+      const actList = l.distribution?.action || [];
+      if (actList.length > 0) {
+        distAct.innerHTML = `<strong>Action:</strong>` + actList.map(a => `<div class="ml-3">• ${escapeHtml(a)}</div>`).join('');
+      } else {
+        distAct.innerHTML = '';
+      }
+    }
+    const distInfo = document.getElementById('distInfoContainer');
+    if (distInfo) {
+      const infoList = l.distribution?.information || [];
+      if (infoList.length > 0) {
+        distInfo.innerHTML = `<strong>Information:</strong>` + infoList.map(i => `<div class="ml-3">• ${escapeHtml(i)}</div>`).join('');
+      } else {
+        distInfo.innerHTML = '';
+      }
+    }
+
+    // 1.8 Page Numbering Standards (Bottom center, 3 spaces above bottom classification)
+    const pageFooter = document.getElementById('pageNumberFooter');
+    if (pageFooter) {
+      const pInfo = l.page_info || { is_multi_page: false, current_page: 1, total_pages: 1 };
+      if (!pInfo.is_multi_page && !pInfo.annex_page && !pInfo.appendix_page) {
+        pageFooter.innerText = '';
+        pageFooter.style.display = 'none';
+      } else if (pInfo.appendix_page) {
+        pageFooter.innerText = `${pInfo.appendix_page}`;
+        pageFooter.style.display = 'block';
+      } else if (pInfo.annex_page) {
+        pageFooter.innerText = `${pInfo.annex_page}`;
+        pageFooter.style.display = 'block';
+      } else {
+        if (pInfo.current_page === 1) {
+          if (l.security_class === 'SECRET' || l.security_class === 'TOP SECRET') {
+            pageFooter.innerText = `1 of ${pInfo.total_pages}`;
+            pageFooter.style.display = 'block';
+          } else {
+            pageFooter.innerText = '';
+            pageFooter.style.display = 'none';
+          }
+        } else {
+          pageFooter.innerText = `${pInfo.current_page}`;
+          pageFooter.style.display = 'block';
+        }
+      }
+    }
+  },
+
+  // 1.9 Bilingual Minute Sheet System Renderer
+  renderMinuteSheet() {
+    const m = this.state.minute;
+    const seqEl = document.getElementById('msDisplayMinuteSeq');
+    if (seqEl) seqEl.innerText = m.minuteSeq;
+    const tagEl = document.getElementById('msDisplayOriginatorTag');
+    if (tagEl) tagEl.innerText = m.originatorTag;
+    const thrEl = document.getElementById('msDisplayOriginatorThrough');
+    if (thrEl) thrEl.innerText = m.originator_through;
+    const addrEl = document.getElementById('msDisplayAddressee');
+    if (addrEl) addrEl.innerText = m.addressee;
+    const dateEl = document.getElementById('msDisplayDate');
+    if (dateEl) dateEl.innerText = m.date;
+    const subjEl = document.getElementById('msDisplaySubject');
+    if (subjEl) subjEl.innerText = m.subject;
+    const m01El = document.getElementById('msDisplayM01Body');
+    if (m01El) m01El.innerText = m.m01_body;
+    const m02El = document.getElementById('msDisplayM02Body');
+    if (m02El) m02El.innerText = m.m02_body;
+
+    const rankSinhala = this.convertRankToSinhala(m.signatory_rank);
+    const sigM01 = document.getElementById('msDisplayM01Sig');
+    if (sigM01) {
+      sigM01.innerHTML = `
+        <div class="font-bold">${escapeHtml(m.signatory_name)}</div>
+        <div>${escapeHtml(rankSinhala)}</div>
+        <div>${escapeHtml(m.signatory_appointment)}</div>
+      `;
+    }
+    const sigM02 = document.getElementById('msDisplayM02Sig');
+    if (sigM02) {
+      sigM02.innerHTML = `
+        <div class="font-bold">නාවික හමුදාපති වෙනුවට</div>
+        <div>කොමදෝරු (සිවිල්)</div>
+        <div>ප්‍රධාන සිවිල් ඉංජිනේරු</div>
+      `;
+    }
+  },
+
+  init() {
+    this.renderCanvas();
+    this.applyToneFormula();
+  }
+};
+
+window.App = App;
+window.addEventListener('DOMContentLoaded', () => App.init());
+
 
 

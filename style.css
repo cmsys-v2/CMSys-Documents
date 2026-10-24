@@ -1,3 +1,7 @@
+/* Sri Lanka Navy CMSys - Military Typographic & Print Stylesheet */
+@import url('tailwind-static.css');
+@import url('fonts/sinhala-fonts.css');
+
 /* ==========================================================================
    CMSys Documents — Professional Dark-First Design System
    Naval Registry · Minute Sheet Studio · Navy BR 7 Letter Studio
@@ -8,6 +12,11 @@
    CSS CUSTOM PROPERTIES — Design Tokens
    -------------------------------------------------------------------------- */
 :root {
+    /* Military Palette Tokens */
+    --sln-navy: #0f172a;
+    --sln-gold: #c59b27;
+    --paper-bg: #ffffff;
+
     /* Brand Palette */
     --c-bg-base:       #080e1c;
     --c-bg-surface:    #0d1527;
@@ -20,9 +29,9 @@
     --c-border-base:   rgba(255,255,255,0.10);
     --c-border-strong: rgba(255,255,255,0.18);
 
-    --c-text-primary:  #e8edf5;
-    --c-text-secondary:#8fa3bf;
-    --c-text-muted:    #4e637d;
+    --c-text-primary:  #f1f5f9;
+    --c-text-secondary:#94a3b8;
+    --c-text-muted:    #64748b;
     --c-text-white:    #ffffff;
 
     /* Brand Accents */
@@ -248,9 +257,9 @@ html:not(.dark) .glass-header {
     border-color: var(--c-border-subtle) !important;
 }
 
-/* Override Tailwind dark:bg-slate-900 cards in our system */
-.dark .bg-white,
-.dark [class*="dark:bg-slate-900"] {
+/* Override Tailwind dark:bg-slate-900 cards in our system (EXCEPT paper sheets) */
+.dark .bg-white:not(.minute-sheet-paper):not(.br7-letter-paper):not([id*="Paper"]):not([id*="Canvas"]):not(.paper-sheet),
+.dark [class*="dark:bg-slate-900"]:not(.minute-sheet-paper):not(.br7-letter-paper):not([id*="Paper"]):not([id*="Canvas"]) {
     background-color: var(--c-bg-card) !important;
 }
 .dark [class*="dark:border-slate-800"] {
@@ -258,8 +267,30 @@ html:not(.dark) .glass-header {
 }
 
 /* --------------------------------------------------------------------------
-   METRIC / STAT CARDS
+   METRIC / STAT CARDS GRID & COMPONENTS
    -------------------------------------------------------------------------- */
+.metric-cards-grid {
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+    margin-top: 0 !important;
+}
+@media (max-width: 1200px) {
+    .metric-cards-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+}
+@media (max-width: 768px) {
+    .metric-cards-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+}
+@media (max-width: 480px) {
+    .metric-cards-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
 .dark .stat-card {
     background: linear-gradient(135deg, var(--c-bg-card) 0%, var(--c-bg-elevated) 100%);
     border: 1px solid var(--c-border-base);
@@ -538,8 +569,8 @@ html:not(.dark) .glass-header {
     backdrop-filter: blur(4px);
 }
 
-/* Override tailwind modal containers */
-.dark [class*="bg-white"][class*="rounded"] {
+/* Override tailwind modal containers (EXCEPT paper sheets) */
+.dark [class*="bg-white"][class*="rounded"]:not(.minute-sheet-paper):not(.br7-letter-paper):not([id*="Paper"]):not([id*="Canvas"]):not(.paper-sheet) {
     background: var(--c-bg-card) !important;
     border-color: var(--c-border-base) !important;
 }
@@ -801,8 +832,225 @@ input[type=range].cal-slider::-webkit-slider-thumb:hover {
 }
 
 /* --------------------------------------------------------------------------
-   NAVY BR 7 LETTER STYLES (Print paper — always white)
+   NAVY BR 7 LETTER STYLES & PAPER CANVAS SIMULATION (A4 Millimeter Calibration)
    -------------------------------------------------------------------------- */
+.paper-viewport {
+    background-color: #1e293b;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 24px 0;
+    overflow-y: auto;
+}
+
+.a4-canvas {
+    width: 210mm;
+    max-width: 794px;
+    min-width: 680px;
+    min-height: 297mm;
+    padding: 25.4mm 15mm 25.4mm 38.1mm; /* 1" Top/Bottom, 1.5" Left binding, 0.6" Right */
+    background: var(--paper-bg, #ffffff);
+    color: #000000;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    box-sizing: border-box;
+    position: relative;
+    font-size: 11pt;
+    line-height: 1.5;
+    margin: 0 auto;
+}
+
+/* Sinhala Specific Canvas Adjuster (Section 1.9) */
+.a4-canvas.lang-si,
+.minute-sheet-paper.lang-si,
+.br7-letter-paper.lang-si {
+    font-family: 'Abhaya Libre', 'Noto Serif Sinhala', serif;
+    line-height: 1.6 !important; /* Crucial to prevent diacritic clipping */
+}
+
+/* Strict BR 7 Layout Components (Section 1.2) */
+.security-banner {
+    text-align: center;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-decoration: underline;
+    letter-spacing: 1.5px;
+    font-size: 11pt;
+    line-height: 1.2;
+}
+
+/* Security Stamp Colors */
+.security-banner.stamp-red,
+.security-banner.restricted,
+.security-banner.secret { color: #dc2626 !important; }
+.security-banner.stamp-monochrome { color: #000000 !important; }
+
+/* Privacy Markings (Section 1.2) */
+.privacy-marking {
+    text-align: center;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-size: 10pt;
+    margin-top: 4px;
+    margin-bottom: 8px;
+    color: inherit;
+}
+
+/* Precedence & Copy Numbering (Section 1.3) */
+.precedence-top-right {
+    text-align: right;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    font-size: 9.5pt;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    color: #1e293b;
+}
+.copy-no-top-right {
+    text-align: right;
+    font-family: monospace, sans-serif;
+    font-size: 8.5pt;
+    font-weight: bold;
+    margin-bottom: 4px;
+    color: #000000;
+}
+
+/* Superscription Matrix (Section 1.4) */
+.header-grid {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+    font-size: 10pt;
+    line-height: 1.4;
+}
+
+.superscription-left {
+    width: 55%;
+    text-align: left;
+}
+
+.superscription-right {
+    width: 42%;
+    text-align: right;
+}
+
+/* Subject Statement & Multi-line Symmetrical Rule (Section 1.5) */
+.subject-title {
+    font-weight: bold;
+    text-transform: uppercase;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    margin: 24px 0 16px 0;
+    font-size: 11pt;
+    line-height: 1.45;
+    text-align: center;
+}
+
+.subject-title.align-left {
+    text-align: left;
+}
+
+.subject-title.multiline {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.subject-title-line2 {
+    max-width: 80%;
+    margin: 3px auto 0 auto;
+}
+
+/* Group Headings (Section 1.5) */
+.group-heading {
+    font-weight: bold;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    margin: 18px 0 8px 0;
+    text-align: left;
+    font-size: 11pt;
+}
+
+/* Paragraph Headings (Section 1.5) */
+.para-heading-label {
+    font-weight: bold;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+.para-heading-dot {
+    font-weight: normal;
+    text-decoration: none;
+    margin-right: 6px;
+}
+
+/* References Block (Section 1.6) */
+.references-block {
+    margin: 18px 0 16px 0;
+    font-size: 10.5pt;
+    line-height: 1.4;
+}
+
+/* Hierarchical Indentation (Section 1.6: 12.7mm = 5 spaces) */
+.br7-para-l1 { margin-left: 0; }
+.br7-para-l2 { margin-left: 12.7mm; }
+.br7-para-l3 { margin-left: 25.4mm; }
+.br7-para-l4 { margin-left: 38.1mm; }
+
+/* Subscription & Signature Blocks (Section 1.7: 5 lines space) */
+.signature-block {
+    margin-top: 35px;
+    float: right;
+    text-align: left;
+    min-width: 250px;
+    font-size: 10.5pt;
+    line-height: 1.4;
+}
+
+.signature-block .name {
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.signature-block .superior-delegation {
+    font-style: italic;
+    font-size: 9.5pt;
+    margin-top: 2px;
+}
+
+/* Enclosures & Annexes (Section 1.7: 2 lines below signature) */
+.enclosures-annexes-block {
+    clear: both;
+    margin-top: 24px;
+    font-size: 9.5pt;
+    line-height: 1.4;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Distribution Block (Section 1.7: Action vs Information) */
+.distribution-block {
+    margin-top: 14px;
+    font-size: 9.5pt;
+    line-height: 1.4;
+    border-top: 1px dashed #94a3b8;
+    padding-top: 10px;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Page Numbering Standards (Section 1.8) */
+.page-number-footer {
+    text-align: center;
+    font-size: 9pt;
+    position: absolute;
+    bottom: 35mm;
+    left: 0;
+    right: 0;
+    letter-spacing: 0.5px;
+}
+
 .br7-letter-paper {
     background-color: #ffffff !important;
     color: #000000 !important;
@@ -939,13 +1187,37 @@ input[type=range].cal-slider::-webkit-slider-thumb:hover {
 }
 
 /* --------------------------------------------------------------------------
-   PRINT MEDIA — Native Browser Print Rules
+   PRINT MEDIA — Native Browser & Isolated Print Dispatcher
    -------------------------------------------------------------------------- */
 @media print {
-    body * {
+    body {
+        background: #ffffff !important;
+        color: #000000 !important;
+    }
+
+    .no-print, .toolbar, .sidebar, .modal {
+        display: none !important;
+    }
+
+    .paper-viewport {
+        padding: 0 !important;
+        background: transparent !important;
+    }
+
+    .a4-canvas {
+        width: 100% !important;
+        height: auto !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+    }
+
+    /* When direct print iframe is injected, isolate to it */
+    body:has(#printDirectIframe) * {
         visibility: hidden !important;
     }
-    #printDirectIframe, #printDirectIframe * {
+    body:has(#printDirectIframe) #printDirectIframe,
+    body:has(#printDirectIframe) #printDirectIframe * {
         visibility: visible !important;
     }
     #printDirectIframe {
@@ -958,6 +1230,7 @@ input[type=range].cal-slider::-webkit-slider-thumb:hover {
         padding: 0 !important;
         border: none !important;
     }
+
     @page {
         size: A4 portrait;
         margin: 25.4mm 15mm 25.4mm 38.1mm;
@@ -1064,8 +1337,8 @@ input[type=range].cal-slider::-webkit-slider-thumb:hover {
 .dark .text-teal-400 { color: #2dd4bf !important; }
 .dark .text-teal-300 { color: #5eead4 !important; }
 
-/* Override all white backgrounds inside dark mode pages */
-.dark main .bg-white {
+/* Override all white backgrounds inside dark mode pages (EXCEPT paper sheets) */
+.dark main .bg-white:not(.minute-sheet-paper):not(.br7-letter-paper):not([id*="Paper"]):not([id*="Canvas"]):not(.paper-sheet) {
     background-color: var(--c-bg-card) !important;
 }
 
@@ -1088,11 +1361,109 @@ input[type=range].cal-slider::-webkit-slider-thumb:hover {
 }
 
 /* ==========================================================================
-   PRINT-SAFE: Ensure print paper white-on-white regardless of theme
+   AUTHENTIC NAVAL PHYSICAL PAPER SIMULATOR (IMMUNE TO ALL DARK INVERSIONS)
    ========================================================================== */
-@media screen {
-    .minute-sheet-paper,
-    .br7-letter-paper {
-        box-shadow: 0 12px 48px rgba(0,0,0,0.75), 0 0 0 1px rgba(255,255,255,0.05);
-    }
+.minute-sheet-paper,
+.br7-letter-paper,
+.a4-canvas,
+#minuteLivePaper,
+#letterLivePaper,
+#msStudioPaperCanvas,
+#ltrStudioPaperCanvas,
+.paper-sheet-print {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: 0 14px 50px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(0,0,0,0.12) !important;
+    position: relative;
+    box-sizing: border-box;
+}
+
+/* All text & borders inside physical paper remain black ink */
+.minute-sheet-paper *,
+.br7-letter-paper *,
+.a4-canvas *,
+#minuteLivePaper *,
+#letterLivePaper *,
+#msStudioPaperCanvas *,
+#ltrStudioPaperCanvas * {
+    color: #000000 !important;
+    border-color: #000000;
+}
+
+/* Except for official naval security classification stamps */
+.minute-sheet-paper .br7-security-RESTRICTED,
+.br7-letter-paper .br7-security-RESTRICTED,
+#minuteLivePaper .br7-security-RESTRICTED,
+#letterLivePaper .br7-security-RESTRICTED,
+#msStudioPaperCanvas .br7-security-RESTRICTED,
+#ltrStudioPaperCanvas .br7-security-RESTRICTED,
+.minute-sheet-paper .br7-security-RESTRICTED *,
+.br7-letter-paper .br7-security-RESTRICTED *,
+#minuteLivePaper .br7-security-RESTRICTED *,
+#letterLivePaper .br7-security-RESTRICTED *,
+#msStudioPaperCanvas .br7-security-RESTRICTED *,
+#ltrStudioPaperCanvas .br7-security-RESTRICTED * {
+    color: #b91c1c !important;
+}
+
+.minute-sheet-paper .br7-security-CONFIDENTIAL,
+.br7-letter-paper .br7-security-CONFIDENTIAL,
+#minuteLivePaper .br7-security-CONFIDENTIAL,
+#letterLivePaper .br7-security-CONFIDENTIAL,
+#msStudioPaperCanvas .br7-security-CONFIDENTIAL,
+#ltrStudioPaperCanvas .br7-security-CONFIDENTIAL,
+.minute-sheet-paper .br7-security-CONFIDENTIAL *,
+.br7-letter-paper .br7-security-CONFIDENTIAL *,
+#minuteLivePaper .br7-security-CONFIDENTIAL *,
+#letterLivePaper .br7-security-CONFIDENTIAL *,
+#msStudioPaperCanvas .br7-security-CONFIDENTIAL *,
+#ltrStudioPaperCanvas .br7-security-CONFIDENTIAL * {
+    color: #c2410c !important;
+}
+
+.minute-sheet-paper .br7-security-SECRET,
+.br7-letter-paper .br7-security-SECRET,
+#minuteLivePaper .br7-security-SECRET,
+#letterLivePaper .br7-security-SECRET,
+#msStudioPaperCanvas .br7-security-SECRET,
+#ltrStudioPaperCanvas .br7-security-SECRET,
+.minute-sheet-paper .br7-security-SECRET *,
+.br7-letter-paper .br7-security-SECRET *,
+#minuteLivePaper .br7-security-SECRET *,
+#letterLivePaper .br7-security-SECRET *,
+#msStudioPaperCanvas .br7-security-SECRET *,
+#ltrStudioPaperCanvas .br7-security-SECRET * {
+    color: #991b1b !important;
+}
+
+.minute-sheet-paper .br7-security-TOP_SECRET,
+.br7-letter-paper .br7-security-TOP_SECRET,
+#minuteLivePaper .br7-security-TOP_SECRET,
+#letterLivePaper .br7-security-TOP_SECRET,
+#msStudioPaperCanvas .br7-security-TOP_SECRET,
+#ltrStudioPaperCanvas .br7-security-TOP_SECRET,
+.minute-sheet-paper .br7-security-TOP_SECRET *,
+.br7-letter-paper .br7-security-TOP_SECRET *,
+#minuteLivePaper .br7-security-TOP_SECRET *,
+#letterLivePaper .br7-security-TOP_SECRET *,
+#msStudioPaperCanvas .br7-security-TOP_SECRET *,
+#ltrStudioPaperCanvas .br7-security-TOP_SECRET * {
+    color: #7f1d1d !important;
+    font-weight: 900 !important;
+}
+
+.minute-sheet-paper .br7-security-UNCLASSIFIED,
+.br7-letter-paper .br7-security-UNCLASSIFIED,
+#minuteLivePaper .br7-security-UNCLASSIFIED,
+#letterLivePaper .br7-security-UNCLASSIFIED,
+#msStudioPaperCanvas .br7-security-UNCLASSIFIED,
+#ltrStudioPaperCanvas .br7-security-UNCLASSIFIED,
+.minute-sheet-paper .br7-security-UNCLASSIFIED *,
+.br7-letter-paper .br7-security-UNCLASSIFIED *,
+#minuteLivePaper .br7-security-UNCLASSIFIED *,
+#letterLivePaper .br7-security-UNCLASSIFIED *,
+#msStudioPaperCanvas .br7-security-UNCLASSIFIED *,
+#ltrStudioPaperCanvas .br7-security-UNCLASSIFIED * {
+    color: #334155 !important;
 }
