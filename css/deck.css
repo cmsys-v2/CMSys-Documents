@@ -1972,3 +1972,32 @@ kbd {
 html:not(.dark) kbd { background: #fff; color: #17293d; border-color: rgba(15, 40, 70, .18); }
 .modal__panel--slim .keymap { grid-template-columns: 1fr; }
 .modal__panel--slim .modal__body { max-height: min(64vh, 520px); overflow-y: auto; }
+
+/* --------------------------------------------------------------------------
+   23. REGISTRY SKELETON (first-paint loading state)
+   -------------------------------------------------------------------------- */
+.skeleton-row td { padding: 11px 12px; border-bottom: 1px solid var(--line); }
+.sk {
+    display: block;
+    height: 9px;
+    width: 64%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, rgba(151, 190, 235, .07) 0%, rgba(151, 190, 235, .18) 45%, rgba(151, 190, 235, .07) 100%);
+    background-size: 220% 100%;
+    animation: cd-shimmer 1.35s linear infinite;
+}
+.sk--lg { width: 92%; }
+.sk--md { width: 78%; }
+.sk--sm { width: 48%; }
+.sk--xs { width: 30%; }
+html:not(.dark) .sk {
+    background: linear-gradient(90deg, rgba(15, 39, 64, .05) 0%, rgba(15, 39, 64, .13) 45%, rgba(15, 39, 64, .05) 100%);
+    background-size: 220% 100%;
+}
+@keyframes cd-shimmer {
+    from { background-position: 140% 0; }
+    to { background-position: -40% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .sk { animation: none; }
+}

@@ -335,19 +335,26 @@
                             <table class="data-table">
                                 <thead>
                                     <tr>
-                                        <th class="cell-idx">#</th>
-                                        <th>Registry reference</th>
-                                        <th>Flow / category</th>
-                                        <th>Dates</th>
-                                        <th>Origin / addressee</th>
-                                        <th class="cell-subject">Subject</th>
-                                        <th>Present position</th>
-                                        <th>Directed to</th>
-                                        <th>File no.</th>
-                                        <th class="cell-actions">Actions</th>
+                                        <th scope="col" class="cell-idx">#</th>
+                                        <th scope="col">Registry reference</th>
+                                        <th scope="col">Flow / category</th>
+                                        <th scope="col">Dates</th>
+                                        <th scope="col">Origin / addressee</th>
+                                        <th scope="col" class="cell-subject">Subject</th>
+                                        <th scope="col">Present position</th>
+                                        <th scope="col">Directed to</th>
+                                        <th scope="col">File no.</th>
+                                        <th scope="col" class="cell-actions">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody id="registryTableBody"></tbody>
+                                <tbody id="registryTableBody">
+                                <tr class="skeleton-row" aria-hidden="true"><td><span class="sk"></span></td><td><span class="sk sk--lg"></span></td><td><span class="sk sk--sm"></span></td><td><span class="sk sk--md"></span></td><td><span class="sk"></span></td><td><span class="sk sk--xs"></span></td></tr>
+                                <tr class="skeleton-row" aria-hidden="true"><td><span class="sk"></span></td><td><span class="sk sk--lg"></span></td><td><span class="sk sk--sm"></span></td><td><span class="sk sk--md"></span></td><td><span class="sk"></span></td><td><span class="sk sk--xs"></span></td></tr>
+                                <tr class="skeleton-row" aria-hidden="true"><td><span class="sk"></span></td><td><span class="sk sk--lg"></span></td><td><span class="sk sk--sm"></span></td><td><span class="sk sk--md"></span></td><td><span class="sk"></span></td><td><span class="sk sk--xs"></span></td></tr>
+                                <tr class="skeleton-row" aria-hidden="true"><td><span class="sk"></span></td><td><span class="sk sk--lg"></span></td><td><span class="sk sk--sm"></span></td><td><span class="sk sk--md"></span></td><td><span class="sk"></span></td><td><span class="sk sk--xs"></span></td></tr>
+                                <tr class="skeleton-row" aria-hidden="true"><td><span class="sk"></span></td><td><span class="sk sk--lg"></span></td><td><span class="sk sk--sm"></span></td><td><span class="sk sk--md"></span></td><td><span class="sk"></span></td><td><span class="sk sk--xs"></span></td></tr>
+                                <tr class="skeleton-row" aria-hidden="true"><td><span class="sk"></span></td><td><span class="sk sk--lg"></span></td><td><span class="sk sk--sm"></span></td><td><span class="sk sk--md"></span></td><td><span class="sk"></span></td><td><span class="sk sk--xs"></span></td></tr>
+                                </tbody>
                             </table>
                         </div>
 
@@ -867,8 +874,8 @@
                         <table class="data-table">
                             <thead>
                                 <tr>
-                                    <th>Letter ref</th><th>Date</th><th>Addressee</th><th class="cell-subject">Subject</th>
-                                    <th>Class</th><th>Status</th><th class="cell-actions">Action</th>
+                                    <th scope="col">Letter ref</th><th scope="col">Date</th><th scope="col">Addressee</th><th scope="col" class="cell-subject">Subject</th>
+                                    <th scope="col">Class</th><th scope="col">Status</th><th scope="col" class="cell-actions">Action</th>
                                 </tr>
                             </thead>
                             <tbody id="ltrDraftsTableBody"></tbody>
@@ -1267,7 +1274,7 @@
                     <div id="msSavedTableContainer" class="table-scroll">
                         <table class="data-table">
                             <thead>
-                                <tr><th>Minute ref</th><th>Serial</th><th>Subject</th><th>Originator</th><th>Date</th><th class="cell-actions">Action</th></tr>
+                                <tr><th scope="col">Minute ref</th><th scope="col">Serial</th><th scope="col">Subject</th><th scope="col">Originator</th><th scope="col">Date</th><th scope="col" class="cell-actions">Action</th></tr>
                             </thead>
                             <tbody id="msSavedTableBody"></tbody>
                         </table>
@@ -1415,7 +1422,7 @@
                             <div class="table-scroll">
                                 <table class="data-table">
                                     <thead>
-                                        <tr><th>Section</th><th>Category</th><th>Pattern</th><th>Next sequence</th><th>Preview</th><th class="cell-actions">Action</th></tr>
+                                        <tr><th scope="col">Section</th><th scope="col">Category</th><th scope="col">Pattern</th><th scope="col">Next sequence</th><th scope="col">Preview</th><th scope="col" class="cell-actions">Action</th></tr>
                                     </thead>
                                     <tbody id="cfgPrefixesTableBody"></tbody>
                                 </table>
@@ -1436,7 +1443,7 @@
                             <div class="table-scroll">
                                 <table class="data-table">
                                     <thead>
-                                        <tr><th>File no.</th><th>Title</th><th>Cabinet / rack</th><th>Box</th><th>Folder</th><th>Volume</th><th>Folios</th><th class="cell-actions">Action</th></tr>
+                                        <tr><th scope="col">File no.</th><th scope="col">Title</th><th scope="col">Cabinet / rack</th><th scope="col">Box</th><th scope="col">Folder</th><th scope="col">Volume</th><th scope="col">Folios</th><th scope="col" class="cell-actions">Action</th></tr>
                                     </thead>
                                     <tbody id="cfgFilesTableBody"></tbody>
                                 </table>

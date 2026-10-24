@@ -47,8 +47,18 @@
 }
 
 .registry-aside { display: flex; flex-direction: column; gap: 12px; }
+/* Below the two-column breakpoint the instruments stay on the desk — they
+   stack into a responsive row under the ledger instead of disappearing. */
 @media (max-width: 1459px) {
-    .registry-aside { display: none; }
+    .registry-grid { grid-template-columns: minmax(0, 1fr); }
+    .registry-aside {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(238px, 1fr));
+        align-items: start;
+    }
+}
+@media (max-width: 620px) {
+    .registry-aside { grid-template-columns: minmax(0, 1fr); }
 }
 
 .watch-item {

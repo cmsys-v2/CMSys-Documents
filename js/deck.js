@@ -382,6 +382,15 @@
             paint();
         });
 
+        /* If the registry read never resolves (air-gapped API fallback), clear the
+           skeleton so the empty state can speak instead of a permanent shimmer. */
+        setTimeout(() => {
+            const tbody = $('registryTableBody');
+            if (!tbody || !tbody.querySelector('.skeleton-row')) return;
+            if (window.Skin) Skin.refreshRegistry();
+            else tbody.innerHTML = '';
+        }, 6000);
+
         /* Auto-fit the active sheet when the viewport changes */
         let resizeTimer = null;
         window.addEventListener('resize', () => {
