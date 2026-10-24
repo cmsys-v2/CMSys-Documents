@@ -829,7 +829,7 @@
         const originatorTag = val('msInputOriginatorTag', state.ms.originatorTag || 'BY CCEO(E)');
         const secClass = (val('msInputSecurityClass', 'RESTRICTED') || 'RESTRICTED').toUpperCase();
 
-        const divPct = Math.min(100, Math.max(30, Number(state.ms.dividerWidth) || 100));
+        const divPct = Math.min(48, Math.max(28, Number(state.ms.dividerWidth) || 36));
         const rightMargin = Number(state.ms.rightMargin) || 20;
         const fontFamily = state.ms.fontFamily || "'Abhaya Libre', 'Noto Serif Sinhala', serif";
         const fontSize = Number(state.ms.fontSize) || 11;

@@ -967,3 +967,14 @@ html:not(.dark) .tab-pill.is-active { background: #fff; border-color: rgba(15, 4
     font-variant-numeric: tabular-nums;
 }
 .doc-card, .tpl-card { cursor: pointer; }
+
+/* Calibration panel labels (print studio sidebars) */
+.field > .mini-label {
+    display: block;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--ink-4);
+    margin-bottom: 4px;
+}

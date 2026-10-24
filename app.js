@@ -59,7 +59,7 @@ const state = {
         m02Text: 'නිර්දේශ කර ඉදිරිපත් කරමි.',
         m02Date: '2026 ඔක්තෝබර් මස 24',
         m02Signatory: 'කොට්ඨාස සිවිල් ඉංජිනේරු නිලධාරී (නැගෙනහිර)',
-        dividerWidth: 100, // percent (50% to 100%)
+        dividerWidth: 36, // address column width, percent of the sheet's text width
         rightMargin: 20, // mm
         fontFamily: "'Abhaya Libre', 'Noto Serif Sinhala', serif",
         fontSize: 11, // pt
@@ -845,9 +845,9 @@ function initMinuteSheetBuilder() {
 
     // Sync sliders with initial state
     const divSlider = document.getElementById('msDividerWidthSlider');
-    if (divSlider) divSlider.value = state.ms.dividerWidth || 100;
+    if (divSlider) divSlider.value = state.ms.dividerWidth || 36;
     const divBadge = document.getElementById('msDividerWidthBadge');
-    if (divBadge) divBadge.textContent = `${state.ms.dividerWidth || 100}%`;
+    if (divBadge) divBadge.textContent = `${state.ms.dividerWidth || 36}%`;
 
     const rmSlider = document.getElementById('msRightMarginSlider');
     if (rmSlider) rmSlider.value = state.ms.rightMargin || 20;
@@ -1277,6 +1277,16 @@ function syncMinutePrintStudioPreview() {
     const mBottom = document.getElementById('msPrintMarginBottom')?.value || 20;
     canvas.style.padding = `${mTop}mm ${mRight}mm ${mBottom}mm ${mLeft}mm`;
 
+    // Typography + column calibration
+    const fontPt = Number(document.getElementById('msPrintFontSize')?.value) || 11;
+    canvas.style.fontSize = `${fontPt}pt`;
+    if (state.ms.lang === 'si') canvas.style.lineHeight = String(Math.max(1.6, Number(state.ms.lineHeight) || 1.65));
+    const density = document.getElementById('msPrintDensity')?.value;
+    if (density) canvas.style.lineHeight = String(Math.max(state.ms.lang === 'si' ? 1.6 : 1.2, Number(density)));
+
+    const divPct = Number(document.getElementById('msPrintDividerPct')?.value) || 36;
+    canvas.querySelectorAll('.pp__ms-left').forEach((el) => { el.style.width = `${divPct}%`; });
+
     applyMinuteStudioZoom(state.msPrintZoom);
 }
 
@@ -1300,7 +1310,17 @@ function applyMinuteStudioZoom(zoom) {
 function executeMinuteDirectPrint() {
     const canvas = document.getElementById('msStudioPaperCanvas');
     if (!canvas) return;
-    printIsolatedHTML(canvas.innerHTML, "Naval Minute Sheet - " + state.ms.refNo);
+    const style = `font-family:${canvas.style.fontFamily};font-size:${canvas.style.fontSize};line-height:${canvas.style.lineHeight}`;
+    const mm = (id, fallback) => `${document.getElementById(id)?.value || fallback}mm`;
+    printIsolatedHTML(`<div style="${style}">${canvas.innerHTML}</div>`,
+        "Naval Minute Sheet - " + state.ms.refNo,
+        {
+            paper: document.getElementById('msPrintPaperSize')?.value || 'A4',
+            marginLeft: mm('msPrintMarginLeft', 20),
+            marginRight: mm('msPrintMarginRight', 20),
+            marginTop: mm('msPrintMarginTop', 20),
+            marginBottom: mm('msPrintMarginBottom', 20)
+        });
 }
 
 async function saveMinuteRecord() {
@@ -1876,11 +1896,24 @@ function syncLetterPrintStudioPreview() {
     if (!canvas || !live) return;
 
     canvas.innerHTML = live.innerHTML;
-    canvas.style.fontFamily = live.style.fontFamily;
-    canvas.style.fontSize = live.style.fontSize;
-    canvas.style.lineHeight = live.style.lineHeight;
+    canvas.style.fontFamily = live.style.fontFamily || "'Abhaya Libre', 'Noto Serif Sinhala', serif";
     canvas.style.backgroundColor = '#ffffff';
     canvas.style.color = '#000000';
+
+    // Typography calibration
+    const fontPt = Number(document.getElementById('ltrPrintFontSize')?.value) || 11;
+    const leading = Number(document.getElementById('ltrPrintLineSpacing')?.value) || 1.5;
+    canvas.style.fontSize = `${fontPt}pt`;
+    canvas.style.lineHeight = String(leading);
+
+    // Optional sheet furniture
+    const crest = document.getElementById('ltrPrintShowCrest');
+    const banner = document.getElementById('ltrPrintShowSecurityBanner');
+    const holes = document.getElementById('ltrPrintShowFilingHoles');
+    canvas.classList.toggle('is-crest-hidden', crest ? !crest.checked : false);
+    canvas.classList.toggle('is-banner-hidden', banner ? !banner.checked : false);
+    canvas.classList.toggle('is-holes-shown', holes ? holes.checked : true);
+
     applyLetterStudioZoom(state.ltrPrintZoom);
 }
 
@@ -1904,7 +1937,8 @@ function applyLetterStudioZoom(zoom) {
 function executeLetterDirectPrint() {
     const canvas = document.getElementById('ltrStudioPaperCanvas');
     if (!canvas) return;
-    printIsolatedHTML(canvas.innerHTML, "Navy BR 7 Letter - " + state.ltr.ref);
+    const style = `font-family:${canvas.style.fontFamily};font-size:${canvas.style.fontSize};line-height:${canvas.style.lineHeight}`;
+    printIsolatedHTML(`<div style="${style}">${canvas.innerHTML}</div>`, "Navy BR 7 Letter - " + state.ltr.ref);
 }
 
 async function saveLetterDraft() {
@@ -2342,7 +2376,7 @@ function openPrefixSettingsModal() {
 // =============================================================================
 // NATIVE ISOLATED PRINT ENGINE
 // =============================================================================
-function printIsolatedHTML(contentHTML, title = "CMSys Documents - Naval Document Print") {
+function printIsolatedHTML(contentHTML, title = "CMSys Documents - Naval Document Print", options = {}) {
     const iframe = document.getElementById('printDirectIframe');
     if (!iframe) return;
 
@@ -2360,8 +2394,8 @@ function printIsolatedHTML(contentHTML, title = "CMSys Documents - Naval Documen
             <link rel="stylesheet" href="css/paper.css">
             <style>
                 @page {
-                    size: A4 portrait;
-                    margin: 25.4mm 15mm 25.4mm 38.1mm;
+                    size: ${options.paper === 'Legal' ? 'Legal portrait' : 'A4 portrait'};
+                    margin: ${options.marginTop || '25.4mm'} ${options.marginRight || '15mm'} ${options.marginBottom || '25.4mm'} ${options.marginLeft || '38.1mm'};
                 }
                 @page :first {
                     @top-center { content: ""; }

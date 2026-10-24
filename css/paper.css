@@ -266,14 +266,15 @@
 
 .pp__close {
     margin: 8mm 0 0;
-    text-align: right;
+    text-align: left;
     font-style: italic;
     font-size: 10.5pt;
 }
 
+/* Closing and signature sit on the left margin, as on the original BR 7 form */
 .pp__sig {
-    margin: 4mm 0 0 auto;
-    width: 78mm;
+    margin: 4mm 0 0 0;
+    width: 86mm;
     text-align: left;
     font-size: 10pt;
     line-height: 1.5;
@@ -632,15 +633,28 @@
 /* --------------------------------------------------------------------------
    8. PREVIEW ALIGNMENT FIXES
    -------------------------------------------------------------------------- */
+/* Letterhead: precedence flag, crest, then the department block — all flush
+   right, with the reference block flush left. */
 .pp__origin {
     flex-direction: column;
     align-items: flex-end;
     text-align: right;
-    gap: 1.5mm;
+    gap: 1.6mm;
+    max-width: 84mm;
 }
-.pp__origin .pp__crest { order: -1; }
+.pp__origin .pp__corner { order: -2; }
+.pp__origin .pp__crest { order: -1; width: 15mm; }
+.pp__origin .pp__crest img { width: 15mm; height: 15mm; }
 .pp__origin-lines { text-align: right; }
-.pp__corner { text-align: right; }
+.pp__origin-lines b { letter-spacing: .05em; }
+.pp__corner { text-align: right; font-size: 8.5pt; letter-spacing: .12em; }
+
+/* A hairline under the letterhead separates it from the address block */
+.pp--letter .pp__head {
+    padding-bottom: 3mm;
+    border-bottom: .4pt solid rgba(0, 0, 0, .28);
+}
+.pp--letter .pp__addr { margin-top: 6mm; }
 
 /* Keep the paper's own separation from the drafting board intact while zoomed */
 .a4-canvas, .minute-sheet-paper, .br7-letter-paper { transform-origin: top center; }
@@ -649,4 +663,25 @@
 @media print {
     .a4-canvas::before, .minute-sheet-paper::before, .br7-letter-paper::before { display: none !important; }
     .pp { min-height: 0 !important; }
+}
+
+/* --------------------------------------------------------------------------
+   9. CALIBRATION CLASSES (print studio toggles)
+   -------------------------------------------------------------------------- */
+.is-crest-hidden .pp__crest { display: none !important; }
+.is-banner-hidden .pp__stamp { display: none !important; }
+.is-holes-shown::after {
+    content: '';
+    position: absolute;
+    top: 60mm;
+    left: 10.5mm;
+    width: 4.5mm;
+    height: 4.5mm;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0, 0, 0, .30) 0 55%, transparent 58%);
+    box-shadow: 0 150mm 0 rgba(0, 0, 0, .18);
+    pointer-events: none;
+}
+@media print {
+    .is-holes-shown::after { display: none; }
 }

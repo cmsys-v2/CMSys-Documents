@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="dark light">
     <meta name="theme-color" content="#050c16">
-    <title>CMSys Documents — Naval Correspondence & Registry Command Deck</title>
+    <title>CMSys Documents — Naval Correspondence &amp; Registry Command Deck</title>
     <link rel="icon" type="image/png" href="logo-crest.png">
 
     <!-- Offline typefaces: Sinhala + Latin -->
@@ -216,7 +216,7 @@
                     </div>
                     <div class="page-head__actions">
                         <button type="button" class="btn btn--ghost" onclick="refreshRegistryData()" title="Re-read the registry">
-                            <svg class="icon"><use href="#i-refresh"/></svg><span class="btn-label">Refresh</span>
+                            aria-label="Re-read the registry"><svg class="icon"><use href="#i-refresh"/></svg><span class="btn-label">Refresh</span>
                         </button>
                         <button type="button" class="btn btn--outline" onclick="openFileRegisterModal()">
                             <svg class="icon"><use href="#i-folder"/></svg><span class="btn-label">File register</span>
@@ -249,10 +249,10 @@
                     </div>
                     <div class="registry-bar__actions">
                         <button type="button" class="btn btn--sm btn--ghost" onclick="openPrefixSettingsModal()" title="Outgoing prefix registry">
-                            <svg class="icon"><use href="#i-flag"/></svg><span class="btn-label">Prefixes</span>
+                            aria-label="Outgoing prefix registry"><svg class="icon"><use href="#i-flag"/></svg><span class="btn-label">Prefixes</span>
                         </button>
                         <button type="button" class="btn btn--sm btn--ghost" onclick="Deck.printRegistry()" title="Print the current ledger view">
-                            <svg class="icon"><use href="#i-print"/></svg><span class="btn-label">Ledger</span>
+                            aria-label="Print the current ledger view"><svg class="icon"><use href="#i-print"/></svg><span class="btn-label">Ledger</span>
                         </button>
                     </div>
                 </div>
@@ -315,7 +315,7 @@
                                     <button type="button" id="flowTab-OUTGOING" class="flow-pill" onclick="setRegistryFlowFilter('OUTGOING')">Outward</button>
                                 </div>
                                 <button type="button" id="btnWideTable" class="btn btn--sm btn--ghost" onclick="toggleWideTableMode()" title="Wide table mode">
-                                    <svg class="icon"><use href="#i-maximize"/></svg>
+                                    aria-label="Wide table mode"><svg class="icon"><use href="#i-maximize"/></svg>
                                 </button>
                             </div>
                         </div>
@@ -367,7 +367,7 @@
                     </div>
 
                     <!-- Side instruments -->
-                    <aside class="registry-aside">
+                    <aside class="registry-aside" aria-label="Registry instruments">
                         <div class="panel">
                             <div class="panel__head">
                                 <div class="panel__title"><svg class="icon"><use href="#i-alert"/></svg> Overdue watch</div>
@@ -808,12 +808,12 @@
                         <div class="board__head">
                             <div class="board__title"><svg class="icon"><use href="#i-fit"/></svg> A4 stationery preview</div>
                             <div class="board__tools">
-                                <button type="button" class="btn btn--icon btn--sm btn--ghost" onclick="Deck.zoomLetter(-10)" title="Zoom out"><svg class="icon"><use href="#i-zoom-out"/></svg></button>
+                                <button type="button" class="btn btn--icon btn--sm btn--ghost" onclick="Deck.zoomLetter(-10)" title="Zoom out" aria-label="Zoom out"><svg class="icon"><use href="#i-zoom-out"/></svg></button>
                                 <span class="zoom-chip" id="ltrLiveZoomBadge">100%</span>
-                                <button type="button" class="btn btn--icon btn--sm btn--ghost" onclick="Deck.zoomLetter(10)" title="Zoom in"><svg class="icon"><use href="#i-zoom-in"/></svg></button>
-                                <button type="button" class="btn btn--icon btn--sm btn--ghost" onclick="Deck.fitLetter()" title="Fit"><svg class="icon"><use href="#i-fit"/></svg></button>
+                                <button type="button" class="btn btn--icon btn--sm btn--ghost" onclick="Deck.zoomLetter(10)" title="Zoom in" aria-label="Zoom in"><svg class="icon"><use href="#i-zoom-in"/></svg></button>
+                                <button type="button" class="btn btn--icon btn--sm btn--ghost" onclick="Deck.fitLetter()" title="Fit" aria-label="Fit"><svg class="icon"><use href="#i-fit"/></svg></button>
                                 <span style="width:1px;height:16px;background:var(--line-2)"></span>
-                                <button type="button" class="btn btn--icon btn--sm btn--ghost" onclick="Deck.toggleFocus()" title="Focus mode"><svg class="icon"><use href="#i-maximize"/></svg></button>
+                                <button type="button" class="btn btn--icon btn--sm btn--ghost" onclick="Deck.toggleFocus()" title="Focus mode" aria-label="Focus mode"><svg class="icon"><use href="#i-maximize"/></svg></button>
                                 <button type="button" class="btn btn--sm btn--primary" onclick="openLetterPrintStudioModal()">
                                     <svg class="icon"><use href="#i-print"/></svg> Print
                                 </button>
@@ -824,7 +824,7 @@
                             <span class="board__dim board__dim--left">297 mm</span>
                             <span class="board__dim board__dim--binding">binding edge 38.1 mm</span>
                             <div class="paper-wrap paper-wrap--binding" id="ltrPaperWrap">
-                                <div id="letterLivePaper" class="a4-canvas br7-letter-paper" aria-label="Live BR 7 letter preview"></div>
+                                <div id="letterLivePaper" class="a4-canvas br7-letter-paper" role="region" aria-label="Live BR 7 letter preview"></div>
                             </div>
                         </div>
                         <div class="board__foot">
@@ -924,7 +924,7 @@
                                     <option value="">⚡ Autofill from registry</option>
                                 </select>
                                 <button type="button" class="btn btn--xs btn--ghost" onclick="resetMinuteForm()" title="Reset the minute">
-                                    <svg class="icon"><use href="#i-refresh"/></svg>
+                                    aria-label="Reset the minute"><svg class="icon"><use href="#i-refresh"/></svg>
                                 </button>
                             </div>
                         </div>
@@ -1023,8 +1023,8 @@
                                 <div class="acc__body">
                                     <div class="form-grid form-grid--2">
                                         <div>
-                                            <div class="slider-row"><label for="msDividerWidthSlider">Divider width</label><output id="msDividerWidthBadge">100%</output></div>
-                                            <input type="range" id="msDividerWidthSlider" min="50" max="100" value="100" oninput="onMinuteDividerWidthSlider(this.value)">
+                                            <div class="slider-row"><label for="msDividerWidthSlider">Address column</label><output id="msDividerWidthBadge">36%</output></div>
+                                            <input type="range" id="msDividerWidthSlider" min="30" max="46" value="36" oninput="onMinuteDividerWidthSlider(this.value)">
                                         </div>
                                         <div>
                                             <div class="slider-row"><label for="msRightMarginSlider">Binding offset</label><output id="msRightMarginBadge">20 mm</output></div>
@@ -1213,10 +1213,10 @@
                             <div class="board__title"><svg class="icon"><use href="#i-fit"/></svg> Minute sheet preview</div>
                             <div class="board__tools">
                                 <span class="chip chip--sm" id="msLangChip">සිංහල</span>
-                                <button type="button" class="btn btn--icon btn--sm btn--ghost" onclick="Deck.zoomMinute(-10)" title="Zoom out"><svg class="icon"><use href="#i-zoom-out"/></svg></button>
+                                <button type="button" class="btn btn--icon btn--sm btn--ghost" onclick="Deck.zoomMinute(-10)" title="Zoom out" aria-label="Zoom out"><svg class="icon"><use href="#i-zoom-out"/></svg></button>
                                 <span class="zoom-chip" id="msLiveZoomBadge">100%</span>
-                                <button type="button" class="btn btn--icon btn--sm btn--ghost" onclick="Deck.zoomMinute(10)" title="Zoom in"><svg class="icon"><use href="#i-zoom-in"/></svg></button>
-                                <button type="button" class="btn btn--icon btn--sm btn--ghost" onclick="Deck.fitMinute()" title="Fit"><svg class="icon"><use href="#i-fit"/></svg></button>
+                                <button type="button" class="btn btn--icon btn--sm btn--ghost" onclick="Deck.zoomMinute(10)" title="Zoom in" aria-label="Zoom in"><svg class="icon"><use href="#i-zoom-in"/></svg></button>
+                                <button type="button" class="btn btn--icon btn--sm btn--ghost" onclick="Deck.fitMinute()" title="Fit" aria-label="Fit"><svg class="icon"><use href="#i-fit"/></svg></button>
                                 <button type="button" class="btn btn--sm btn--primary" onclick="openMinutePrintStudioModal()">
                                     <svg class="icon"><use href="#i-print"/></svg> Print
                                 </button>
@@ -1227,7 +1227,7 @@
                             <span class="board__dim board__dim--left">297 mm</span>
                             <span class="board__dim board__dim--binding">hole punch offset adjustable</span>
                             <div class="paper-wrap paper-wrap--binding" id="msPaperWrap">
-                                <div id="minuteLivePaper" class="a4-canvas minute-sheet-paper" aria-label="Live minute sheet preview"></div>
+                                <div id="minuteLivePaper" class="a4-canvas minute-sheet-paper" role="region" aria-label="Live minute sheet preview"></div>
                             </div>
                         </div>
                         <div class="board__foot">
@@ -1815,7 +1815,7 @@
             </button>
         </div>
         <div class="studio-modal-body">
-            <aside class="studio-modal-sidebar">
+            <aside class="studio-modal-sidebar" aria-label="Minute print calibration">
                 <div class="cal-group">
                     <div class="cal-group__title"><svg class="icon icon--sm"><use href="#i-file"/></svg> Paper stock</div>
                     <label class="field">
@@ -1847,24 +1847,23 @@
 
                 <div class="cal-group">
                     <div class="cal-group__title"><svg class="icon icon--sm"><use href="#i-palette"/></svg> Typography</div>
-                    <label class="field" style="margin-bottom:8px">
-                        <label for="msPrintFontSize">Base size</label>
+                    <div class="field">
+                        <span class="mini-label">Base size</span>
                         <select id="msPrintFontSize" class="select select--sm" onchange="syncMinutePrintStudioPreview()">
                             <option value="10">10 pt</option>
                             <option value="11" selected>11 pt</option>
                             <option value="12">12 pt</option>
                             <option value="13">13 pt</option>
                         </select>
-                    </label>
-                    <label class="field">
-                        <label for="msPrintDividerPct">Divider width</label>
+                    </div>
+                    <div class="field">
+                        <span class="mini-label">Address column</span>
                         <select id="msPrintDividerPct" class="select select--sm" onchange="syncMinutePrintStudioPreview()">
-                            <option value="30">30% (wide right)</option>
-                            <option value="33" selected>33% (standard)</option>
-                            <option value="38">38% (balanced)</option>
-                            <option value="42">42% (spacious)</option>
+                            <option value="30">30% (wide right pane)</option>
+                            <option value="36" selected>36% (standard form)</option>
+                            <option value="42">42% (spacious address)</option>
                         </select>
-                    </label>
+                    </div>
                 </div>
 
                 <div class="note">
@@ -1877,10 +1876,10 @@
                 <div class="studio-modal-canvas-head">
                     <span>A4 minute sheet · live calibration</span>
                     <div style="margin-left:auto;display:flex;align-items:center;gap:4px">
-                        <button type="button" class="btn btn--icon btn--sm btn--ghost" onclick="adjustMinuteStudioZoom(-10)"><svg class="icon"><use href="#i-zoom-out"/></svg></button>
+                        <button type="button" class="btn btn--icon btn--sm btn--ghost" onclick="adjustMinuteStudioZoom(-10)" title="Zoom out" aria-label="Zoom out"><svg class="icon"><use href="#i-zoom-out"/></svg></button>
                         <span class="zoom-chip" id="msStudioZoomBadge">100%</span>
-                        <button type="button" class="btn btn--icon btn--sm btn--ghost" onclick="adjustMinuteStudioZoom(10)"><svg class="icon"><use href="#i-zoom-in"/></svg></button>
-                        <button type="button" class="btn btn--icon btn--sm btn--ghost" onclick="setMinuteStudioZoomFit()"><svg class="icon"><use href="#i-fit"/></svg></button>
+                        <button type="button" class="btn btn--icon btn--sm btn--ghost" onclick="adjustMinuteStudioZoom(10)" title="Zoom in" aria-label="Zoom in"><svg class="icon"><use href="#i-zoom-in"/></svg></button>
+                        <button type="button" class="btn btn--icon btn--sm btn--ghost" onclick="setMinuteStudioZoomFit()" title="Fit to width" aria-label="Fit to width"><svg class="icon"><use href="#i-fit"/></svg></button>
                     </div>
                 </div>
                 <div id="msStudioCanvasScrollArea" class="studio-modal-canvas-scroll">
@@ -1915,7 +1914,7 @@
             </button>
         </div>
         <div class="studio-modal-body">
-            <aside class="studio-modal-sidebar">
+            <aside class="studio-modal-sidebar" aria-label="Letter print calibration">
                 <div class="cal-group">
                     <div class="cal-group__title"><svg class="icon icon--sm"><use href="#i-shield"/></svg> Stationery elements</div>
                     <label class="check" style="margin-bottom:8px"><input type="checkbox" id="ltrPrintShowCrest" checked onchange="syncLetterPrintStudioPreview()"> Unit crest</label>
@@ -1925,31 +1924,31 @@
 
                 <div class="cal-group">
                     <div class="cal-group__title"><svg class="icon icon--sm"><use href="#i-palette"/></svg> Typesetting</div>
-                    <label class="field" style="margin-bottom:8px">
-                        <label for="ltrPrintFontSize">Base size</label>
+                    <div class="field">
+                        <span class="mini-label">Base size</span>
                         <select id="ltrPrintFontSize" class="select select--sm" onchange="syncLetterPrintStudioPreview()">
                             <option value="10">10 pt</option>
                             <option value="11" selected>11 pt (standard BR 7)</option>
                             <option value="12">12 pt</option>
                         </select>
-                    </label>
-                    <label class="field">
-                        <label for="ltrPrintLineSpacing">Line spacing</label>
+                    </div>
+                    <div class="field">
+                        <span class="mini-label">Line spacing</span>
                         <select id="ltrPrintLineSpacing" class="select select--sm" onchange="syncLetterPrintStudioPreview()">
                             <option value="1.3">Compact (1.3)</option>
                             <option value="1.5" selected>Standard naval (1.5)</option>
                             <option value="1.7">Spacious (1.7)</option>
                         </select>
-                    </label>
+                    </div>
                 </div>
 
                 <div class="cal-group">
                     <div class="cal-group__title"><svg class="icon icon--sm"><use href="#i-fit"/></svg> Sheet contract</div>
                     <div class="margin-grid">
-                        <div><span class="mini-label">Width</span><input value="210 mm" readonly aria-label="Sheet width 210 millimetres"></div>
-                        <div><span class="mini-label">Height</span><input value="297 mm" readonly aria-label="Sheet height 297 millimetres"></div>
-                        <div><span class="mini-label">Top / bottom</span><input value="25.4 mm" readonly aria-label="Top and bottom margin 25.4 millimetres"></div>
-                        <div><span class="mini-label">Left binding</span><input value="38.1 mm" readonly aria-label="Left binding margin 38.1 millimetres"></div>
+                        <div><span class="mini-label">Width</span><input type="text" value="210 mm" readonly aria-label="Sheet width 210 millimetres"></div>
+                        <div><span class="mini-label">Height</span><input type="text" value="297 mm" readonly aria-label="Sheet height 297 millimetres"></div>
+                        <div><span class="mini-label">Top / bottom</span><input type="text" value="25.4 mm" readonly aria-label="Top and bottom margin 25.4 millimetres"></div>
+                        <div><span class="mini-label">Left binding</span><input type="text" value="38.1 mm" readonly aria-label="Left binding margin 38.1 millimetres"></div>
                     </div>
                 </div>
 
@@ -1963,10 +1962,10 @@
                 <div class="studio-modal-canvas-head">
                     <span>A4 BR 7 letter · live calibration</span>
                     <div style="margin-left:auto;display:flex;align-items:center;gap:4px">
-                        <button type="button" class="btn btn--icon btn--sm btn--ghost" onclick="adjustLetterStudioZoom(-10)"><svg class="icon"><use href="#i-zoom-out"/></svg></button>
+                        <button type="button" class="btn btn--icon btn--sm btn--ghost" onclick="adjustLetterStudioZoom(-10)" title="Zoom out" aria-label="Zoom out"><svg class="icon"><use href="#i-zoom-out"/></svg></button>
                         <span class="zoom-chip" id="ltrStudioZoomBadge">100%</span>
-                        <button type="button" class="btn btn--icon btn--sm btn--ghost" onclick="adjustLetterStudioZoom(10)"><svg class="icon"><use href="#i-zoom-in"/></svg></button>
-                        <button type="button" class="btn btn--icon btn--sm btn--ghost" onclick="setLetterStudioZoomFit()"><svg class="icon"><use href="#i-fit"/></svg></button>
+                        <button type="button" class="btn btn--icon btn--sm btn--ghost" onclick="adjustLetterStudioZoom(10)" title="Zoom in" aria-label="Zoom in"><svg class="icon"><use href="#i-zoom-in"/></svg></button>
+                        <button type="button" class="btn btn--icon btn--sm btn--ghost" onclick="setLetterStudioZoomFit()" title="Fit to width" aria-label="Fit to width"><svg class="icon"><use href="#i-fit"/></svg></button>
                     </div>
                 </div>
                 <div id="ltrStudioCanvasScrollArea" class="studio-modal-canvas-scroll">
