@@ -1,0 +1,652 @@
+/* ==========================================================================
+   CMSys DOCUMENTS — BR 7 PAPER & PRINT ENGINE
+   --------------------------------------------------------------------------
+   Millimetre-accurate ISO 216 A4 stationery, ceremonial document typography
+   and the CSS Paged Media print contract.
+
+   This file is deliberately self-contained (no design-system variables) so it
+   can also be injected into the isolated print iframe by printIsolatedHTML().
+
+   Page geometry (BR 7):
+       A4 210 x 297 mm
+       top 25.4 mm · bottom 25.4 mm · left 38.1 mm (binding) · right 15 mm
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. PAGE CONTRACT
+   -------------------------------------------------------------------------- */
+@page {
+    size: A4 portrait;
+    margin: 25.4mm 15mm 25.4mm 38.1mm;
+}
+@page :first {
+    @top-center { content: ''; }
+}
+.page-break {
+    page-break-after: always;
+    break-after: page;
+}
+
+/* --------------------------------------------------------------------------
+   2. THE SHEET
+   -------------------------------------------------------------------------- */
+.a4-canvas,
+.minute-sheet-paper,
+.br7-letter-paper {
+    position: relative;
+    box-sizing: border-box;
+    width: 210mm;
+    max-width: 100%;
+    min-height: 297mm;
+    padding: 25.4mm 15mm 25.4mm 38.1mm;   /* 1" / 1" / 0.59" / 1.5" */
+    margin: 0 auto;
+    background: #ffffff;
+    color: #000000;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, .15), 0 30px 90px -30px rgba(0, 0, 0, .85);
+    font-family: 'Abhaya Libre', 'Liberation Serif', 'Times New Roman', serif;
+    font-size: 11pt;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Sinhala diacritic safety: never below 1.6 leading */
+.a4-canvas.lang-si,
+.minute-sheet-paper.lang-si,
+.br7-letter-paper.lang-si,
+.pp--si {
+    font-family: 'Abhaya Libre', 'Noto Serif Sinhala', serif;
+    line-height: 1.6 !important;
+}
+
+/* Pale registration marks — screen only */
+@media screen {
+    .a4-canvas::before,
+    .minute-sheet-paper::before,
+    .br7-letter-paper::before {
+        content: '';
+        position: absolute;
+        top: 0; bottom: 0; left: 0;
+        width: 38.1mm;
+        border-right: 1px dashed rgba(220, 38, 38, .10);
+        pointer-events: none;
+    }
+}
+
+@media (max-width: 900px) {
+    .a4-canvas,
+    .minute-sheet-paper,
+    .br7-letter-paper {
+        width: 100%;
+        min-height: 0;
+        padding: 16mm 10mm 16mm 18mm;
+        font-size: 10pt;
+    }
+    .a4-canvas::before,
+    .minute-sheet-paper::before,
+    .br7-letter-paper::before { display: none; }
+}
+
+/* --------------------------------------------------------------------------
+   3. CLASSIFICATION, PRECEDENCE & COPY CONTROL  (BR 7 §1.2 – 1.3)
+   -------------------------------------------------------------------------- */
+.security-banner,
+.pp__stamp {
+    text-align: center;
+    font-family: 'GSans Variable', Arial, Helvetica, sans-serif;
+    font-weight: 700;
+    font-size: 11pt;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    line-height: 1.25;
+    color: #dc2626;               /* red stamp representation */
+}
+.security-banner.stamp-monochrome,
+.pp__stamp--mono { color: #000000; }
+.security-banner.stamp-red,
+.security-banner.restricted,
+.security-banner.secret { color: #dc2626; }
+
+.privacy-marking,
+.pp__privacy {
+    text-align: center;
+    font-family: 'GSans Variable', Arial, sans-serif;
+    font-weight: 700;
+    font-size: 9pt;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    margin-top: 3mm;
+    color: #111111;
+}
+
+.precedence-top-right,
+.pp__corner {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1.5mm;
+    font-family: 'GSans Variable', Arial, sans-serif;
+    font-size: 9pt;
+    letter-spacing: .10em;
+    text-transform: uppercase;
+}
+.pp__copy {
+    font-family: ui-monospace, 'Courier New', monospace;
+    font-size: 8.5pt;
+    letter-spacing: .04em;
+}
+
+/* --------------------------------------------------------------------------
+   4. DOCUMENT PRIMITIVES (new preview renderer, skin.js)
+   -------------------------------------------------------------------------- */
+.pp {
+    position: relative;
+    min-height: 246.2mm;                 /* 297 − 2 × 25.4 mm */
+    display: flex;
+    flex-direction: column;
+    color: #000;
+    font-size: 11pt;
+    line-height: 1.5;
+}
+.pp--si { line-height: 1.65; }
+
+.pp__stamp--top { margin-bottom: 1.5mm; }
+.pp__stamp--bottom { margin-top: auto; padding-top: 4mm; }
+.pp__privacy--bottom { margin: 2mm 0 0; }
+
+/* Three single-line spaces below the top marking */
+.pp__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10mm;
+    margin-top: 9mm;
+}
+.pp__corner--abs {
+    position: absolute;
+    top: 0;
+    right: 0;
+    text-align: right;
+}
+
+.pp__origin {
+    display: flex;
+    align-items: flex-start;
+    gap: 4mm;
+    max-width: 82mm;
+}
+.pp__crest { width: 17mm; flex: 0 0 auto; }
+.pp__crest img { width: 17mm; height: 17mm; object-fit: contain; }
+.pp__origin-lines {
+    font-family: 'GSans Variable', Arial, sans-serif;
+    font-size: 8pt;
+    line-height: 1.5;
+    letter-spacing: .015em;
+}
+.pp__origin-lines b {
+    display: block;
+    font-size: 8.5pt;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+.pp__date {
+    margin-top: 1.5mm;
+    font-weight: 700;
+    font-size: 10pt;
+    letter-spacing: .02em;
+}
+
+.pp__ref {
+    text-align: left;
+    font-family: ui-monospace, 'Courier New', monospace;
+    font-size: 9.5pt;
+    line-height: 1.55;
+    padding-top: 1mm;
+}
+.pp__ref b { font-weight: 700; }
+
+.pp__addr { margin-top: 8mm; }
+.pp__to {
+    font-weight: 700;
+    white-space: pre-line;
+    line-height: 1.4;
+}
+.pp__channel {
+    margin-top: 2mm;
+    font-style: italic;
+    font-size: 10.5pt;
+}
+.pp__attention {
+    margin-top: 1.5mm;
+    font-size: 10pt;
+}
+.pp__salutation { margin-top: 5mm; font-weight: 700; }
+
+.pp__subject {
+    margin: 7mm 0 5mm;
+    font-weight: 700;
+    text-transform: uppercase;
+    text-decoration: underline;
+    text-underline-offset: 2.5px;
+    line-height: 1.45;
+    font-size: 11.5pt;
+    letter-spacing: .01em;
+}
+.pp__subject--center { text-align: center; }
+
+.pp__refs {
+    margin: 0 0 4mm;
+    font-size: 10pt;
+    line-height: 1.6;
+}
+.pp__refs .lbl { font-weight: 700; }
+.pp__ref-item {
+    margin-left: 6mm;
+    text-indent: -6mm;
+}
+
+.pp__body { margin-top: 3mm; }
+.pp__para {
+    display: flex;
+    align-items: flex-start;
+    gap: 3mm;
+    margin-bottom: 3.2mm;
+    text-align: justify;
+    hyphens: auto;
+}
+.pp__para-num {
+    flex: 0 0 7mm;
+    font-weight: 700;
+}
+.pp__para-text { flex: 1; }
+.pp__para--l2 { margin-left: 12.7mm; }   /* 5 spaces */
+.pp__para--l3 { margin-left: 19mm; }
+.pp__para--l4 { margin-left: 25.4mm; }
+
+.pp__close {
+    margin: 8mm 0 0;
+    text-align: right;
+    font-style: italic;
+    font-size: 10.5pt;
+}
+
+.pp__sig {
+    margin: 4mm 0 0 auto;
+    width: 78mm;
+    text-align: left;
+    font-size: 10pt;
+    line-height: 1.5;
+}
+.pp__sig .sd { font-style: italic; display: block; margin-bottom: 1mm; }
+.pp__sig .space { height: 9mm; }
+.pp__sig b {
+    display: block;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    font-size: 10.5pt;
+}
+.pp__sig .postnom { font-weight: 400; text-transform: none; font-size: 9.5pt; letter-spacing: 0; }
+.pp__sig .rank { display: block; font-weight: 600; }
+.pp__sig .appt { display: block; }
+.pp__sig .for { display: block; font-style: italic; font-weight: 600; }
+
+.pp__foot {
+    display: flex;
+    justify-content: space-between;
+    gap: 10mm;
+    margin-top: 8mm;
+    padding-top: 3mm;
+    border-top: 1px solid rgba(0, 0, 0, .18);
+    font-size: 8.5pt;
+    line-height: 1.55;
+}
+.pp__foot > div { width: 48%; }
+.pp__foot b { font-weight: 700; }
+.pp__foot .lbl {
+    display: block;
+    font-family: 'GSans Variable', Arial, sans-serif;
+    font-size: 7.5pt;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    margin-bottom: 1mm;
+}
+
+.pp__pageno {
+    margin-top: 3mm;
+    text-align: center;
+    font-family: 'GSans Variable', Arial, sans-serif;
+    font-size: 8pt;
+    letter-spacing: .12em;
+    color: #111;
+}
+
+/* --------------------------------------------------------------------------
+   5. MINUTE SHEET PRIMITIVES  (BR 7 §1.9)
+   -------------------------------------------------------------------------- */
+.ms-header-title {
+    text-align: center;
+    font-weight: 800;
+    font-size: 12.5pt;
+    letter-spacing: .06em;
+    border-bottom: 1.5pt solid #000;
+    padding-bottom: 1.5mm;
+    margin-bottom: 3mm;
+    text-transform: uppercase;
+}
+.ms-central-badge {
+    display: inline-block;
+    padding: .6mm 3mm;
+    border: 1.2pt solid #000;
+    font-weight: 800;
+    font-size: 10pt;
+    font-family: 'GSans Variable', Arial, sans-serif;
+    letter-spacing: .12em;
+}
+.ms-originator-underlined {
+    font-weight: 800;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    letter-spacing: .05em;
+}
+.ms-m02-divider {
+    border-top: 1.2pt dashed #000;
+    margin-top: 6mm;
+    padding-top: 4mm;
+}
+.ms-divider-bar {
+    position: absolute;
+    top: 25.4mm;
+    bottom: 25.4mm;
+    width: 1.5px;
+    background-color: #000;
+}
+.sinhala-formal {
+    font-family: 'Abhaya Libre', 'Noto Serif Sinhala', 'Iskoola Pota', serif;
+    line-height: 1.65;
+}
+
+/* New minute preview layout */
+.pp--minute .pp__stamp--top { margin-bottom: 1mm; }
+.pp__ms-head {
+    text-align: center;
+    margin-top: 3mm;
+}
+.pp__ms-head .seq {
+    display: inline-block;
+    padding: .6mm 3.5mm;
+    border: 1.2pt solid #000;
+    font-family: 'GSans Variable', Arial, sans-serif;
+    font-weight: 800;
+    font-size: 10pt;
+    letter-spacing: .14em;
+}
+.pp__ms-head .title {
+    margin-top: 2.5mm;
+    font-size: 12.5pt;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    border-bottom: 1.5pt solid #000;
+    padding-bottom: 1.5mm;
+}
+.pp__ms-head .orig {
+    margin: 2mm 0 4mm;
+    font-weight: 800;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    letter-spacing: .06em;
+    font-size: 9.5pt;
+}
+.pp__ms-cols {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    min-height: 150mm;
+    flex: 1;
+}
+.pp__ms-left {
+    box-sizing: border-box;
+    padding-right: 4mm;
+    border-right: 1pt solid #000;
+}
+.pp__ms-right {
+    flex: 1;
+    min-width: 0;
+    padding-left: 5mm;
+    display: flex;
+    flex-direction: column;
+}
+.pp__ms-label {
+    font-weight: 800;
+    font-size: 9pt;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    margin-bottom: 2mm;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+.pp__ms-addressee {
+    font-weight: 700;
+    font-size: 10pt;
+    line-height: 1.45;
+    margin-bottom: 2.5mm;
+}
+.pp__ms-ref {
+    text-align: right;
+    font-family: ui-monospace, 'Courier New', monospace;
+    font-size: 10pt;
+    font-weight: 700;
+    line-height: 1.4;
+}
+.pp__ms-date {
+    text-align: right;
+    font-size: 9pt;
+    margin-bottom: 3mm;
+}
+.pp__ms-through {
+    font-size: 10pt;
+    margin-bottom: 3mm;
+    line-height: 1.4;
+}
+.pp__ms-through span { font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
+.pp__ms-subject {
+    font-weight: 800;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-size: 10.5pt;
+    line-height: 1.45;
+    margin-bottom: 4mm;
+}
+.pp__ms-body { flex: 1; }
+.pp__ms-para {
+    display: flex;
+    gap: 3mm;
+    margin-bottom: 2.8mm;
+    text-align: justify;
+    font-size: 10.5pt;
+}
+.pp__ms-para .n { flex: 0 0 6mm; font-weight: 700; }
+.pp__ms-rec {
+    margin: 4mm 0 2mm;
+    font-size: 10pt;
+    text-align: justify;
+    font-weight: 600;
+}
+.pp__ms-sig {
+    margin-top: auto;
+    margin-left: auto;
+    width: 70mm;
+    text-align: left;
+    font-size: 9.5pt;
+    padding-top: 8mm;
+}
+.pp__ms-sig .line { border-top: 1px solid #000; width: 55mm; margin-bottom: 1.5mm; }
+.pp__ms-sig b { font-weight: 800; display: block; }
+.pp__ms-sig span { display: block; }
+.pp__ms-m02 {
+    margin-top: 6mm;
+    padding-top: 4mm;
+    border-top: 1.2pt dashed #000;
+}
+.pp__ms-m02 .lbl {
+    font-weight: 800;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    font-size: 8.5pt;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+}
+.pp__ms-m02 .m02-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 8mm;
+    font-size: 9.5pt;
+    line-height: 1.45;
+}
+.pp__ms-m02 .m02-text {
+    margin: 3mm 0;
+    text-align: justify;
+    font-size: 10pt;
+}
+.pp__ms-m02 .m02-sig {
+    margin-left: auto;
+    width: 66mm;
+    text-align: left;
+    font-size: 9pt;
+    margin-top: 4mm;
+}
+.pp__ms-m02 .m02-sig .line { border-top: 1px solid #000; margin-bottom: 1mm; width: 52mm; }
+.pp__ms-m02 .m02-sig b { display: block; font-weight: 800; }
+
+/* --------------------------------------------------------------------------
+   6. LEGACY PREVIEW CLASSES (kept for compatibility with app.js renderers)
+   -------------------------------------------------------------------------- */
+.br7-letterhead { font-family: 'GSans Variable', Arial, sans-serif; }
+.subject-title {
+    font-weight: 700;
+    text-transform: uppercase;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+.references-block { font-size: 10pt; line-height: 1.6; }
+.br7-ref-item { text-indent: -6mm; }
+.signature-block { font-size: 10pt; }
+#displayAddressee { white-space: pre-line; }
+
+/* --------------------------------------------------------------------------
+   7. SCREEN CHROME THAT MUST NEVER INK
+   -------------------------------------------------------------------------- */
+@media print {
+    html, body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        overflow: visible !important;
+        height: auto !important;
+    }
+    body::before, body::after { display: none !important; }
+
+    .rail,
+    .cmd,
+    .no-print,
+    .page-head,
+    .registry-bar,
+    .stat-grid,
+    .filter-deck,
+    .registry-aside,
+    .studio-form,
+    .board__head,
+    .board__foot,
+    .board__dim,
+    .studio-modal-head,
+    .studio-modal-sidebar,
+    .studio-modal-canvas-head,
+    .modal,
+    .palette,
+    .toast-stack,
+    .paper-wrap--binding::before { display: none !important; }
+
+    .app { display: block !important; height: auto !important; }
+    .shell, .stage {
+        display: block !important;
+        height: auto !important;
+        overflow: visible !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    .view, .studio {
+        display: block !important;
+        margin: 0 !important;
+        animation: none !important;
+    }
+    .board, .board__desk {
+        position: static !important;
+        display: block !important;
+        max-height: none !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+        padding: 0 !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        background: #fff !important;
+    }
+    .paper-wrap, .paper-wrap--binding {
+        width: auto !important;
+        max-width: none !important;
+        transform: none !important;
+        margin: 0 !important;
+    }
+    .a4-canvas,
+    .minute-sheet-paper,
+    .br7-letter-paper,
+    #letterLivePaper,
+    #minuteLivePaper {
+        width: 100% !important;
+        max-width: none !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-size: 11pt !important;
+    }
+    .a4-canvas::before, .minute-sheet-paper::before, .br7-letter-paper::before { display: none !important; }
+
+    a[href]::after { content: ''; }
+
+    /* Isolated direct-print iframe takes over the page */
+    body:has(#printDirectIframe) * { visibility: hidden !important; }
+    body:has(#printDirectIframe) #printDirectIframe,
+    body:has(#printDirectIframe) #printDirectIframe * { visibility: visible !important; }
+    #printDirectIframe {
+        position: fixed !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        border: none !important;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   8. PREVIEW ALIGNMENT FIXES
+   -------------------------------------------------------------------------- */
+.pp__origin {
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+    gap: 1.5mm;
+}
+.pp__origin .pp__crest { order: -1; }
+.pp__origin-lines { text-align: right; }
+.pp__corner { text-align: right; }
+
+/* Keep the paper's own separation from the drafting board intact while zoomed */
+.a4-canvas, .minute-sheet-paper, .br7-letter-paper { transform-origin: top center; }
+
+/* Clean sheet when printing from the live studio (no screen registration marks) */
+@media print {
+    .a4-canvas::before, .minute-sheet-paper::before, .br7-letter-paper::before { display: none !important; }
+    .pp { min-height: 0 !important; }
+}
