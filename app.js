@@ -41,12 +41,15 @@ const state = {
         refNo: 'CCED/A/10/2216/26',
         date: '2026 ඔක්තෝබර් මස 24',
         minuteSeq: 'M 01',
+        securityClass: 'RESTRICTED',
         originatorTag: 'BY CCEO(E)',
         addressees: ['කොට්ඨාස සිවිල් ඉංජිනේරු නිලධාරී (නැගෙනහිර)'],
-        subject: '',
+        subject: 'ජල නල පද්ධතිය ප්‍රතිසංස්කරණය කිරීම පිළිබඳව',
         originator: 'කොට්ඨාස සිවිල් ඉංජිනේරු නිලධාරී (නැගෙනහිර) මඟින්',
         paragraphs: [
-            { num: '01.', text: '' }
+            { num: '01.', text: 'ශ්‍රීලංනෞ තිස්ස ආයතනයේ ප්‍රධාන ජල නල පද්ධතිය පරීක්ෂා කිරීම සඳහා විෂයයෙහි සඳහන් කරුණු අනුව මෙම සටහන ඉදිරිපත් කරමි.' },
+            { num: '02.', text: 'ප්‍රධාන නල මාර්ගයේ දැඩි විඛාදන තත්ත්වයක් නිරීක්ෂණය වූ අතර, නිවාස පෙළේ ජල පීඩනය අඛණ්ඩව අඩුවීමට හේතු වී ඇත.' },
+            { num: '03.', text: 'ප්‍රතිසංස්කරණ කටයුතු සඳහා රු. 1,485,000.00 ක් ඇස්තමේන්තු කර ඇති අතර, ඇස්තමේන්තුව මෙමඟින් ඉදිරිපත් කරමි.' }
         ],
         recommendation: 'ඉදිරි කටයුතු සඳහා කාරුණිකව ඉදිරිපත් කරමි.',
         signatory: 'කොට්ඨාස සිවිල් ඉංජිනේරු නිලධාරී (නැගෙනහිර)',
@@ -56,7 +59,7 @@ const state = {
         m02Text: 'නිර්දේශ කර ඉදිරිපත් කරමි.',
         m02Date: '2026 ඔක්තෝබර් මස 24',
         m02Signatory: 'කොට්ඨාස සිවිල් ඉංජිනේරු නිලධාරී (නැගෙනහිර)',
-        dividerWidth: 100, // percent (50% to 100%)
+        dividerWidth: 36, // address column width, percent of the sheet's text width
         rightMargin: 20, // mm
         fontFamily: "'Abhaya Libre', 'Noto Serif Sinhala', serif",
         fontSize: 11, // pt
@@ -80,9 +83,12 @@ const state = {
         addresseeTo: "The Commander of the Navy\nNaval Headquarters, Colombo 01",
         channelThrough: "Through: The Commander Eastern Naval Area",
         attentionTo: 'Attention: Staff Officer Civil Engineering (East)',
-        subject: '',
+        subject: 'RECONSTRUCTION OF WATER DISTRIBUTION NETWORK — SLNS TISSA',
         subjectAlignment: 'left', // 'left' or 'center'
-        references: [],
+        references: [
+            'NHQ Letter NHQ/CE/05/2026/042 dated 10 Sep 26',
+            'COMEN Signal DTG 150830Z OCT 26'
+        ],
         br7Tone: 'junior_to_senior', // 'junior_to_senior', 'senior_to_junior', 'equal_to_equal', 'do_letter'
         salutation: 'Sir,',
         complimentaryClose: 'I remain, Sir, Your obedient Servant,',
@@ -94,9 +100,17 @@ const state = {
         signBranch: '(CE)',
         signAppointment: 'Command Civil Engineering Officer (East)',
         paragraphs: [
-            { id: 'p_1', level: 1, text: 'I have the honour to submit for your kind consideration and approval please that an on-site structural and plumbing inspection was carried out at the Wardroom Complex of SLNS Tissa.' }
+            { id: 'p_1', level: 1, text: 'I have the honour to submit for your kind consideration and approval please that an on-site structural and plumbing inspection was carried out at the Wardroom Complex of SLNS Tissa and the findings are enumerated below.' },
+            { id: 'p_2', level: 1, heading: 'Inspection Findings', text: 'The existing main distribution pipe network has developed severe galvanic corrosion resulting in intermittent pressure drops across the residential quarters.' },
+            { id: 'p_3', level: 2, text: 'Severe pitting was observed along the 150 mm ductile iron trunk line feeding the Chief and Petty Officers mess.' },
+            { id: 'p_4', level: 2, text: 'Auxiliary booster pumps at pumping station 02 exhibit cavitation and continuous thermal tripping.' },
+            { id: 'p_5', level: 3, text: 'A like-for-like replacement of the affected trunk line is considered the most economical remedy.' },
+            { id: 'p_6', level: 1, text: 'The total estimated cost of the replacement amounts to Rs. 1,485,000.00. The detailed estimate and Bill of Quantities are forwarded herewith for kind approval, please.' }
         ],
-        enclosures: [],
+        enclosures: [
+            'Detailed Engineering Estimate (Annex A)',
+            'Bill of Quantities (BOQ) Summary (Annex B)'
+        ],
         copyTo: ['The Director General Civil Engineering, NHQ', 'The Command Logistics Officer (East)', 'The Commanding Officer, SLNS Tissa', 'Office Copy']
     },
 
@@ -141,6 +155,84 @@ const OFFICE_CATEGORIES = {
     ]
 };
 
+
+// Styled replacement for window.prompt(); falls back to the native dialog when
+// the Command Deck script is unavailable.
+async function deckPrompt(opts) {
+    if (window.Deck && typeof Deck.prompt === 'function') return Deck.prompt(opts);
+    return window.prompt(opts.title || '', opts.value || '');
+}
+
+// =============================================================================
+// FORM HYDRATION — state is the single source of truth on boot
+// -----------------------------------------------------------------------------
+// The Command Deck markup ships with empty controls; the engine owns the values.
+// Hydrating before the first preview render keeps the paper and the builder in
+// lock-step (and prevents an empty first paint when the app is opened cold).
+// =============================================================================
+function setControlValue(id, value) {
+    const el = document.getElementById(id);
+    if (!el || value === undefined || value === null) return;
+    if (el.type === 'checkbox') { el.checked = !!value; return; }
+    el.value = String(value);
+    if (el.tagName === 'SELECT' && el.value !== String(value)) {
+        // Value not present in the option list — leave the existing selection.
+        el.value = el.options.length ? el.options[0].value : el.value;
+    }
+}
+
+function hydrateStudioForms() {
+    const L = state.ltr;
+    setControlValue('ltrInputSecurityClass', L.securityClass);
+    setControlValue('ltrInputPrecedence', L.precedence);
+    setControlValue('ltrInputPrivacyMarking', L.privacyMarking || 'NONE');
+    setControlValue('ltrInputCopyNo', L.copyNo);
+    setControlValue('ltrInputTotalCopies', L.totalCopies);
+    setControlValue('ltrInputTotalSheets', L.totalSheets || 1);
+    setControlValue('ltrInputStampingMode', L.stampingMode || 'red');
+    setControlValue('ltrInputRef', L.ref);
+    setControlValue('ltrInputFileNo', L.fileNo);
+    setControlValue('ltrInputOffice', L.office);
+    setControlValue('ltrInputStation', L.station);
+    setControlValue('ltrInputTel', L.tel);
+    setControlValue('ltrInputDate', L.date);
+    setControlValue('ltrInputAddresseeTo', L.addresseeTo);
+    setControlValue('ltrInputChannelThrough', L.channelThrough);
+    setControlValue('ltrInputAttention', L.attentionTo);
+    setControlValue('ltrInputSubject', L.subject);
+    setControlValue('ltrInputSalutation', L.salutation);
+    setControlValue('ltrInputCompClose', L.complimentaryClose);
+    setControlValue('ltrInputSdCheckbox', L.sdIncluded !== false);
+    setControlValue('ltrInputIncludeSLN', !!L.includeSLN);
+    setControlValue('ltrInputSignName', L.signName);
+    setControlValue('ltrInputPostNominals', L.postNominals);
+    setControlValue('ltrInputSignRank', L.signRank);
+    setControlValue('ltrInputSignBranch', L.signBranch);
+    setControlValue('ltrInputSignAppointment', L.signAppointment);
+
+    const M = state.ms;
+    setControlValue('msInputMinuteSeq', M.minuteSeq);
+    setControlValue('msInputSecurityClass', M.securityClass || 'RESTRICTED');
+    setControlValue('msInputOriginatorTag', M.originatorTag);
+    setControlValue('msInputRefNo', M.refNo);
+    setControlValue('msInputDate', M.date);
+    setControlValue('msInputSubject', M.subject);
+    setControlValue('msInputOriginator', M.originator);
+    setControlValue('msInputRecommendation', M.recommendation);
+    setControlValue('msInputSignatory', M.signatory);
+    setControlValue('msM02InputAddressee', M.m02Addressee);
+    setControlValue('msM02InputOriginator', M.m02Originator);
+    setControlValue('msM02InputText', M.m02Text);
+    setControlValue('msM02InputDate', M.m02Date);
+    setControlValue('msM02InputSignatory', M.m02Signatory);
+    setControlValue('msToggleM02', !!M.m02Enabled);
+
+    document.getElementById('btnDateInternal')?.classList.toggle('is-active', (L.dateFormat || 'internal') !== 'external');
+    document.getElementById('btnDateExternal')?.classList.toggle('is-active', L.dateFormat === 'external');
+    document.getElementById('btnStampRed')?.classList.toggle('is-active', (L.stampingMode || 'red') === 'red');
+    document.getElementById('btnStampMono')?.classList.toggle('is-active', L.stampingMode === 'monochrome');
+}
+
 // =============================================================================
 // INITIALIZATION
 // =============================================================================
@@ -155,6 +247,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await fetchNavalLetters();
     await fetchNavalLetterTemplates();
 
+    hydrateStudioForms();
     initMinuteSheetBuilder();
     initLetterStudio();
     renderOfficeCategoryPills();
@@ -180,8 +273,12 @@ function initTheme() {
 
 function toggleTheme() {
     const isDark = document.documentElement.classList.toggle('dark');
-    localStorage.setItem('cmsys_theme', isDark ? 'dark' : 'light');
-    document.getElementById('themeIcon').textContent = isDark ? '☀️' : '🌙';
+    try { localStorage.setItem('cmsys_theme', isDark ? 'dark' : 'light'); } catch (e) { /* storage blocked */ }
+    const icon = document.getElementById('themeIcon');
+    if (icon) icon.textContent = isDark ? '☀️' : '🌙';
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', isDark ? '#050c16' : '#eef2f7');
+    if (window.Deck && typeof Deck.onThemeChange === 'function') Deck.onThemeChange(isDark);
 }
 
 function setupCurrentDates() {
@@ -190,9 +287,10 @@ function setupCurrentDates() {
     if (recEl) recEl.value = today;
 
     // Military formatted date
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-    const now = new Date();
-    const ltrDateStr = `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+    // BR 7 §1.4 — internal naval correspondence uses DD Mon YY (e.g. 24 Oct 26)
+    const ltrDateStr = (typeof formatNavalDate === 'function')
+        ? formatNavalDate(new Date(), 'internal')
+        : new Date().toDateString();
     state.ltr.date = ltrDateStr;
     const ltrDateInput = document.getElementById('ltrInputDate');
     if (ltrDateInput) ltrDateInput.value = ltrDateStr;
@@ -323,27 +421,23 @@ async function fetchNavalLetterTemplates() {
 // =============================================================================
 function switchMainTab(tab) {
     state.currentMainTab = tab;
-    document.querySelectorAll('.nav-tab-btn').forEach(b => {
-        b.classList.remove('active');
-        b.style.background = 'none';
-        b.style.color = '#8fa3bf';
-        b.style.boxShadow = 'none';
-    });
-    const btn = document.getElementById(`tabBtn-${tab}`);
-    if (btn) {
-        btn.classList.add('active');
-        btn.style.background = 'linear-gradient(135deg,#14b8a6,#0d9488)';
-        btn.style.color = 'white';
-        btn.style.boxShadow = '0 2px 10px rgba(20,184,166,0.30)';
-    }
 
-    document.getElementById('view-registry').classList.add('hidden');
-    document.getElementById('view-minutesheet').classList.add('hidden');
-    document.getElementById('view-letterstudio').classList.add('hidden');
-    document.getElementById('view-settings').classList.add('hidden');
+    // Presentation is handled entirely by the Command Deck skin: a single
+    // `is-active` state per rail item, no inline colour mutation.
+    document.querySelectorAll('.rail__item[id^="tabBtn-"]').forEach(b => b.classList.remove('is-active'));
+    const btn = document.getElementById(`tabBtn-${tab}`);
+    if (btn) btn.classList.add('is-active');
+
+    document.querySelectorAll('.shell .view').forEach(v => v.classList.add('hidden'));
 
     const view = document.getElementById(`view-${tab}`);
-    if (view) view.classList.remove('hidden');
+    if (view) {
+        view.classList.remove('hidden');
+        // Replay the entrance animation for a sense of deck change.
+        view.style.animation = 'none';
+        void view.offsetWidth;
+        view.style.animation = '';
+    }
 
     if (tab === 'registry') {
         renderRegistryTable();
@@ -352,6 +446,8 @@ function switchMainTab(tab) {
     } else if (tab === 'letterstudio') {
         updateLetterPreview();
     }
+
+    if (window.Deck && typeof Deck.onViewChange === 'function') Deck.onViewChange(tab);
 }
 
 function onGlobalScopeChange(scopeVal) {
@@ -371,22 +467,10 @@ function switchRegistryOffice(officeId) {
     state.currentOffice = officeId;
     state.currentCategoryFilter = 'ALL';
 
-    document.querySelectorAll('.office-pill').forEach(btn => {
-        btn.classList.remove('active');
-        btn.style.background = 'rgba(255,255,255,0.05)';
-        btn.style.color = '#8fa3bf';
-        btn.style.borderColor = 'rgba(255,255,255,0.08)';
-        btn.style.boxShadow = 'none';
-    });
+    document.querySelectorAll('.office-tab[id^="officeTab-"]').forEach(btn => btn.classList.remove('is-active'));
 
     const activeBtn = document.getElementById(`officeTab-${officeId}`);
-    if (activeBtn) {
-        activeBtn.classList.add('active');
-        activeBtn.style.background = 'linear-gradient(135deg,#14b8a6,#0d9488)';
-        activeBtn.style.color = 'white';
-        activeBtn.style.borderColor = 'rgba(45,212,191,0.30)';
-        activeBtn.style.boxShadow = '0 2px 10px rgba(20,184,166,0.28)';
-    }
+    if (activeBtn) activeBtn.classList.add('is-active');
 
     renderOfficeCategoryPills();
     fetchRegistryData();
@@ -394,37 +478,18 @@ function switchRegistryOffice(officeId) {
 
 function setRegistryFlowFilter(flow) {
     state.currentFlowFilter = flow;
-    document.querySelectorAll('.flow-pill').forEach(btn => {
-        btn.classList.remove('active');
-        btn.style.background = 'none';
-        btn.style.color = '#94a3b8';
-        btn.style.boxShadow = 'none';
-    });
+    document.querySelectorAll('.flow-pill').forEach(btn => btn.classList.remove('is-active'));
     const active = document.getElementById(`flowTab-${flow}`);
-    if (active) {
-        active.classList.add('active');
-        active.style.background = '#111e35';
-        active.style.color = '#e8edf5';
-        active.style.boxShadow = '0 1px 4px rgba(0,0,0,0.40)';
-    }
+    if (active) active.classList.add('is-active');
     fetchRegistryData();
 }
 
+/* Presentation renderer owned by js/skin.js — this forwarder keeps the
+   engine's internal calls (and inline handlers) pointed at the live
+   Command Deck implementation. */
 function renderOfficeCategoryPills() {
-    const container = document.getElementById('officeCategoryPills');
-    if (!container) return;
-    const cats = OFFICE_CATEGORIES[state.currentOffice] || OFFICE_CATEGORIES.cced_writer;
-
-    container.innerHTML = cats.map(cat => {
-        const isAct = state.currentCategoryFilter === cat.id;
-        const activeStyle = 'padding:4px 10px;border-radius:7px;font-size:0.62rem;font-weight:700;background:linear-gradient(135deg,#14b8a6,#0d9488);color:white;border:1px solid rgba(45,212,191,0.30);box-shadow:0 2px 8px rgba(20,184,166,0.30);cursor:pointer;transition:all 150ms;letter-spacing:0.02em';
-        const inactiveStyle = 'padding:4px 10px;border-radius:7px;font-size:0.62rem;font-weight:600;background:rgba(255,255,255,0.05);color:#8fa3bf;border:1px solid rgba(255,255,255,0.08);cursor:pointer;transition:all 150ms;letter-spacing:0.02em';
-        return `
-            <button type="button" onclick="setOfficeCategoryFilter('${cat.id}')" style="${isAct ? activeStyle : inactiveStyle}" class="cat-pill${isAct ? ' active' : ''}">
-                ${cat.label}
-            </button>
-        `;
-    }).join('');
+    const impl = window['renderOfficeCategoryPills'];
+    if (typeof impl === 'function' && impl !== renderOfficeCategoryPills) return impl.apply(this, arguments);
 }
 
 function setOfficeCategoryFilter(catId) {
@@ -452,16 +517,12 @@ function changeOverdueThreshold(val) {
 
 function toggleWideTableMode() {
     state.isWideTable = !state.isWideTable;
-    const tbl = document.getElementById('registryTableContainer');
+    const panel = document.getElementById('registryTableContainer')?.closest('.panel');
     const btn = document.getElementById('btnWideTable');
-    if (tbl) {
-        if (state.isWideTable) {
-            tbl.classList.add('w-[99vw]', 'max-w-[99vw]');
-            btn.classList.add('bg-teal-600', 'text-white');
-        } else {
-            tbl.classList.remove('w-[99vw]', 'max-w-[99vw]');
-            btn.classList.remove('bg-teal-600', 'text-white');
-        }
+    if (panel) panel.classList.toggle('is-wide', state.isWideTable);
+    if (btn) {
+        btn.classList.toggle('is-active', state.isWideTable);
+        btn.setAttribute('aria-pressed', String(state.isWideTable));
     }
 }
 
@@ -473,126 +534,20 @@ function calculateDaysInPosition(dateRecorded) {
     return Math.max(0, diff);
 }
 
+/* Presentation renderer owned by js/skin.js — this forwarder keeps the
+   engine's internal calls (and inline handlers) pointed at the live
+   Command Deck implementation. */
 function renderRegistryTable() {
-    const tbody = document.getElementById('registryTableBody');
-    const empty = document.getElementById('registryTableEmptyState');
-    if (!tbody) return;
-
-    let docs = state.documents;
-    if (state.filterOverdueOnly) {
-        docs = docs.filter(d => {
-            const days = calculateDaysInPosition(d.date_recorded);
-            return days >= state.overdueThreshold && d.present_position !== 'Dispatched / Outed' && d.present_position !== 'Completed';
-        });
-    }
-
-    if (docs.length === 0) {
-        tbody.innerHTML = '';
-        if (empty) empty.classList.remove('hidden');
-        return;
-    }
-    if (empty) empty.classList.add('hidden');
-
-    tbody.innerHTML = docs.map((d, index) => {
-        const days = calculateDaysInPosition(d.date_recorded);
-        const isOverdue = days >= state.overdueThreshold && d.present_position !== 'Dispatched / Outed' && d.present_position !== 'Completed';
-        const rowCls = isOverdue ? 'row-overdue' : '';
-
-        const flowBadge = d.flow_type === 'OUTGOING'
-            ? `<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.6rem;font-weight:700;padding:2px 7px;border-radius:5px;letter-spacing:0.04em;background:rgba(129,140,248,0.12);color:#a5b4fc;border:1px solid rgba(129,140,248,0.25)">📤 OUTGOING</span>`
-            : `<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.6rem;font-weight:700;padding:2px 7px;border-radius:5px;letter-spacing:0.04em;background:rgba(52,211,153,0.12);color:#34d399;border:1px solid rgba(52,211,153,0.25)">📥 INCOMING</span>`;
-
-        const overdueBadge = isOverdue
-            ? `<span style="font-size:0.6rem;font-weight:700;padding:2px 6px;border-radius:4px;background:rgba(244,63,94,0.15);color:#fb7185;border:1px solid rgba(244,63,94,0.35);display:inline-block;margin-top:3px">⚠ ${days}d OVERDUE</span>`
-            : (days > 0 ? `<span style="font-size:0.6rem;color:#94a3b8;font-family:ui-monospace,monospace;margin-top:3px;display:inline-block">${days}d</span>` : '');
-
-        const pos = d.present_position || 'Received';
-        let posStyle = 'background:rgba(30,41,59,0.9);color:#8fa3bf;border:1px solid rgba(255,255,255,0.10)';
-        if (/dispatch|outed/i.test(pos))                 posStyle = 'background:rgba(99,102,241,0.15);color:#a5b4fc;border:1px solid rgba(99,102,241,0.30)';
-        else if (/action|progress|implement/i.test(pos)) posStyle = 'background:rgba(20,184,166,0.15);color:#2dd4bf;border:1px solid rgba(20,184,166,0.30)';
-        else if (/received|inbox/i.test(pos))            posStyle = 'background:rgba(251,191,36,0.12);color:#fbbf24;border:1px solid rgba(251,191,36,0.28)';
-        else if (/complete|done|closed/i.test(pos))      posStyle = 'background:rgba(52,211,153,0.12);color:#34d399;border:1px solid rgba(52,211,153,0.28)';
-        else if (/filed|archive/i.test(pos))             posStyle = 'background:rgba(148,163,184,0.10);color:#94a3b8;border:1px solid rgba(148,163,184,0.22)';
-        else if (/letter|drafted|studio/i.test(pos))     posStyle = 'background:rgba(129,140,248,0.13);color:#818cf8;border:1px solid rgba(129,140,248,0.28)';
-        else if (/refer|forward/i.test(pos))             posStyle = 'background:rgba(251,146,60,0.12);color:#fb923c;border:1px solid rgba(251,146,60,0.25)';
-
-        return `
-            <tr class="${rowCls}" style="border-bottom:1px solid rgba(255,255,255,0.05);transition:background 150ms ease" onmouseover="if(!this.classList.contains('row-overdue'))this.style.background='rgba(255,255,255,0.025)'" onmouseout="if(!this.classList.contains('row-overdue'))this.style.background=''">
-                <td style="padding:10px 12px;text-align:center;color:#94a3b8;font-family:ui-monospace,monospace;font-size:0.62rem">${index + 1}</td>
-                <td style="padding:10px 12px">
-                    <span style="font-family:ui-monospace,monospace;font-weight:800;color:#2dd4bf;font-size:0.7rem;display:block;letter-spacing:0.03em">${d.ref_no}</span>
-                    ${d.sender_ref_no ? `<span style="font-size:0.6rem;color:#94a3b8;font-family:ui-monospace,monospace">Ref: ${d.sender_ref_no}</span>` : ''}
-                </td>
-                <td style="padding:10px 12px">
-                    ${flowBadge}
-                    <span style="display:block;font-size:0.62rem;color:#8fa3bf;margin-top:4px;font-weight:500">${d.sender_source_category || d.category || 'General'}</span>
-                </td>
-                <td style="padding:10px 12px;font-size:0.65rem;white-space:nowrap">
-                    <span style="display:block;color:#e8edf5;font-weight:600">${d.date_recorded || '—'}</span>
-                    ${d.date_letter ? `<span style="display:block;color:#94a3b8;font-size:0.6rem">Ltr: ${d.date_letter}</span>` : ''}
-                </td>
-                <td style="padding:10px 12px;font-size:0.7rem">
-                    <span style="font-weight:700;color:#e8edf5;display:block">${d.sender_or_recipient || '—'}</span>
-                    ${d.contact_no ? `<span style="font-size:0.6rem;color:#94a3b8;font-family:ui-monospace,monospace">📞 ${d.contact_no}</span>` : ''}
-                </td>
-                <td style="padding:10px 12px">
-                    <p style="font-weight:700;color:#e8edf5;font-size:0.7rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.4">${d.subject || '—'}</p>
-                    ${d.scope_description ? `<p style="font-size:0.6rem;color:#94a3b8;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;margin-top:2px">${d.scope_description}</p>` : ''}
-                </td>
-                <td style="padding:10px 12px">
-                    <span style="font-size:0.62rem;font-weight:700;padding:2px 8px;border-radius:6px;${posStyle};display:inline-block;max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${pos}">${pos}</span>
-                    ${overdueBadge}
-                </td>
-                <td style="padding:10px 12px;font-size:0.65rem">
-                    ${d.directed_to ? `<span style="font-size:0.62rem;font-weight:700;padding:2px 7px;border-radius:5px;background:rgba(20,184,166,0.10);color:#2dd4bf;border:1px solid rgba(20,184,166,0.22);display:inline-block;max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${d.directed_to}">${d.directed_to}</span>` : '<span style="color:#94a3b8">—</span>'}
-                    ${d.project_name ? `<span style="font-size:0.6rem;color:#94a3b8;display:block;margin-top:3px;max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${d.project_name}">${d.project_name}</span>` : ''}
-                </td>
-                <td style="padding:10px 12px;font-family:ui-monospace,monospace;font-size:0.62rem;color:#94a3b8">
-                    ${d.file_no || '—'}
-                </td>
-                <td style="padding:10px 12px">
-                    <div style="display:flex;align-items:center;justify-content:flex-end;gap:4px">
-                        <button type="button" onclick="openUpdatePositionModalForDoc('${d.id}')" style="padding:5px 7px;border-radius:7px;background:rgba(99,102,241,0.12);border:1px solid rgba(99,102,241,0.25);color:#818cf8;cursor:pointer;font-size:0.75rem;transition:all 150ms" title="Update Position" onmouseover="this.style.background='rgba(99,102,241,0.28)'" onmouseout="this.style.background='rgba(99,102,241,0.12)'">🔄</button>
-                        <button type="button" onclick="openOutingModalForDoc('${d.id}')" style="padding:5px 7px;border-radius:7px;background:rgba(129,140,248,0.10);border:1px solid rgba(129,140,248,0.22);color:#a5b4fc;cursor:pointer;font-size:0.75rem;transition:all 150ms" title="Outing / Dispatch" onmouseover="this.style.background='rgba(129,140,248,0.28)'" onmouseout="this.style.background='rgba(129,140,248,0.10)'">📦</button>
-                        <button type="button" onclick="createMinuteFromDoc('${d.id}')" style="padding:5px 7px;border-radius:7px;background:rgba(20,184,166,0.10);border:1px solid rgba(20,184,166,0.22);color:#2dd4bf;cursor:pointer;font-size:0.75rem;transition:all 150ms" title="Create Minute Sheet" onmouseover="this.style.background='rgba(20,184,166,0.28)'" onmouseout="this.style.background='rgba(20,184,166,0.10)'">📜</button>
-                    </div>
-                </td>
-            </tr>
-        `;
-    }).join('');
+    const impl = window['renderRegistryTable'];
+    if (typeof impl === 'function' && impl !== renderRegistryTable) return impl.apply(this, arguments);
 }
 
+/* Presentation renderer owned by js/skin.js — this forwarder keeps the
+   engine's internal calls (and inline handlers) pointed at the live
+   Command Deck implementation. */
 function updateRegistryStats() {
-    const total = state.documents.length;
-    let incoming = 0;
-    let outgoing = 0;
-    let active = 0;
-    let overdue = 0;
-
-    state.documents.forEach(d => {
-        if (d.flow_type === 'OUTGOING') outgoing++;
-        else incoming++;
-
-        if (d.present_position !== 'Dispatched / Outed' && d.present_position !== 'Completed') {
-            active++;
-        }
-
-        const days = calculateDaysInPosition(d.date_recorded);
-        if (days >= state.overdueThreshold && d.present_position !== 'Dispatched / Outed' && d.present_position !== 'Completed') {
-            overdue++;
-        }
-    });
-
-    const sTot = document.getElementById('statTotalDocs');
-    if (sTot) sTot.textContent = total;
-    const sInc = document.getElementById('statIncomingDocs');
-    if (sInc) sInc.textContent = incoming;
-    const sOut = document.getElementById('statOutgoingDocs');
-    if (sOut) sOut.textContent = outgoing;
-    const sAct = document.getElementById('statActiveDocs');
-    if (sAct) sAct.textContent = active;
-    const sOvd = document.getElementById('statOverdueDocs');
-    if (sOvd) sOvd.textContent = overdue;
+    const impl = window['updateRegistryStats'];
+    if (typeof impl === 'function' && impl !== updateRegistryStats) return impl.apply(this, arguments);
 }
 
 function refreshRegistryData() {
@@ -632,7 +587,10 @@ function onDocEntrySectionChange(sec) {
 
 function onDocEntryFlowTypeChange(flow) {
     const isOut = flow === 'OUTGOING';
-    document.getElementById('lblDocSenderOrRecipient').innerHTML = isOut ? 'Recipient / Addressee <span class="text-rose-500">*</span>' : 'Sender / Department <span class="text-rose-500">*</span>';
+    const req = '<span class="req-dot" aria-hidden="true">*</span>';
+    document.getElementById('lblDocSenderOrRecipient').innerHTML = isOut
+        ? `Recipient / Addressee ${req}`
+        : `Sender / Department ${req}`;
     const autoBtn = document.getElementById('btnDocEntryAutoRef');
     if (autoBtn) autoBtn.style.display = isOut ? 'inline-block' : 'none';
 }
@@ -720,32 +678,12 @@ function closeUpdatePositionModal() {
     modal.classList.remove('flex');
 }
 
+/* Presentation renderer owned by js/skin.js — this forwarder keeps the
+   engine's internal calls (and inline handlers) pointed at the live
+   Command Deck implementation. */
 function renderTimelineTrail(trail) {
-    const container = document.getElementById('uppTrailTimeline');
-    if (!container) return;
-    if (!trail || trail.length === 0) {
-        container.innerHTML = '<p class="text-slate-400 italic text-center p-3">No movement logs recorded yet.</p>';
-        return;
-    }
-
-    container.innerHTML = trail.slice().reverse().map(item => `
-        <div class="p-2.5 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 text-xs space-y-1 shadow-2xs">
-            <div class="flex items-center justify-between">
-                <span class="font-bold text-blue-700 dark:text-blue-300">${escapeHtml(item.action_status || item.stage || 'Update')}</span>
-                <span class="text-[10px] text-slate-400 font-mono">${escapeHtml(item.timestamp || item.date || '')}</span>
-            </div>
-            ${item.officer_from || item.to_officer ? `
-                <div class="flex items-center gap-1.5 text-[11px] text-slate-700 dark:text-slate-300 font-medium">
-                    <span class="text-slate-500">From:</span> <strong>${escapeHtml(item.officer_from || '-')}</strong>
-                    <span class="text-blue-500 font-bold">➔</span>
-                    <span class="text-slate-500">To:</span> <strong>${escapeHtml(item.to_officer || item.officer || '-')}</strong>
-                </div>
-            ` : `
-                <span class="text-[10px] text-slate-400 block">Officer: ${escapeHtml(item.officer || '-')}</span>
-            `}
-            ${item.remarks ? `<p class="text-slate-600 dark:text-slate-400 text-[11px] italic bg-white dark:bg-slate-900/60 p-1.5 rounded border border-slate-200/60 dark:border-slate-800">${escapeHtml(item.remarks)}</p>` : ''}
-        </div>
-    `).join('');
+    const impl = window['renderTimelineTrail'];
+    if (typeof impl === 'function' && impl !== renderTimelineTrail) return impl.apply(this, arguments);
 }
 
 async function submitPositionUpdate(e) {
@@ -886,15 +824,9 @@ function printDispatchSlipFromModal() {
 // 2. MINUTE SHEET SECTION ENGINE
 // =============================================================================
 function switchMinuteSubTab(subTab) {
-    document.querySelectorAll('[id^="msSubTab-"]').forEach(btn => {
-        btn.classList.remove('bg-teal-600', 'text-white', 'shadow-xs', 'font-bold');
-        btn.classList.add('font-medium', 'text-slate-300');
-    });
+    document.querySelectorAll('[id^="msSubTab-"]').forEach(btn => btn.classList.remove('is-active'));
     const activeBtn = document.getElementById(`msSubTab-${subTab}`);
-    if (activeBtn) {
-        activeBtn.classList.add('bg-teal-600', 'text-white', 'shadow-xs', 'font-bold');
-        activeBtn.classList.remove('font-medium', 'text-slate-300');
-    }
+    if (activeBtn) activeBtn.classList.add('is-active');
 
     document.getElementById('msPanel-builder').classList.add('hidden');
     document.getElementById('msPanel-templates').classList.add('hidden');
@@ -913,9 +845,9 @@ function initMinuteSheetBuilder() {
 
     // Sync sliders with initial state
     const divSlider = document.getElementById('msDividerWidthSlider');
-    if (divSlider) divSlider.value = state.ms.dividerWidth || 100;
+    if (divSlider) divSlider.value = state.ms.dividerWidth || 36;
     const divBadge = document.getElementById('msDividerWidthBadge');
-    if (divBadge) divBadge.textContent = `${state.ms.dividerWidth || 100}%`;
+    if (divBadge) divBadge.textContent = `${state.ms.dividerWidth || 36}%`;
 
     const rmSlider = document.getElementById('msRightMarginSlider');
     if (rmSlider) rmSlider.value = state.ms.rightMargin || 20;
@@ -944,12 +876,9 @@ function initMinuteSheetBuilder() {
 function setMinuteLang(lang) {
     state.ms.lang = lang;
     const isSi = lang === 'si';
-    document.getElementById('btnMsLangSi').className = isSi
-        ? 'px-3 py-1 rounded-lg font-bold bg-teal-600 text-white shadow-xs transition-all'
-        : 'px-3 py-1 rounded-lg font-medium text-slate-600 dark:text-slate-400 transition-all';
-    document.getElementById('btnMsLangEn').className = !isSi
-        ? 'px-3 py-1 rounded-lg font-bold bg-teal-600 text-white shadow-xs transition-all'
-        : 'px-3 py-1 rounded-lg font-medium text-slate-600 dark:text-slate-400 transition-all';
+    document.getElementById('btnMsLangSi')?.classList.toggle('is-active', isSi);
+    document.getElementById('btnMsLangEn')?.classList.toggle('is-active', !isSi);
+    document.getElementById('msLangChip')?.replaceChildren(document.createTextNode(isSi ? 'සිංහල' : 'English'));
 
     populateMinuteDropdowns();
     updateMinutePreview();
@@ -1034,18 +963,12 @@ function applyOriginatorTagPreset(val) {
     updateMinutePreview();
 }
 
+/* Presentation renderer owned by js/skin.js — this forwarder keeps the
+   engine's internal calls (and inline handlers) pointed at the live
+   Command Deck implementation. */
 function renderMinuteAddresseesInputs() {
-    const container = document.getElementById('msAddresseesContainer');
-    if (!container) return;
-
-    container.innerHTML = state.ms.addressees.map((addr, idx) => `
-        <div class="flex items-center gap-1.5">
-            <input type="text" value="${escapeHtml(addr)}" oninput="state.ms.addressees[${idx}]=this.value; updateMinutePreview();" placeholder="Addressee Designation" class="flex-1 px-2.5 py-1.5 border border-amber-300 dark:border-amber-800 rounded-lg text-xs bg-white dark:bg-slate-900 outline-none">
-            ${state.ms.addressees.length > 1 ? `
-                <button type="button" onclick="removeMinuteAddresseeRow(${idx})" class="w-6 h-6 rounded bg-rose-100 text-rose-700 hover:bg-rose-200 text-xs font-bold flex items-center justify-center">✕</button>
-            ` : ''}
-        </div>
-    `).join('');
+    const impl = window['renderMinuteAddresseesInputs'];
+    if (typeof impl === 'function' && impl !== renderMinuteAddresseesInputs) return impl.apply(this, arguments);
 }
 
 function addMinuteAddresseeRow() {
@@ -1062,25 +985,12 @@ function removeMinuteAddresseeRow(idx) {
     }
 }
 
+/* Presentation renderer owned by js/skin.js — this forwarder keeps the
+   engine's internal calls (and inline handlers) pointed at the live
+   Command Deck implementation. */
 function renderMinuteParagraphsInputs() {
-    const container = document.getElementById('msParagraphsContainer');
-    if (!container) return;
-
-    container.innerHTML = state.ms.paragraphs.map((p, idx) => `
-        <div class="p-2.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 space-y-1.5">
-            <div class="flex items-center justify-between">
-                <span class="font-bold text-slate-700 dark:text-slate-300 text-xs">${p.num || `0${idx + 1}.`}</span>
-                <div class="flex items-center gap-1">
-                    <button type="button" onclick="formatParaText(${idx}, 'b')" class="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-[10px] font-bold">B</button>
-                    <button type="button" onclick="formatParaText(${idx}, 'u')" class="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-[10px] underline">U</button>
-                    ${state.ms.paragraphs.length > 1 ? `
-                        <button type="button" onclick="removeMinuteParagraphRow(${idx})" class="text-rose-600 hover:text-rose-800 text-[10px] font-bold ml-1">Remove</button>
-                    ` : ''}
-                </div>
-            </div>
-            <textarea id="msParaText_${idx}" oninput="state.ms.paragraphs[${idx}].text=this.value; updateMinutePreview();" rows="2" placeholder="Enter paragraph content..." class="w-full px-2.5 py-1.5 border border-slate-300 dark:border-slate-700 rounded-lg text-xs bg-slate-50 dark:bg-slate-800 outline-none">${escapeHtml(p.text || '')}</textarea>
-        </div>
-    `).join('');
+    const impl = window['renderMinuteParagraphsInputs'];
+    if (typeof impl === 'function' && impl !== renderMinuteParagraphsInputs) return impl.apply(this, arguments);
 }
 
 function addMinuteParagraphRow() {
@@ -1319,149 +1229,12 @@ async function autoGenerateMinuteRef() {
 }
 
 // Live Paper Rendering (Pic 1, 2, 3 Layout)
+/* Presentation renderer owned by js/skin.js — this forwarder keeps the
+   engine's internal calls (and inline handlers) pointed at the live
+   Command Deck implementation. */
 function updateMinutePreview() {
-    const paper = document.getElementById('minuteLivePaper');
-    if (!paper) return;
-
-    const ref = document.getElementById('msInputRefNo')?.value || state.ms.refNo;
-    const date = document.getElementById('msInputDate')?.value || state.ms.date;
-    const subj = document.getElementById('msInputSubject')?.value || state.ms.subject;
-    const orig = document.getElementById('msInputOriginator')?.value || state.ms.originator;
-    const rec = document.getElementById('msInputRecommendation')?.value || state.ms.recommendation;
-    const sign = document.getElementById('msInputSignatory')?.value || state.ms.signatory;
-
-    const mSeq = document.getElementById('msInputMinuteSeq')?.value || state.ms.minuteSeq || 'M 01';
-    const mOrigTag = document.getElementById('msInputOriginatorTag')?.value || state.ms.originatorTag || 'BY CCEO(E)';
-
-    const divPct = state.ms.dividerWidth || 33;
-    const rMargin = state.ms.rightMargin || 20;
-    const fontFam = state.ms.fontFamily || "'Abhaya Libre', serif";
-    const fontSz = state.ms.fontSize || 11;
-    let lineLeading = state.ms.lineHeight || 1.65;
-    if (state.ms.lang === 'si' && lineLeading < 1.6) {
-        lineLeading = 1.6;
-    }
-
-    const addrs = state.ms.addressees.filter(a => a.trim() !== '');
-    const headerTitle = state.ms.lang === 'si' ? 'සටහන් පත / MINUTE SHEET' : 'MINUTE SHEET';
-
-    const paragraphsHtml = state.ms.paragraphs.map(p => `
-        <div style="margin-bottom: 12px; display: flex; align-items: flex-start; text-align: justify; line-height: ${lineLeading};">
-            <span style="font-weight: bold; width: 34px; shrink: 0; display: inline-block;">${p.num || ''}</span>
-            <div style="flex: 1;">${p.text || ''}</div>
-        </div>
-    `).join('');
-
-    const m02Html = state.ms.m02Enabled ? `
-        <div class="ms-m02-divider" style="border-top: 1.5px dashed #000; margin-top: 24px; padding-top: 16px;">
-            <div style="display: flex; align-items: stretch; min-height: 180px;">
-                <div style="width: ${divPct}%; padding-right: 14px; border-right: 1.5px solid #000; box-sizing: border-box;">
-                    <div style="font-weight: 800; font-size: 9.5pt; text-decoration: underline; margin-bottom: 6px;">
-                        ${state.ms.lang === 'si' ? 'ලිපිනය:' : 'To:'}
-                    </div>
-                    <div style="font-weight: bold; line-height: 1.35;">${escapeHtml(document.getElementById('msM02InputAddressee')?.value || state.ms.m02Addressee)}</div>
-                </div>
-                <div style="flex: 1; padding-left: 18px; box-sizing: border-box; display: flex; flex-direction: column;">
-                    <div style="margin-bottom: 10px; font-weight: 700; line-height: 1.35;">
-                        <span style="text-decoration: underline;">${state.ms.lang === 'si' ? 'මඟින්:' : 'Through:'}</span> ${escapeHtml(document.getElementById('msM02InputOriginator')?.value || state.ms.m02Originator)}
-                    </div>
-                    <div style="flex: 1; margin: 10px 0; text-align: justify; line-height: ${lineLeading};">
-                        ${escapeHtml(document.getElementById('msM02InputText')?.value || state.ms.m02Text)}
-                    </div>
-                    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 20px;">
-                        <div style="font-size: 9.5pt;">
-                            <strong>${state.ms.lang === 'si' ? 'දිනය: ' : 'Date: '}</strong>${escapeHtml(document.getElementById('msM02InputDate')?.value || state.ms.m02Date)}
-                        </div>
-                        <div style="text-align: right; width: 240px;">
-                            <div style="letter-spacing: 1px;">............................................................</div>
-                            <div style="font-weight: 800; font-size: 10pt; margin-top: 4px;">${escapeHtml(document.getElementById('msM02InputSignatory')?.value || state.ms.m02Signatory)}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    ` : '';
-
-    paper.style.fontFamily = fontFam;
-    paper.style.fontSize = `${fontSz}pt`;
-    paper.style.lineHeight = lineLeading;
-    paper.style.paddingRight = `${rMargin}mm`;
-
-    paper.innerHTML = `
-        <!-- Central Minute Sequence Number Badge -->
-        <div style="text-align: center; margin-bottom: 6px;">
-            <span class="ms-central-badge">${escapeHtml(mSeq)}</span>
-        </div>
-
-        <!-- Official Header -->
-        <div class="ms-header-title" style="text-align: center; font-weight: 800; font-size: 13pt; border-bottom: 2px solid #000; padding-bottom: 4px; margin-bottom: 8px;">
-            ${headerTitle}
-        </div>
-
-        <!-- Underlined Originator Tag -->
-        <div style="text-align: center; margin-bottom: 16px;">
-            <span class="ms-originator-underlined">${escapeHtml(mOrigTag)}</span>
-        </div>
-
-        <!-- Two-Column Minute 01 Body with Authentic Vertical Rule -->
-        <div style="display: flex; align-items: stretch; min-height: 480px;">
-            <!-- Left Column: Addressees -->
-            <div style="width: ${divPct}%; padding-right: 14px; border-right: 1.5px solid #000; box-sizing: border-box;">
-                <div style="font-weight: 800; font-size: 10pt; text-decoration: underline; margin-bottom: 8px;">
-                    ${state.ms.lang === 'si' ? 'ලිපිනය:' : 'To:'}
-                </div>
-                ${addrs.map(a => `<div style="font-weight: bold; margin-bottom: 8px; line-height: 1.35;">${escapeHtml(a)}</div>`).join('')}
-            </div>
-
-            <!-- Right Column: Ref, Date, Through, Subject, Paragraphs, Recommendation, Signature -->
-            <div style="flex: 1; padding-left: 18px; box-sizing: border-box; display: flex; flex-direction: column;">
-                <!-- Ref & Date (Cleanly Top Right, No Collision!) -->
-                <div style="text-align: right; margin-bottom: 12px; line-height: 1.4;">
-                    <div style="font-family: monospace; font-weight: bold; font-size: 10.5pt;">${escapeHtml(ref)}</div>
-                    <div style="font-size: 9.5pt; color: #1e293b;">${escapeHtml(date)}</div>
-                </div>
-
-                <!-- Originator Line -->
-                ${orig ? `
-                    <div style="margin-bottom: 12px; font-weight: 700; line-height: 1.35;">
-                        <span style="text-decoration: underline;">${state.ms.lang === 'si' ? 'මඟින්:' : 'Through:'}</span> ${escapeHtml(orig)}
-                    </div>
-                ` : ''}
-
-                <!-- Subject Line (Bold, Underlined) -->
-                <div style="margin-bottom: 16px; font-weight: 800; font-size: 11pt; text-decoration: underline; text-underline-offset: 4px; line-height: 1.4;">
-                    ${subj ? `${state.ms.lang === 'si' ? 'විෂයය: ' : 'Subject: '}${escapeHtml(subj)}` : ''}
-                </div>
-
-                <!-- Paragraphs Content -->
-                <div style="flex: 1; min-height: 140px;">
-                    ${paragraphsHtml}
-                </div>
-
-                <!-- Recommendation -->
-                ${rec ? `
-                    <div style="margin: 14px 0; text-align: justify; line-height: ${lineLeading}; font-weight: 600;">
-                        <span style="font-weight: bold;">${state.ms.lang === 'si' ? 'නිර්දේශය: ' : 'Recommendation: '}</span>${escapeHtml(rec)}
-                    </div>
-                ` : ''}
-
-                <!-- Signatory Block (Right-aligned) -->
-                <div style="margin-top: 24px; margin-left: auto; width: 250px; text-align: right;">
-                    <div style="height: 28px;"></div>
-                    <div style="font-size: 10pt; letter-spacing: 1px;">............................................................</div>
-                    <div style="font-weight: 800; font-size: 10.5pt; margin-top: 4px;">${escapeHtml(sign)}</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Optional M-02 Block -->
-        ${m02Html}
-    `;
-
-    // Also sync to Studio Print preview if modal is active
-    if (!document.getElementById('modalMinutePrintStudio').classList.contains('hidden')) {
-        syncMinutePrintStudioPreview();
-    }
+    const impl = window['updateMinutePreview'];
+    if (typeof impl === 'function' && impl !== updateMinutePreview) return impl.apply(this, arguments);
 }
 
 // Minute Sheet Print Studio Modal
@@ -1504,6 +1277,16 @@ function syncMinutePrintStudioPreview() {
     const mBottom = document.getElementById('msPrintMarginBottom')?.value || 20;
     canvas.style.padding = `${mTop}mm ${mRight}mm ${mBottom}mm ${mLeft}mm`;
 
+    // Typography + column calibration
+    const fontPt = Number(document.getElementById('msPrintFontSize')?.value) || 11;
+    canvas.style.fontSize = `${fontPt}pt`;
+    if (state.ms.lang === 'si') canvas.style.lineHeight = String(Math.max(1.6, Number(state.ms.lineHeight) || 1.65));
+    const density = document.getElementById('msPrintDensity')?.value;
+    if (density) canvas.style.lineHeight = String(Math.max(state.ms.lang === 'si' ? 1.6 : 1.2, Number(density)));
+
+    const divPct = Number(document.getElementById('msPrintDividerPct')?.value) || 36;
+    canvas.querySelectorAll('.pp__ms-left').forEach((el) => { el.style.width = `${divPct}%`; });
+
     applyMinuteStudioZoom(state.msPrintZoom);
 }
 
@@ -1527,7 +1310,17 @@ function applyMinuteStudioZoom(zoom) {
 function executeMinuteDirectPrint() {
     const canvas = document.getElementById('msStudioPaperCanvas');
     if (!canvas) return;
-    printIsolatedHTML(canvas.innerHTML, "Naval Minute Sheet - " + state.ms.refNo);
+    const style = `font-family:${canvas.style.fontFamily};font-size:${canvas.style.fontSize};line-height:${canvas.style.lineHeight}`;
+    const mm = (id, fallback) => `${document.getElementById(id)?.value || fallback}mm`;
+    printIsolatedHTML(`<div style="${style}">${canvas.innerHTML}</div>`,
+        "Naval Minute Sheet - " + state.ms.refNo,
+        {
+            paper: document.getElementById('msPrintPaperSize')?.value || 'A4',
+            marginLeft: mm('msPrintMarginLeft', 20),
+            marginRight: mm('msPrintMarginRight', 20),
+            marginTop: mm('msPrintMarginTop', 20),
+            marginBottom: mm('msPrintMarginBottom', 20)
+        });
 }
 
 async function saveMinuteRecord() {
@@ -1567,8 +1360,13 @@ async function saveMinuteRecord() {
     }
 }
 
-function saveMinuteAsTemplatePrompt() {
-    const title = prompt('Enter Template Name:', state.ms.subject || 'Standard Minute Sheet Template');
+async function saveMinuteAsTemplatePrompt() {
+    const title = await deckPrompt({
+        title: 'Save minute template',
+        label: 'Template name',
+        hint: 'Stored in the local template library',
+        value: state.ms.subject || 'Standard Minute Sheet Template'
+    });
     if (!title) return;
 
     const payload = {
@@ -1597,25 +1395,12 @@ function saveMinuteAsTemplatePrompt() {
     });
 }
 
+/* Presentation renderer owned by js/skin.js — this forwarder keeps the
+   engine's internal calls (and inline handlers) pointed at the live
+   Command Deck implementation. */
 function renderMinuteTemplatesGrid() {
-    const container = document.getElementById('msTemplatesGrid');
-    if (!container) return;
-
-    container.innerHTML = state.minuteTemplates.map(t => `
-        <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3 shadow-2xs hover:border-teal-500 transition-all">
-            <div class="flex items-center justify-between">
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-50 text-teal-800 dark:bg-teal-950 dark:text-teal-300">${t.category || 'General'}</span>
-                <span class="text-[10px] font-mono text-slate-400">${t.lang === 'si' ? '🇱🇰 සිංහල' : '🇬🇧 English'}</span>
-            </div>
-            <h4 class="font-bold text-xs text-slate-800 dark:text-white line-clamp-1">${t.title}</h4>
-            <p class="text-[11px] text-slate-500 line-clamp-2">${t.subject || 'No subject'}</p>
-            <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end gap-1">
-                <button type="button" onclick="loadMinuteTemplateIntoBuilder('${t.id}')" class="px-3 py-1 rounded-lg text-xs font-bold bg-teal-600 text-white shadow-2xs">
-                    Use in Builder
-                </button>
-            </div>
-        </div>
-    `).join('');
+    const impl = window['renderMinuteTemplatesGrid'];
+    if (typeof impl === 'function' && impl !== renderMinuteTemplatesGrid) return impl.apply(this, arguments);
 }
 
 function loadMinuteTemplateIntoBuilder(tplId) {
@@ -1645,15 +1430,9 @@ function loadMinuteTemplateIntoBuilder(tplId) {
 // 3. LETTER STUDIO (NAVY BR 7) ENGINE
 // =============================================================================
 function switchLetterSubTab(subTab) {
-    document.querySelectorAll('[id^="ltrSubTab-"]').forEach(btn => {
-        btn.classList.remove('bg-blue-600', 'text-white', 'shadow-xs', 'font-bold');
-        btn.classList.add('font-medium', 'text-slate-300');
-    });
+    document.querySelectorAll('[id^="ltrSubTab-"]').forEach(btn => btn.classList.remove('is-active'));
     const activeBtn = document.getElementById(`ltrSubTab-${subTab}`);
-    if (activeBtn) {
-        activeBtn.classList.add('bg-blue-600', 'text-white', 'shadow-xs', 'font-bold');
-        activeBtn.classList.remove('font-medium', 'text-slate-300');
-    }
+    if (activeBtn) activeBtn.classList.add('is-active');
 
     document.getElementById('ltrPanel-drafting').classList.add('hidden');
     document.getElementById('ltrPanel-templates').classList.add('hidden');
@@ -1718,6 +1497,8 @@ function setLetterDateFormat(type) {
     state.ltr.date = formatted;
     const input = document.getElementById('ltrInputDate');
     if (input) input.value = formatted;
+    document.getElementById('btnDateInternal')?.classList.toggle('is-active', type === 'internal' || type === 'ink_dating');
+    document.getElementById('btnDateExternal')?.classList.toggle('is-active', type === 'external');
     updateLetterPreview();
 }
 
@@ -1725,14 +1506,21 @@ function setSubjectAlignment(align) {
     state.ltr.subjectAlign = align;
     const btnLeft = document.getElementById('btnSubjAlignLeft');
     const btnCenter = document.getElementById('btnSubjAlignCenter');
-    if (align === 'center') {
-        if (btnCenter) btnCenter.className = 'px-2 py-0.5 rounded bg-blue-600 text-white font-bold';
-        if (btnLeft) btnLeft.className = 'px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium';
-    } else {
-        if (btnLeft) btnLeft.className = 'px-2 py-0.5 rounded bg-blue-600 text-white font-bold';
-        if (btnCenter) btnCenter.className = 'px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium';
-    }
+    if (btnCenter) btnCenter.classList.toggle('is-active', align === 'center');
+    if (btnLeft) btnLeft.classList.toggle('is-active', align !== 'center');
     updateLetterPreview();
+}
+
+// Formula preset <select> → BR 7 tone engine
+function applyTonePresetFromSelect(value) {
+    const map = {
+        junior: 'junior_to_senior',
+        senior: 'senior_to_junior',
+        equal: 'equal_to_equal',
+        do_letter: 'do_letter',
+        do: 'do_letter'
+    };
+    setLetterTone(map[value] || 'junior_to_senior');
 }
 
 function setLetterTone(tone) {
@@ -1743,14 +1531,18 @@ function setLetterTone(tone) {
         else if (tone === 'senior_to_junior') toneSel.value = 'senior';
         else if (tone === 'equal_to_equal') toneSel.value = 'equal';
     }
-    document.querySelectorAll('.tone-btn').forEach(btn => {
-        btn.classList.remove('active', 'bg-amber-600', 'text-white', 'font-bold');
-        btn.classList.add('font-medium', 'bg-white', 'dark:bg-slate-800', 'text-slate-700', 'dark:text-slate-300');
-    });
+    document.querySelectorAll('.tone-btn').forEach(btn => btn.classList.remove('is-active', 'active'));
     const active = document.getElementById(`toneBtn-${tone}`);
-    if (active) {
-        active.classList.add('active', 'bg-amber-600', 'text-white', 'font-bold');
-        active.classList.remove('font-medium', 'bg-white', 'dark:bg-slate-800', 'text-slate-700', 'dark:text-slate-300');
+    if (active) active.classList.add('is-active');
+
+    const toneChip = document.getElementById('ltrToneChip');
+    if (toneChip) {
+        toneChip.textContent = {
+            junior_to_senior: 'Junior → Senior',
+            senior_to_junior: 'Senior → Junior',
+            equal_to_equal: 'Equal → Equal',
+            do_letter: 'DO Letter'
+        }[tone] || 'Tone';
     }
 
     let salutation = '';
@@ -1828,21 +1620,12 @@ function sortLetterReferencesChronological() {
     updateLetterPreview();
 }
 
+/* Presentation renderer owned by js/skin.js — this forwarder keeps the
+   engine's internal calls (and inline handlers) pointed at the live
+   Command Deck implementation. */
 function renderLetterReferences() {
-    const container = document.getElementById('ltrReferencesContainer');
-    if (!container) return;
-    if (state.ltr.references.length === 0) {
-        container.innerHTML = '<p class="text-[10px] text-slate-400 italic">No references added. Click "+ Add Ref" if referring to prior letters or signals.</p>';
-        return;
-    }
-
-    container.innerHTML = state.ltr.references.map((ref, idx) => `
-        <div class="flex items-center gap-1.5">
-            <span class="font-bold text-[10px] font-mono text-blue-800 dark:text-blue-300 w-6">${REF_LETTERS[idx] || String.fromCharCode(65 + idx)}.</span>
-            <input type="text" value="${escapeHtml(ref)}" oninput="state.ltr.references[${idx}]=this.value; updateLetterPreview();" placeholder="e.g. NHQ Letter NHQ/CE/2026/042 dated 10 Sep 26" class="flex-1 px-2 py-1 border border-slate-300 dark:border-slate-700 rounded-lg text-xs bg-white dark:bg-slate-900 outline-none">
-            <button type="button" onclick="removeLetterReferenceRow(${idx})" class="w-5 h-5 rounded bg-rose-100 text-rose-700 text-xs font-bold flex items-center justify-center">✕</button>
-        </div>
-    `).join('');
+    const impl = window['renderLetterReferences'];
+    if (typeof impl === 'function' && impl !== renderLetterReferences) return impl.apply(this, arguments);
 }
 
 function addLetterReferenceRow() {
@@ -1900,55 +1683,12 @@ function renumberLetterParagraphs() {
     });
 }
 
+/* Presentation renderer owned by js/skin.js — this forwarder keeps the
+   engine's internal calls (and inline handlers) pointed at the live
+   Command Deck implementation. */
 function renderLetterParagraphs() {
-    const container = document.getElementById('ltrParagraphsContainer');
-    if (!container) return;
-
-    renumberLetterParagraphs();
-
-    container.innerHTML = state.ltr.paragraphs.map((p, idx) => {
-        const lvl = p.level || 1;
-        const indentPx = (lvl - 1) * 20;
-        const lvlName = lvl === 1 ? 'Main' : lvl === 2 ? 'Sub (a)' : lvl === 3 ? 'Sub (1)' : 'Sub (i)';
-        const lvlBadgeColor = lvl === 1
-            ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/60 dark:text-blue-200'
-            : lvl === 2
-            ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/60 dark:text-emerald-200'
-            : lvl === 3
-            ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200'
-            : 'bg-purple-100 text-purple-800 dark:bg-purple-900/60 dark:text-purple-200';
-
-        return `
-            <div class="p-2.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 space-y-1.5 transition-all" style="margin-left: ${indentPx}px;">
-                <div class="flex items-center justify-between flex-wrap gap-1">
-                    <div class="flex items-center gap-1.5">
-                        <span class="text-[9px] px-1.5 py-0.5 rounded font-bold uppercase tracking-tight ${lvlBadgeColor}">${lvlName}</span>
-                        <span class="font-mono font-bold text-slate-800 dark:text-slate-200 text-xs">${p.num || '(unnumbered)'}</span>
-                    </div>
-                    <div class="flex items-center gap-1">
-                        <!-- Hierarchy Indent / Outdent -->
-                        <button type="button" onclick="outdentLetterParagraph(${idx})" ${lvl <= 1 ? 'disabled class="opacity-40 cursor-not-allowed"' : ''} title="Outdent / Promote" class="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-[10px] font-bold">←</button>
-                        <button type="button" onclick="indentLetterParagraph(${idx})" ${lvl >= 4 ? 'disabled class="opacity-40 cursor-not-allowed"' : ''} title="Indent / Demote" class="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-[10px] font-bold">→</button>
-                        <button type="button" onclick="addLetterSubParagraph(${idx})" title="Add child sub-paragraph" class="px-2 py-0.5 rounded bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 hover:bg-blue-100 text-[10px] font-bold">+ Sub</button>
-
-                        <!-- Move Up / Down -->
-                        <button type="button" onclick="moveLetterParagraph(${idx}, -1)" ${idx === 0 ? 'disabled class="opacity-40 cursor-not-allowed"' : ''} title="Move Up" class="px-1 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-[10px]">▲</button>
-                        <button type="button" onclick="moveLetterParagraph(${idx}, 1)" ${idx === state.ltr.paragraphs.length - 1 ? 'disabled class="opacity-40 cursor-not-allowed"' : ''} title="Move Down" class="px-1 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-[10px]">▼</button>
-
-                        <!-- Formatting -->
-                        <button type="button" onclick="formatLtrParaText(${idx}, 'b')" class="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-[10px] font-bold">B</button>
-                        <button type="button" onclick="formatLtrParaText(${idx}, 'u')" class="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-[10px] underline">U</button>
-
-                        <!-- Remove -->
-                        ${state.ltr.paragraphs.length > 1 ? `
-                            <button type="button" onclick="removeLetterParagraphRow(${idx})" class="text-rose-600 hover:text-rose-800 text-[11px] font-bold ml-1">✕</button>
-                        ` : ''}
-                    </div>
-                </div>
-                <textarea id="ltrParaText_${idx}" oninput="state.ltr.paragraphs[${idx}].text=this.value; updateLetterPreview();" rows="2" placeholder="Paragraph text..." class="w-full px-2.5 py-1.5 border border-slate-300 dark:border-slate-700 rounded-lg text-xs bg-slate-50 dark:bg-slate-800 outline-none">${escapeHtml(p.text || '')}</textarea>
-            </div>
-        `;
-    }).join('');
+    const impl = window['renderLetterParagraphs'];
+    if (typeof impl === 'function' && impl !== renderLetterParagraphs) return impl.apply(this, arguments);
 }
 
 function addLetterParagraphRow(level = 1) {
@@ -2035,15 +1775,12 @@ function formatLtrParaText(idx, tag) {
     updateLetterPreview();
 }
 
+/* Presentation renderer owned by js/skin.js — this forwarder keeps the
+   engine's internal calls (and inline handlers) pointed at the live
+   Command Deck implementation. */
 function renderLetterEnclosures() {
-    const container = document.getElementById('ltrEnclosuresContainer');
-    if (!container) return;
-    container.innerHTML = state.ltr.enclosures.map((enc, idx) => `
-        <div class="flex items-center gap-1">
-            <input type="text" value="${escapeHtml(enc)}" oninput="state.ltr.enclosures[${idx}]=this.value; updateLetterPreview();" placeholder="e.g. Annex A: Cost Estimate" class="flex-1 px-2 py-1 border border-slate-300 dark:border-slate-700 rounded bg-white dark:bg-slate-900 outline-none">
-            <button type="button" onclick="removeLetterEnclosureRow(${idx})" class="text-rose-500 font-bold px-1">✕</button>
-        </div>
-    `).join('');
+    const impl = window['renderLetterEnclosures'];
+    if (typeof impl === 'function' && impl !== renderLetterEnclosures) return impl.apply(this, arguments);
 }
 
 function addLetterEnclosureRow() {
@@ -2058,28 +1795,12 @@ function removeLetterEnclosureRow(idx) {
     updateLetterPreview();
 }
 
+/* Presentation renderer owned by js/skin.js — this forwarder keeps the
+   engine's internal calls (and inline handlers) pointed at the live
+   Command Deck implementation. */
 function renderLetterCopyTo() {
-    const container = document.getElementById('ltrCopyToContainer');
-    if (!container) return;
-
-    const activeCopyTo = state.ltr.copyTo.filter(c => c.trim() !== '');
-    const badge = document.getElementById('ltrDistCountBadge');
-    if (badge) {
-        if (activeCopyTo.length > 4) {
-            badge.textContent = `${activeCopyTo.length} (See Distribution)`;
-            badge.className = 'text-[9px] px-1.5 py-0.2 rounded font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300';
-        } else {
-            badge.textContent = `${activeCopyTo.length}`;
-            badge.className = 'text-[9px] px-1.5 py-0.2 rounded font-bold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300';
-        }
-    }
-
-    container.innerHTML = state.ltr.copyTo.map((cp, idx) => `
-        <div class="flex items-center gap-1">
-            <input type="text" value="${escapeHtml(cp)}" oninput="state.ltr.copyTo[${idx}]=this.value; renderLetterCopyTo(); updateLetterPreview();" placeholder="Addressee" class="flex-1 px-2 py-1 border border-slate-300 dark:border-slate-700 rounded bg-white dark:bg-slate-900 outline-none">
-            <button type="button" onclick="removeLetterCopyToRow(${idx})" class="text-rose-500 font-bold px-1">✕</button>
-        </div>
-    `).join('');
+    const impl = window['renderLetterCopyTo'];
+    if (typeof impl === 'function' && impl !== renderLetterCopyTo) return impl.apply(this, arguments);
 }
 
 function addLetterCopyToRow() {
@@ -2146,192 +1867,12 @@ async function autoGenerateLetterRef() {
 }
 
 // Live Paper Rendering (Navy BR 7 Military Correspondence)
+/* Presentation renderer owned by js/skin.js — this forwarder keeps the
+   engine's internal calls (and inline handlers) pointed at the live
+   Command Deck implementation. */
 function updateLetterPreview() {
-    const paper = document.getElementById('letterLivePaper');
-    if (!paper) return;
-
-    const secClass = document.getElementById('ltrInputSecurityClass')?.value || state.ltr.securityClass || 'RESTRICTED';
-    const precedence = document.getElementById('ltrInputPrecedence')?.value || state.ltr.precedence || 'ROUTINE';
-    const ref = document.getElementById('ltrInputRef')?.value || state.ltr.ref;
-    const fileNo = document.getElementById('ltrInputFileNo')?.value || state.ltr.fileNo;
-    const date = document.getElementById('ltrInputDate')?.value || state.ltr.date;
-    const office = document.getElementById('ltrInputOffice')?.value || state.ltr.office;
-    const station = document.getElementById('ltrInputStation')?.value || state.ltr.station;
-    const tel = document.getElementById('ltrInputTel')?.value || state.ltr.tel;
-    const to = document.getElementById('ltrInputAddresseeTo')?.value || state.ltr.addresseeTo;
-    const through = document.getElementById('ltrInputChannelThrough')?.value || state.ltr.channelThrough;
-    const attention = document.getElementById('ltrInputAttention')?.value || state.ltr.attention;
-    const subj = document.getElementById('ltrInputSubject')?.value || state.ltr.subject;
-    const salutation = document.getElementById('ltrInputSalutation')?.value || state.ltr.salutation;
-    const compClose = document.getElementById('ltrInputCompClose')?.value || state.ltr.complimentaryClose;
-    const signName = document.getElementById('ltrInputSignName')?.value || state.ltr.signName;
-    const signRank = document.getElementById('ltrInputSignRank')?.value || state.ltr.signRank;
-    const signAppt = document.getElementById('ltrInputSignAppointment')?.value || state.ltr.signAppointment;
-    const signBranch = document.getElementById('ltrInputSignBranch')?.value || '(CE)';
-    const postNominals = document.getElementById('ltrInputPostNominals')?.value || '';
-    const sdChecked = document.getElementById('ltrInputSdCheckbox')?.checked ?? true;
-    const isExternalSLN = document.getElementById('ltrInputIncludeSLN')?.checked ?? false;
-    const copyNo = document.getElementById('ltrInputCopyNo')?.value || 1;
-    const totalCopies = document.getElementById('ltrInputTotalCopies')?.value || 5;
-
-    // Toggle Secret Meta inputs visibility in sidebar
-    const secretInputsContainer = document.getElementById('ltrSecretMetaInputs');
-    if (secretInputsContainer) {
-        if (secClass === 'SECRET' || secClass === 'TOP SECRET') {
-            secretInputsContainer.classList.remove('hidden');
-        } else {
-            secretInputsContainer.classList.add('hidden');
-        }
-    }
-
-    let branchStr = signBranch.trim();
-    if (isExternalSLN && branchStr && !branchStr.includes('SLN')) {
-        branchStr = `${branchStr}, SLN`;
-    }
-
-    const referencesHtml = state.ltr.references.filter(r => r.trim() !== '').map((r, i) => `
-        <div class="br7-ref-item" style="margin-left: 24px; text-indent: -24px; font-size: 10.5pt; margin-bottom: 3px;">
-            <span style="font-weight: bold;">${REF_LETTERS[i] || String.fromCharCode(65 + i)}.</span> ${escapeHtml(r)}
-        </div>
-    `).join('');
-
-    renumberLetterParagraphs();
-
-    const paragraphsHtml = state.ltr.paragraphs.map(p => {
-        const lvl = p.level || 1;
-        const indentPx = (lvl - 1) * 24;
-        return `
-            <div class="br7-para-item br7-para-l${lvl}" style="margin-left: ${indentPx}px; margin-bottom: 12px; display: flex; align-items: flex-start; text-align: justify; font-size: 11pt; line-height: 1.6;">
-                ${p.num ? `<span style="font-weight: bold; width: 32px; shrink: 0; display: inline-block;">${p.num}</span>` : ''}
-                <div style="flex: 1;">${p.text || ''}</div>
-            </div>
-        `;
-    }).join('');
-
-    const enclosuresHtml = state.ltr.enclosures.filter(e => e.trim() !== '').map(e => `
-        <div>• ${escapeHtml(e)}</div>
-    `).join('');
-
-    const activeCopyTo = state.ltr.copyTo.filter(c => c.trim() !== '');
-    const isWideDistribution = activeCopyTo.length > 4;
-
-    const copyToHtml = activeCopyTo.map(c => `
-        <div>• ${escapeHtml(c)}</div>
-    `).join('');
-
-    const subjAlign = state.ltr.subjectAlign || 'left';
-    const isSeniorToJunior = state.ltr.br7Tone === 'senior_to_junior';
-
-    paper.innerHTML = `
-        <!-- Top Security Classification Stamp (Bold, Underlined, Uppercase) -->
-        <div id="topSecClass" class="security-banner br7-security-stamp br7-security-${secClass} ${secClass.toLowerCase()}">
-            <u>${secClass}</u>
-        </div>
-
-        <!-- Precedence Indicator -->
-        <div style="text-align: center; font-size: 9pt; font-weight: 800; letter-spacing: 1px; color: #475569; margin-bottom: 12px;">
-            [${precedence}]
-        </div>
-
-        <!-- Top Right Copy and Page Numbering for SECRET / TOP SECRET -->
-        ${(secClass === 'SECRET' || secClass === 'TOP SECRET') ? `
-            <div class="br7-secret-meta" style="position: absolute; top: 22mm; right: 15mm; text-align: right; font-family: monospace; font-size: 8.5pt; font-weight: bold; line-height: 1.3;">
-                <div>Copy No. ${escapeHtml(copyNo)} of ${escapeHtml(totalCopies)}</div>
-                <div>Page 1 of 1</div>
-            </div>
-        ` : ''}
-
-        <!-- Naval Letterhead with Crest & Originator Block -->
-        <div class="br7-letterhead" style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #000; padding-bottom: 12px; margin-bottom: 16px;">
-            <img src="logo-crest.png" alt="Crest" class="br7-crest-img" style="height: 65px; object-fit: contain;">
-            <div class="br7-originator-info" style="text-align: right; font-size: 9pt; line-height: 1.35;">
-                <strong style="font-size: 9.5pt; display: block;">${escapeHtml(office)}</strong>
-                <span>${escapeHtml(station)}</span><br>
-                <span>Tel: ${escapeHtml(tel)}</span><br>
-                <div id="displayLetterDate" style="margin-top: 6px; font-weight: bold; font-size: 10pt;">${escapeHtml(date)}</div>
-            </div>
-        </div>
-
-        <!-- Letter Reference & Physical File Number -->
-        <div style="display: flex; justify-content: space-between; margin-bottom: 14px; font-size: 10.5pt; font-family: monospace;">
-            <div id="displayLetterRef"><strong>My Ref:</strong> ${escapeHtml(ref)}</div>
-            <div id="displayFileRef">${fileNo ? `<strong>File Ref:</strong> ${escapeHtml(fileNo)}` : ''}</div>
-        </div>
-
-        <!-- Addressee & Through Channel -->
-        <div style="margin-bottom: 14px; font-size: 11pt; line-height: 1.4;">
-            <div id="displayAddressee" style="white-space: pre-line; font-weight: bold;">${escapeHtml(to)}</div>
-            ${through ? `<div style="margin-top: 5px; font-style: italic;">${escapeHtml(through)}</div>` : ''}
-            ${attention ? `<div style="margin-top: 4px; font-weight: 600; font-size: 10pt;">(${escapeHtml(attention)})</div>` : ''}
-        </div>
-
-        <!-- Salutation (Omitted for Senior to Junior) -->
-        ${(!isSeniorToJunior && salutation) ? `
-            <div id="letterSalutation" style="margin-top: 14px; font-weight: bold; font-size: 11pt;">${escapeHtml(salutation)}</div>
-        ` : '<div id="letterSalutation" style="display:none;"></div>'}
-
-        <!-- Subject Heading (3 Lines below Addressee/Salutation, Block Capitals, Bold, Underlined) -->
-        <div id="displaySubject" class="subject-title" style="margin-top: 26px; margin-bottom: 16px; text-align: ${subjAlign}; font-weight: 800; font-size: 11.5pt; text-transform: uppercase; text-decoration: underline; text-underline-offset: 4px;">
-            ${escapeHtml(subj)}
-        </div>
-
-        <!-- References Block (References: A. ... B. ...) -->
-        <div id="canvasReferences" class="references-block br7-ref-block" style="${referencesHtml ? 'margin: 12px 0 16px 0;' : 'display:none;'}">
-            <span class="font-bold">References:</span>
-            ${referencesHtml}
-        </div>
-
-        <!-- Hierarchical Numbered Paragraphs -->
-        <div id="canvasParagraphs" style="margin-top: 14px; min-height: 160px;">
-            ${paragraphsHtml}
-        </div>
-
-        <!-- Complimentary Close & Signatory Block (Placed Right 5 Lines Below Text) -->
-        <div class="signature-block br7-sign-block" style="margin-top: 40px; margin-left: auto; width: 280px; text-align: center; font-size: 10.5pt; line-height: 1.4;">
-            ${(!isSeniorToJunior && compClose) ? `
-                <div id="complimentaryClose" style="margin-bottom: 25px; font-style: italic;">
-                    ${escapeHtml(compClose)}
-                </div>
-            ` : '<div id="complimentaryClose" style="display:none;"></div>'}
-            ${sdChecked ? '<div style="font-style: italic; font-size: 10pt; margin-bottom: 20px;">sd/-</div>' : '<div style="height: 35px;"></div>'}
-            <div id="sigName" class="name" style="font-weight: 800; text-transform: uppercase; font-size: 11pt; letter-spacing: 0.5px;">
-                ${escapeHtml(signName)}${postNominals ? `, <span style="font-weight: 600; text-transform: none; font-size: 10pt;">${escapeHtml(postNominals)}</span>` : ''}
-            </div>
-            <div id="sigRank" style="font-weight: 600;">${escapeHtml(signRank)}${branchStr ? ` ${escapeHtml(branchStr)}` : ''}</div>
-            <div id="sigAppt" style="font-weight: 600;">${escapeHtml(signAppt)}</div>
-        </div>
-
-        <!-- Clearfix -->
-        <div style="clear: both;"></div>
-
-        <!-- Enclosures & Distribution Block -->
-        <div style="margin-top: 30px; font-size: 9.5pt; border-top: 1px dashed #64748b; padding-top: 10px; display: flex; justify-content: space-between;">
-            <div style="width: 48%;">
-                ${enclosuresHtml ? `<strong>Enclosure(s):</strong>${enclosuresHtml}` : ''}
-            </div>
-            <div style="width: 48%;">
-                ${copyToHtml ? `
-                    ${isWideDistribution ? `
-                        <strong>Distribution:</strong>
-                        <div style="font-style: italic; font-size: 9pt; margin-bottom: 4px;">(See Distribution List below)</div>
-                        ${copyToHtml}
-                    ` : `
-                        <strong>Copy to:</strong>
-                        ${copyToHtml}
-                    `}
-                ` : ''}
-            </div>
-        </div>
-
-        <!-- Bottom Security Classification Stamp (Bold, Underlined, Uppercase) -->
-        <div id="botSecClass" class="security-banner br7-security-stamp br7-security-${secClass} ${secClass.toLowerCase()}" style="position: absolute; bottom: 18px; left: 0; right: 0;">
-            <u>${secClass}</u>
-        </div>
-    `;
-
-    if (!document.getElementById('modalLetterPrintStudio').classList.contains('hidden')) {
-        syncLetterPrintStudioPreview();
-    }
+    const impl = window['updateLetterPreview'];
+    if (typeof impl === 'function' && impl !== updateLetterPreview) return impl.apply(this, arguments);
 }
 
 // Letter Studio Print Studio Modal
@@ -2355,11 +1896,24 @@ function syncLetterPrintStudioPreview() {
     if (!canvas || !live) return;
 
     canvas.innerHTML = live.innerHTML;
-    canvas.style.fontFamily = live.style.fontFamily;
-    canvas.style.fontSize = live.style.fontSize;
-    canvas.style.lineHeight = live.style.lineHeight;
+    canvas.style.fontFamily = live.style.fontFamily || "'Abhaya Libre', 'Noto Serif Sinhala', serif";
     canvas.style.backgroundColor = '#ffffff';
     canvas.style.color = '#000000';
+
+    // Typography calibration
+    const fontPt = Number(document.getElementById('ltrPrintFontSize')?.value) || 11;
+    const leading = Number(document.getElementById('ltrPrintLineSpacing')?.value) || 1.5;
+    canvas.style.fontSize = `${fontPt}pt`;
+    canvas.style.lineHeight = String(leading);
+
+    // Optional sheet furniture
+    const crest = document.getElementById('ltrPrintShowCrest');
+    const banner = document.getElementById('ltrPrintShowSecurityBanner');
+    const holes = document.getElementById('ltrPrintShowFilingHoles');
+    canvas.classList.toggle('is-crest-hidden', crest ? !crest.checked : false);
+    canvas.classList.toggle('is-banner-hidden', banner ? !banner.checked : false);
+    canvas.classList.toggle('is-holes-shown', holes ? holes.checked : true);
+
     applyLetterStudioZoom(state.ltrPrintZoom);
 }
 
@@ -2383,7 +1937,8 @@ function applyLetterStudioZoom(zoom) {
 function executeLetterDirectPrint() {
     const canvas = document.getElementById('ltrStudioPaperCanvas');
     if (!canvas) return;
-    printIsolatedHTML(canvas.innerHTML, "Navy BR 7 Letter - " + state.ltr.ref);
+    const style = `font-family:${canvas.style.fontFamily};font-size:${canvas.style.fontSize};line-height:${canvas.style.lineHeight}`;
+    printIsolatedHTML(`<div style="${style}">${canvas.innerHTML}</div>`, "Navy BR 7 Letter - " + state.ltr.ref);
 }
 
 async function saveLetterDraft() {
@@ -2460,23 +2015,12 @@ function buildLetterPayload(status, isRegistered) {
     };
 }
 
+/* Presentation renderer owned by js/skin.js — this forwarder keeps the
+   engine's internal calls (and inline handlers) pointed at the live
+   Command Deck implementation. */
 function renderNavalLettersTable() {
-    const tbody = document.getElementById('ltrDraftsTableBody');
-    if (!tbody) return;
-
-    tbody.innerHTML = state.navalLetters.map(l => `
-        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-            <td class="p-3 font-mono font-bold text-blue-700 dark:text-blue-400">${l.letter_ref}</td>
-            <td class="p-3 text-[11px]">${l.letter_date}</td>
-            <td class="p-3 text-[11px] font-semibold">${(l.addressee_to || '').split('\n')[0]}</td>
-            <td class="p-3 font-medium line-clamp-1">${l.subject}</td>
-            <td class="p-3 text-[10px] font-bold"><span class="px-2 py-0.5 rounded bg-rose-50 text-rose-800">${l.security_class}</span></td>
-            <td class="p-3 text-[10px] font-bold"><span class="px-2 py-0.5 rounded ${l.is_registered_outgoing ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'}">${l.status}</span></td>
-            <td class="p-3 text-right">
-                <button type="button" onclick="loadLetterIntoStudio('${l.id}')" class="px-2 py-1 rounded bg-blue-600 text-white font-bold text-[11px]">Edit</button>
-            </td>
-        </tr>
-    `).join('');
+    const impl = window['renderNavalLettersTable'];
+    if (typeof impl === 'function' && impl !== renderNavalLettersTable) return impl.apply(this, arguments);
 }
 
 function loadLetterIntoStudio(letterId) {
@@ -2532,25 +2076,12 @@ function loadLetterIntoStudio(letterId) {
     initLetterStudio();
 }
 
+/* Presentation renderer owned by js/skin.js — this forwarder keeps the
+   engine's internal calls (and inline handlers) pointed at the live
+   Command Deck implementation. */
 function renderNavalLetterTemplatesGrid() {
-    const container = document.getElementById('ltrTemplatesGrid');
-    if (!container) return;
-
-    container.innerHTML = state.navalLetterTemplates.map(t => `
-        <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3 shadow-2xs hover:border-blue-500 transition-all">
-            <div class="flex items-center justify-between">
-                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-800 dark:bg-blue-950 dark:text-blue-300">${t.category || 'BR 7'}</span>
-                <span class="text-[10px] font-mono text-rose-600 font-bold">${t.security_class}</span>
-            </div>
-            <h4 class="font-bold text-xs text-slate-800 dark:text-white line-clamp-1">${t.title}</h4>
-            <p class="text-[11px] text-slate-500 line-clamp-2">${t.subject || 'Standard BR 7 format'}</p>
-            <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-end">
-                <button type="button" onclick="loadLetterTemplateIntoStudio('${t.id}')" class="px-3 py-1 rounded-lg text-xs font-bold bg-blue-600 text-white shadow-2xs">
-                    Draft Letter
-                </button>
-            </div>
-        </div>
-    `).join('');
+    const impl = window['renderNavalLetterTemplatesGrid'];
+    if (typeof impl === 'function' && impl !== renderNavalLetterTemplatesGrid) return impl.apply(this, arguments);
 }
 
 function loadLetterTemplateIntoStudio(tplId) {
@@ -2573,8 +2104,13 @@ function loadLetterTemplateIntoStudio(tplId) {
     initLetterStudio();
 }
 
-function saveLetterAsTemplatePrompt() {
-    const title = prompt('Enter Template Name:', state.ltr.subject || 'Standard BR 7 Letter Template');
+async function saveLetterAsTemplatePrompt() {
+    const title = await deckPrompt({
+        title: 'Save letter template',
+        label: 'Template name',
+        hint: 'Stored in the local template library',
+        value: state.ltr.subject || 'Standard BR 7 Letter Template'
+    });
     if (!title) return;
 
     const payload = {
@@ -2605,15 +2141,9 @@ function saveLetterAsTemplatePrompt() {
 // 4. SETTINGS & CONFIGURATION ENGINE
 // =============================================================================
 function switchSettingsTab(subTab) {
-    document.querySelectorAll('[id^="setTab-"]').forEach(btn => {
-        btn.classList.remove('active', 'bg-white', 'dark:bg-slate-700', 'text-teal-700', 'dark:text-teal-400', 'shadow-2xs');
-        btn.classList.add('text-slate-600', 'dark:text-slate-400');
-    });
+    document.querySelectorAll('[id^="setTab-"]').forEach(btn => btn.classList.remove('is-active', 'active'));
     const activeBtn = document.getElementById(`setTab-${subTab}`);
-    if (activeBtn) {
-        activeBtn.classList.add('active', 'bg-white', 'dark:bg-slate-700', 'text-teal-700', 'dark:text-teal-400', 'shadow-2xs');
-        activeBtn.classList.remove('text-slate-600', 'dark:text-slate-400');
-    }
+    if (activeBtn) activeBtn.classList.add('is-active');
 
     document.getElementById('setContent-ms_config').classList.add('hidden');
     document.getElementById('setContent-ltr_config').classList.add('hidden');
@@ -2628,12 +2158,8 @@ function switchSettingsTab(subTab) {
 function switchSettingsMsLang(lang) {
     state.settingsMinuteLang = lang;
     const isSi = lang === 'si';
-    document.getElementById('btnSetMsLangSi').className = isSi
-        ? 'px-3 py-1 rounded-lg font-bold bg-teal-600 text-white shadow-xs'
-        : 'px-3 py-1 rounded-lg font-medium text-slate-600 dark:text-slate-400';
-    document.getElementById('btnSetMsLangEn').className = !isSi
-        ? 'px-3 py-1 rounded-lg font-bold bg-teal-600 text-white shadow-xs'
-        : 'px-3 py-1 rounded-lg font-medium text-slate-600 dark:text-slate-400';
+    document.getElementById('btnSetMsLangSi')?.classList.toggle('is-active', isSi);
+    document.getElementById('btnSetMsLangEn')?.classList.toggle('is-active', !isSi);
     renderSettingsLists();
 }
 
@@ -2651,20 +2177,21 @@ function renderSettingsLists() {
     renderConfigItemList('cfgListLtrDistribution', ltrCfg.distribution_presets || [], 'distribution_presets');
 }
 
+/* Presentation renderer owned by js/skin.js — this forwarder keeps the
+   engine's internal calls (and inline handlers) pointed at the live
+   Command Deck implementation. */
 function renderConfigItemList(containerId, items, type) {
-    const c = document.getElementById(containerId);
-    if (!c) return;
-
-    c.innerHTML = items.map((it, idx) => `
-        <div class="flex items-center justify-between p-1.5 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 text-xs">
-            <span class="truncate flex-1 pr-2">${escapeHtml(it)}</span>
-            <button type="button" onclick="deleteConfigItem('${type}', ${idx})" class="text-rose-500 hover:text-rose-700 font-bold px-1.5 py-0.5">✕</button>
-        </div>
-    `).join('');
+    const impl = window['renderConfigItemList'];
+    if (typeof impl === 'function' && impl !== renderConfigItemList) return impl.apply(this, arguments);
 }
 
-function openAddConfigModal(type) {
-    const val = prompt('Enter new configuration item:');
+async function openAddConfigModal(type) {
+    const val = await deckPrompt({
+        title: 'Add configuration item',
+        label: 'New entry',
+        hint: 'Applies to the active language list',
+        multiline: /addressees|distribution/i.test(type)
+    });
     if (!val || !val.trim()) return;
 
     const lang = state.settingsMinuteLang || 'si';
@@ -2719,26 +2246,22 @@ async function saveSettingsLetterConfig() {
     }
 }
 
+/* Presentation renderer owned by js/skin.js — this forwarder keeps the
+   engine's internal calls (and inline handlers) pointed at the live
+   Command Deck implementation. */
 function renderPrefixesTable() {
-    const tbody = document.getElementById('cfgPrefixesTableBody');
-    if (!tbody) return;
-
-    tbody.innerHTML = state.prefixes.map(p => `
-        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-            <td class="p-3 font-semibold text-slate-700 dark:text-slate-300">${p.office_section}</td>
-            <td class="p-3">${p.category}</td>
-            <td class="p-3 font-mono font-bold text-teal-700 dark:text-teal-400">${p.prefix_pattern}</td>
-            <td class="p-3 font-mono font-bold">${p.next_sequence}</td>
-            <td class="p-3 font-mono text-slate-500">${p.prefix_pattern.replace('{YYYY}', '2026').replace('{SEQ}', String(p.next_sequence).padStart(p.padding_length, '0')).replace('{MM}', '10').replace('{YY}', '26')}</td>
-            <td class="p-3 text-right">
-                <button type="button" onclick="editPrefixSeqPrompt('${p.id}', ${p.next_sequence})" class="text-blue-600 font-bold hover:underline">Edit Seq</button>
-            </td>
-        </tr>
-    `).join('');
+    const impl = window['renderPrefixesTable'];
+    if (typeof impl === 'function' && impl !== renderPrefixesTable) return impl.apply(this, arguments);
 }
 
-function editPrefixSeqPrompt(pfxId, curSeq) {
-    const n = prompt('Enter new sequential number for this prefix:', curSeq);
+async function editPrefixSeqPrompt(pfxId, curSeq) {
+    const n = await deckPrompt({
+        title: 'Edit running sequence',
+        label: 'Next sequential number',
+        hint: 'Atomically reserved by the API on the next reference',
+        value: curSeq,
+        type: 'number'
+    });
     if (!n) return;
     const seq = parseInt(n, 10);
     if (isNaN(seq) || seq < 1) return;
@@ -2756,22 +2279,12 @@ function editPrefixSeqPrompt(pfxId, curSeq) {
     });
 }
 
+/* Presentation renderer owned by js/skin.js — this forwarder keeps the
+   engine's internal calls (and inline handlers) pointed at the live
+   Command Deck implementation. */
 function renderFilesTable() {
-    const tbody = document.getElementById('cfgFilesTableBody');
-    if (!tbody) return;
-
-    tbody.innerHTML = state.files.map(f => `
-        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-            <td class="p-3 font-mono font-bold text-teal-700 dark:text-teal-400">${f.file_no}</td>
-            <td class="p-3 font-semibold text-slate-800 dark:text-white">${f.subject}</td>
-            <td class="p-3">${f.office_section}</td>
-            <td class="p-3 font-mono">${f.file_box_ref || '-'} / ${f.cabinet_location || '-'}</td>
-            <td class="p-3 text-[11px]">${f.current_volume || 'Vol 1'} (${f.total_folios || 0} fls)</td>
-            <td class="p-3 text-right">
-                <button type="button" onclick="selectFileForActiveStudio('${f.file_no}')" class="text-teal-600 font-bold hover:underline">Select</button>
-            </td>
-        </tr>
-    `).join('');
+    const impl = window['renderFilesTable'];
+    if (typeof impl === 'function' && impl !== renderFilesTable) return impl.apply(this, arguments);
 }
 
 function selectFileForActiveStudio(fileNo) {
@@ -2785,10 +2298,20 @@ function selectFileForActiveStudio(fileNo) {
     }
 }
 
-function openAddFileModal() {
-    const fileNo = prompt('Enter File Reference Number (e.g. CE/HQ/01/2026):');
+async function openAddFileModal() {
+    const fileNo = await deckPrompt({
+        title: 'Open new physical file',
+        label: 'File reference number',
+        hint: 'Format · CE/HQ/01/2026',
+        placeholder: 'CE/HQ/01/2026'
+    });
     if (!fileNo) return;
-    const subj = prompt('Enter File Subject:');
+    const subj = await deckPrompt({
+        title: 'Open new physical file',
+        label: 'File subject',
+        hint: `File ${fileNo}`,
+        multiline: true
+    });
     if (!subj) return;
 
     fetch('api.php?action=files', {
@@ -2804,10 +2327,19 @@ function openAddFileModal() {
     });
 }
 
-function openPrefixModalForNew() {
-    const pat = prompt('Enter Prefix Pattern (use {YYYY}, {MM}, {SEQ}):', 'CCED/EXT/{YYYY}/{SEQ}');
+async function openPrefixModalForNew() {
+    const pat = await deckPrompt({
+        title: 'New reference prefix',
+        label: 'Prefix pattern',
+        hint: 'Tokens available · {YYYY} {YY} {MM} {SEQ}',
+        value: 'CCED/EXT/{YYYY}/{SEQ}'
+    });
     if (!pat) return;
-    const cat = prompt('Enter Office Category name:');
+    const cat = await deckPrompt({
+        title: 'New reference prefix',
+        label: 'Office category',
+        hint: `Pattern ${pat}`
+    });
     if (!cat) return;
 
     fetch('api.php?action=prefixes', {
@@ -2844,7 +2376,7 @@ function openPrefixSettingsModal() {
 // =============================================================================
 // NATIVE ISOLATED PRINT ENGINE
 // =============================================================================
-function printIsolatedHTML(contentHTML, title = "CMSys Documents - Naval Document Print") {
+function printIsolatedHTML(contentHTML, title = "CMSys Documents - Naval Document Print", options = {}) {
     const iframe = document.getElementById('printDirectIframe');
     if (!iframe) return;
 
@@ -2859,11 +2391,11 @@ function printIsolatedHTML(contentHTML, title = "CMSys Documents - Naval Documen
             <meta charset="UTF-8">
             <title>${escapeHtml(title)}</title>
             <link rel="stylesheet" href="sinhala-fonts.css">
-            <link rel="stylesheet" href="style.css">
+            <link rel="stylesheet" href="css/paper.css">
             <style>
                 @page {
-                    size: A4 portrait;
-                    margin: 25.4mm 15mm 25.4mm 38.1mm;
+                    size: ${options.paper === 'Legal' ? 'Legal portrait' : 'A4 portrait'};
+                    margin: ${options.marginTop || '25.4mm'} ${options.marginRight || '15mm'} ${options.marginBottom || '25.4mm'} ${options.marginLeft || '38.1mm'};
                 }
                 @page :first {
                     @top-center { content: ""; }
@@ -2952,22 +2484,22 @@ async function checkEcosystemHealth(showAlert = false) {
         const res = await fetch('api.php?action=settings');
         const json = await res.json();
         if (json.success) {
-            if (dot) dot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+            if (dot) { dot.classList.remove('is-warn'); dot.classList.add('is-live'); }
             if (text) text.textContent = 'FB: Synchronized';
             if (statusBadge) {
                 statusBadge.textContent = 'OPERATIONAL / SYNCHRONIZED';
-                statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+                statusBadge.className = 'chip chip--jade';
             }
             if (showAlert) alert('CMSys Ecosystem & Firebase cloud mirror are healthy and synchronized.');
         } else {
             throw new Error(json.error || 'Server error');
         }
     } catch (e) {
-        if (dot) dot.className = 'w-2 h-2 rounded-full bg-amber-400';
-        if (text) text.textContent = 'Local Mode (Air-Gapped)';
+        if (dot) { dot.classList.remove('is-live'); dot.classList.add('is-warn'); }
+        if (text) text.textContent = 'Local mode (air-gapped)';
         if (statusBadge) {
             statusBadge.textContent = 'AIR-GAPPED / LOCAL RESILIENCE';
-            statusBadge.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30';
+            statusBadge.className = 'chip chip--amber';
         }
         if (showAlert) alert('System operating in air-gapped local mode. Local MySQL database is active.');
     }
@@ -2993,6 +2525,8 @@ async function refreshMetaFromUI() {
 
 function onLetterSecurityClassChange(val) {
     state.ltr.securityClass = val;
+    const sel = document.getElementById('ltrInputSecurityClass');
+    if (sel && sel.value !== val) sel.value = val;
     updateLetterPreview();
 }
 
@@ -3005,552 +2539,9 @@ function openNewMinuteTemplateModal() {
 // SRI LANKA NAVY - CMSYS DOCUMENTS CORE STATE & STUDIO CONTROLLER (App)
 // Strictly Compliant with SLN BR 7 & CMSys Document System Architecture
 // =============================================================================
-const App = {
-  state: {
-    activeTab: 'letterstudio', // 'letterstudio' or 'minutesheet'
-    stamping_mode: 'red', // 'red' (#dc2626) or 'monochrome' (#000000)
-    date_mode: 'internal', // 'internal' (23 Oct 26), 'external' (23rd October 2026), 'ink_dating' (____ ____________ 20__)
-    letter: {
-      security_class: 'RESTRICTED',
-      privacy_marking: 'NONE', // 'NONE', 'STAFF IN CONFIDENCE', 'PERSONAL AND CONFIDENTIAL'
-      precedence: 'ROUTINE', // 'ROUTINE', 'PRIORITY', 'IMMEDIATE', 'FLASH', 'OP IMMEDIATE'
-      copy_no: 'Copy No. 1 of 5',
-      tone: 'junior',
-      letter_ref: 'CCED/NHQ/2026/0012',
-      file_no: 'CE/EAST/ADM/05',
-      letter_date: '2026-10-23',
-      addressee_to: 'The Commander of the Navy\nNaval Headquarters\nColombo 01',
-      channel_through: 'The Commander Eastern Naval Area',
-      attention_to: 'Director General Civil Engineering',
-      subject: 'RECONSTRUCTION OF WATER DISTRIBUTION NETWORK - SLNS TISSA',
-      references: [
-        'NHQ Letter NHQ/CE/05/2026/042 dated 10 September 2026',
-        'COMEN Signal DTG 150830Z OCT 26'
-      ],
-      paragraphs: [
-        { id: 1, level: 1, text: 'I have the honour to submit for your kind consideration and approval please that an on-site structural inspection was conducted regarding the deteriorated water pipeline network.' },
-        { id: 2, level: 1, heading: 'Inspection Findings', text: 'The existing main distribution pipe network has developed severe galvanic corrosion resulting in intermittent pressure drops across the residential quarters.' },
-        { id: 3, level: 2, text: 'Severe pitting was observed along the 150mm ductile iron trunk line feeding the Chief and Petty Officers mess.' },
-        { id: 4, level: 2, text: 'Auxiliary booster pumps at pumping station 02 exhibit cavitation and continuous thermal tripping.' },
-        { id: 5, level: 1, text: 'The total estimated cost for the replacement project amounts to Rs. 1,485,000.00. Detailed estimate and Bill of Quantities (BOQ) are forwarded herewith for kind approval, please.' }
-      ],
-      signatory: {
-        name: 'A B C SENEVIRATNE',
-        post_nominals: 'psc, CEng',
-        rank: 'Commander (CE)',
-        branch: 'SLN',
-        appointment: 'Command Civil Engineering Officer (East)',
-        for_superior: '' // e.g. 'for Commander of the Navy'
-      },
-      annexes: [
-        'Detailed Engineering Estimate (Annex A)',
-        'Bill of Quantities (BOQ) Summary (Annex B)'
-      ],
-      enclosures: [
-        'Photographic evidence of pipeline corrosion (Encl 1)',
-        'Water chemical test analysis report (Encl 2)'
-      ],
-      distribution: {
-        action: [
-          'The Commander Eastern Naval Area',
-          'The Commanding Officer, SLNS Tissa'
-        ],
-        information: [
-          'The Director General Civil Engineering, NHQ',
-          'The Command Logistics Officer (East)',
-          'Office Copy'
-        ]
-      },
-      page_info: {
-        is_multi_page: false,
-        current_page: 1,
-        total_pages: 1,
-        annex_page: null,
-        appendix_page: null
-      }
-    },
-
-    // Section 1.9: Bilingual Minute Sheet State
-    minute: {
-      minuteSeq: 'M 01',
-      originatorTag: 'BY CCEO(E)',
-      originator_through: 'කොට්ඨාස සිවිල් ඉංජිනේරු නිලධාරී (නැගෙනහිර) මඟින්',
-      addressee: 'කොට්ඨාස සිවිල් ඉංජිනේරු නිලධාරී (නැගෙනහිර)',
-      date: '2026 ඔක්තෝබර් මස 24',
-      subject: 'SLNS තිස්ස ජල සම්පාදන පද්ධතිය ප්‍රතිසංස්කරණය කිරීම',
-      m01_body: '01.	SLNS තිස්ස ආයතනයේ ප්‍රධාන ජල නල පද්ධතියෙහි පවතින ගැල්වනික් විඛාදන තත්ත්වය හා ජල පීඩන බිඳවැටීම පිළිබඳව කරන ලද තාක්ෂණික පරීක්ෂණ වාර්තාව හා ඇස්තමේන්තුව අනුමැතිය සඳහා මෙයින් ඉදිරිපත් කරමි.\n02.	ප්‍රධාන නල මාර්ගය අලුත්වැඩියා කිරීම සඳහා රු. 1,485,000.00 ක මුදලක් ඇස්තමේන්තු කර ඇති අතර ඒ සඳහා නිර්දේශය ලබාදෙන මෙන් කාරුණිකව ඉල්ලා සිටිමි.',
-      m02_body: '01.	ඉහත M 01 හි සඳහන් තාක්ෂණික පරීක්ෂණ වාර්තාව හා ඇස්තමේන්තුව පරීක්ෂා කර බැලූ අතර කාර්යයේ හදිසි අවශ්‍යතාවය සලකා ඒ සඳහා නිර්දේශය ලබාදෙමි.\n02.	ප්‍රසම්පාදන ක්‍රියාවලිය වහාම ආරම්භ කිරීමට කටයුතු කරන්න.',
-      signatory_name: 'A B C SENEVIRATNE',
-      signatory_rank: 'Commander (CE)',
-      signatory_appointment: 'Command Civil Engineering Officer (East)'
-    }
-  },
-
-  // SLN Sinhala Naval Rank Linguistic Converter (Section 1.9)
-  convertRankToSinhala(rankStr) {
-    if (!rankStr) return '';
-    const dictionary = {
-      'Commander (CE)': 'කොමදෝරු (සිවිල්)',
-      'Lt Cdr (CE)': 'ලුතිනන් කොමදෝරු (සිවිල්)',
-      'Lieutenant (CE)': 'ලුතිනන් (සිවිල්)',
-      'Sub Lieutenant (CE)': 'උප ලුතිනන් (සිවිල්)',
-      'MCPO': 'ප්‍රධාන බලලත් නිලධාරී',
-      'FCPO': 'බලඇණි ප්‍රධාන බලලත් නිලධාරී',
-      'CPO': 'බලලත් නිලධාරී',
-      'PO': 'සුළු නිලධාරී',
-      'Leading Rate': 'නායක නාවික',
-      'Leading Seaman': 'නායක නාවික',
-      'Able Seaman': 'නැවැත්',
-      'Ordinary Seaman': 'සාමාන්‍ය නැවැත්'
-    };
-    for (const [k, v] of Object.entries(dictionary)) {
-      if (rankStr.toLowerCase().includes(k.toLowerCase())) return v;
-    }
-    return dictionary[rankStr] || rankStr;
-  },
-
-  // BR 7 Tone Formatter (Section 1.7)
-  applyToneFormula() {
-    const toneSelect = document.getElementById('br7ToneSelect');
-    const tone = toneSelect ? toneSelect.value : (this.state.letter.tone || 'junior');
-    this.state.letter.tone = tone;
-
-    const salutationBox = document.getElementById('letterSalutation');
-    const closeBox = document.getElementById('complimentaryClose');
-
-    let salutationText = '';
-    let closeText = '';
-
-    if (tone === 'junior' || tone === 'junior_to_senior') {
-      salutationText = 'Sir,';
-      closeText = 'I remain, Sir,\nYour obedient Servant,';
-    } else if (tone === 'senior' || tone === 'senior_to_junior') {
-      salutationText = '';
-      closeText = '';
-    } else if (tone === 'equal' || tone === 'equal_to_equal') {
-      salutationText = 'Sir,';
-      closeText = 'Yours faithfully,';
-    } else if (tone === 'do_letter') {
-      salutationText = 'Dear Sir,';
-      closeText = 'Yours aye,';
-    }
-
-    if (salutationBox) {
-      salutationBox.innerText = salutationText;
-      salutationBox.style.display = salutationText ? 'block' : 'none';
-    }
-    if (closeBox) {
-      closeBox.innerText = closeText;
-      closeBox.style.display = closeText ? 'block' : 'none';
-    }
-
-    this.renderCanvas();
-  },
-
-  setSecurityClass(secClass) {
-    this.state.letter.security_class = secClass;
-    this.renderCanvas();
-  },
-
-  setPrivacyMarking(privMarking) {
-    this.state.letter.privacy_marking = privMarking;
-    this.renderCanvas();
-  },
-
-  setPrecedence(prec) {
-    this.state.letter.precedence = prec;
-    this.renderCanvas();
-  },
-
-  setStampingMode(mode) {
-    this.state.stamping_mode = mode;
-    this.renderCanvas();
-  },
-
-  setDateMode(mode) {
-    this.state.date_mode = mode;
-    this.renderCanvas();
-  },
-
-  switchStudioTab(tab) {
-    this.state.activeTab = tab;
-    const ltrView = document.getElementById('letterStudioViewport');
-    const minView = document.getElementById('minuteStudioViewport');
-    const btnLtr = document.getElementById('tabBtnLetterStudio');
-    const btnMin = document.getElementById('tabBtnMinuteStudio');
-
-    if (tab === 'minutesheet') {
-      if (ltrView) ltrView.style.display = 'none';
-      if (minView) minView.style.display = 'flex';
-      if (btnLtr) {
-        btnLtr.className = 'px-3 py-1 rounded text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer';
-      }
-      if (btnMin) {
-        btnMin.className = 'px-3 py-1 rounded text-xs font-bold bg-amber-500 text-slate-950 transition cursor-pointer shadow';
-      }
-      this.renderMinuteSheet();
-    } else {
-      if (ltrView) ltrView.style.display = 'flex';
-      if (minView) minView.style.display = 'none';
-      if (btnLtr) {
-        btnLtr.className = 'px-3 py-1 rounded text-xs font-bold bg-amber-500 text-slate-950 transition cursor-pointer shadow';
-      }
-      if (btnMin) {
-        btnMin.className = 'px-3 py-1 rounded text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer';
-      }
-      this.renderCanvas();
-    }
-  },
-
-  // Re-index Paragraphs strictly following Arabic Numerals (Section 1.6 & 1.5)
-  renderParagraphs() {
-    const container = document.getElementById('canvasParagraphs');
-    if (!container) return;
-    container.innerHTML = '';
-
-    const paras = this.state.letter.paragraphs;
-    const isSingle = paras.length === 1 && (!paras[0].level || paras[0].level === 1);
-
-    const SUB_LETTERS = 'abcdefghijklmnopqrstuvwxyz'.split('').filter(c => c !== 'i' && c !== 'o');
-    const toRomanLower = (n) => {
-      const lookup = [[10, 'x'], [9, 'ix'], [5, 'v'], [4, 'iv'], [1, 'i']];
-      let r = '';
-      for (const [v, s] of lookup) {
-        while (n >= v) { r += s; n -= v; }
-      }
-      return r || 'i';
-    };
-
-    let l1Count = 0;
-    let l2Count = 0;
-    let l3Count = 0;
-    let l4Count = 0;
-
-    paras.forEach((p) => {
-      if (p.type === 'group_heading') {
-        const gh = document.createElement('div');
-        gh.className = 'group-heading';
-        gh.innerText = p.heading || p.text;
-        container.appendChild(gh);
-        return;
-      }
-
-      const lvl = p.level || 1;
-      let numStr = '';
-      let indentClass = 'br7-para-l1';
-
-      if (lvl === 1) {
-        l1Count++;
-        l2Count = 0; l3Count = 0; l4Count = 0;
-        numStr = isSingle ? '' : `${l1Count}.`;
-        indentClass = 'br7-para-l1';
-      } else if (lvl === 2) {
-        l2Count++;
-        l3Count = 0; l4Count = 0;
-        const letter = SUB_LETTERS[(l2Count - 1) % SUB_LETTERS.length] || 'a';
-        numStr = `(${letter})`;
-        indentClass = 'br7-para-l2'; // Indented exactly 5 spaces / 12.7mm per Section 1.6
-      } else if (lvl === 3) {
-        l3Count++;
-        l4Count = 0;
-        numStr = `(${l3Count})`;
-        indentClass = 'br7-para-l3';
-      } else if (lvl >= 4) {
-        l4Count++;
-        numStr = `(${toRomanLower(l4Count)})`;
-        indentClass = 'br7-para-l4';
-      }
-
-      const pElem = document.createElement('div');
-      pElem.className = `mb-3 flex items-start ${indentClass}`;
-
-      if (numStr) {
-        const numSpan = document.createElement('span');
-        numSpan.className = 'w-8 font-bold select-none shrink-0 inline-block';
-        numSpan.innerText = numStr;
-        pElem.appendChild(numSpan);
-      }
-
-      const textSpan = document.createElement('div');
-      textSpan.className = 'flex-1 text-justify';
-
-      // Section 1.5 Paragraph Headings:
-      // "On the same line as paragraph number, between number and text, Initial Capitals, bold and underlined;
-      // terminated with a full stop that is not bold and not underlined"
-      if (p.heading) {
-        const hSpan = document.createElement('span');
-        hSpan.className = 'para-heading-label';
-        hSpan.innerText = p.heading;
-        const dotSpan = document.createElement('span');
-        dotSpan.className = 'para-heading-dot';
-        dotSpan.innerText = '. ';
-        textSpan.appendChild(hSpan);
-        textSpan.appendChild(dotSpan);
-      }
-
-      const bodyNode = document.createTextNode(p.text || '');
-      textSpan.appendChild(bodyNode);
-
-      pElem.appendChild(textSpan);
-      container.appendChild(pElem);
-    });
-  },
-
-  renderCanvas() {
-    const l = this.state.letter;
-
-    // Stamping Color Representation (Section 1.2: Red #dc2626 vs Monochrome #000000)
-    const stampClass = (this.state.stamping_mode === 'monochrome') ? 'stamp-monochrome' : 'stamp-red';
-
-    // 1.2 Security Classification (Top & Bottom, Bold, Uppercase, Underlined)
-    const topSec = document.getElementById('topSecClass');
-    if (topSec) {
-      topSec.className = `security-banner ${stampClass}`;
-      topSec.innerText = l.security_class;
-    }
-    const botSec = document.getElementById('botSecClass');
-    if (botSec) {
-      botSec.className = `security-banner ${stampClass}`;
-      botSec.innerText = l.security_class;
-    }
-
-    // 1.2 Privacy Markings (e.g. STAFF IN CONFIDENCE or PERSONAL AND CONFIDENTIAL)
-    const privText = (l.privacy_marking && l.privacy_marking !== 'NONE') ? l.privacy_marking : '';
-    const topPriv = document.getElementById('topPrivacyMarking');
-    if (topPriv) {
-      topPriv.innerText = privText;
-      topPriv.style.display = privText ? 'block' : 'none';
-    }
-    const botPriv = document.getElementById('botPrivacyMarking');
-    if (botPriv) {
-      botPriv.innerText = privText;
-      botPriv.style.display = privText ? 'block' : 'none';
-    }
-
-    // 1.3 Precedence Flag & Copy Numbering (Top right corner, 1 line space above address of sender)
-    const precEl = document.getElementById('displayPrecedence');
-    if (precEl) {
-      precEl.innerText = `[${l.precedence || 'ROUTINE'}]`;
-    }
-    const copyEl = document.getElementById('displayCopyNo');
-    if (copyEl) {
-      if (l.security_class === 'SECRET' || l.security_class === 'TOP SECRET') {
-        copyEl.innerText = l.copy_no || 'Copy No. 1 of 5';
-        copyEl.style.display = 'block';
-      } else {
-        copyEl.innerText = '';
-        copyEl.style.display = 'none';
-      }
-    }
-
-    // 1.4 Superscription Left (My Ref, File Ref, Addressee, Through, Attention)
-    const lRef = document.getElementById('displayLetterRef');
-    if (lRef) lRef.innerText = `My Ref: ${l.letter_ref}`;
-    const fRef = document.getElementById('displayFileRef');
-    if (fRef) fRef.innerText = `File Ref: ${l.file_no}`;
-    const lAddr = document.getElementById('displayAddressee');
-    if (lAddr) lAddr.innerText = l.addressee_to;
-    const dChan = document.getElementById('displayChannel');
-    if (dChan && l.channel_through) dChan.innerText = l.channel_through;
-    const dAttn = document.getElementById('displayAttention');
-    if (dAttn && l.attention_to) dAttn.innerText = l.attention_to;
-
-    // 1.4 Superscription Right: Date (Aligned with bottom line of addressee block)
-    const lDate = document.getElementById('displayLetterDate');
-    if (lDate) {
-      if (this.state.date_mode === 'ink_dating') {
-        lDate.innerHTML = 'Date: <span style="display:inline-block;border-bottom:1px solid #000;width:120px;text-align:center;">&nbsp;</span> 20__';
-      } else if (this.state.date_mode === 'external') {
-        lDate.innerText = `Date: 23rd October 2026`;
-      } else {
-        lDate.innerText = `Date: 23 Oct 26`;
-      }
-    }
-
-    // 1.5 Titles & Headings: Subject Statement & Multi-Line Symmetrical Centering
-    const subjEl = document.getElementById('displaySubject');
-    if (subjEl) {
-      const subj = (l.subject || '').trim();
-      if (subj.includes('\n')) {
-        const lines = subj.split('\n');
-        subjEl.className = 'subject-title multiline';
-        subjEl.innerHTML = `<div>${escapeHtml(lines[0])}</div><div class="subject-title-line2">${escapeHtml(lines.slice(1).join(' '))}</div>`;
-      } else if (subj.length > 55) {
-        const words = subj.split(' ');
-        const mid = Math.ceil(words.length * 0.58);
-        const l1 = words.slice(0, mid).join(' ');
-        const l2 = words.slice(mid).join(' ');
-        subjEl.className = 'subject-title multiline';
-        subjEl.innerHTML = `<div>${escapeHtml(l1)}</div><div class="subject-title-line2">${escapeHtml(l2)}</div>`;
-      } else {
-        subjEl.className = 'subject-title';
-        subjEl.innerText = subj;
-      }
-    }
-
-    // 1.6 References Block (Prefix: References: or Reference:, Lettered A., B., C.)
-    const refContainer = document.getElementById('canvasReferences');
-    if (refContainer) {
-      const activeRefs = (l.references || []).filter(r => r && r.trim());
-      if (activeRefs.length === 0) {
-        refContainer.style.display = 'none';
-      } else {
-        refContainer.style.display = 'block';
-        const label = activeRefs.length === 1 ? 'Reference:' : 'References:';
-        refContainer.innerHTML = `<span class="font-bold">${label}</span>`;
-        activeRefs.forEach((ref, idx) => {
-          const charCode = 65 + idx; // A, B, C...
-          const item = document.createElement('div');
-          item.className = 'ml-6';
-          item.innerText = `${String.fromCharCode(charCode)}. ${ref}`;
-          refContainer.appendChild(item);
-        });
-      }
-    }
-
-    // 1.6 Hierarchical Arabic Numerals & Sub-Paragraphs
-    this.renderParagraphs();
-
-    // 1.7 Subscription & Signature Section (Right-hand quadrant, 5 lines below text)
-    const sigName = document.getElementById('sigName');
-    if (sigName) {
-      const postNom = l.signatory.post_nominals ? `, ${l.signatory.post_nominals}` : '';
-      sigName.innerText = `${l.signatory.name}${postNom}`;
-    }
-    const sigRank = document.getElementById('sigRank');
-    if (sigRank) {
-      sigRank.innerText = `${l.signatory.rank} ${l.signatory.branch}`;
-    }
-    const sigAppt = document.getElementById('sigAppt');
-    if (sigAppt) sigAppt.innerText = l.signatory.appointment;
-    const sigSuperior = document.getElementById('sigForSuperior');
-    if (sigSuperior) {
-      if (l.signatory.for_superior) {
-        sigSuperior.innerText = `for ${l.signatory.for_superior}`;
-        sigSuperior.style.display = 'block';
-      } else {
-        sigSuperior.innerText = '';
-        sigSuperior.style.display = 'none';
-      }
-    }
-
-    // 1.7 Enclosures & Annexes (Bottom Left, 2 lines below signature)
-    const annexCont = document.getElementById('annexesContainer');
-    if (annexCont) {
-      const activeAnnex = (l.annexes || []).filter(a => a && a.trim());
-      if (activeAnnex.length > 0) {
-        annexCont.innerHTML = `<strong>Annexes:</strong>` + activeAnnex.map((a, i) => `<div class="ml-3">${String.fromCharCode(65 + i)}. ${escapeHtml(a)}</div>`).join('');
-      } else {
-        annexCont.innerHTML = '';
-      }
-    }
-    const enclCont = document.getElementById('enclosuresContainer');
-    if (enclCont) {
-      const activeEncl = (l.enclosures || []).filter(e => e && e.trim());
-      if (activeEncl.length > 0) {
-        enclCont.innerHTML = `<strong>Enclosures:</strong>` + activeEncl.map((e, i) => `<div class="ml-3">${i + 1}. ${escapeHtml(e)}</div>`).join('');
-      } else {
-        enclCont.innerHTML = '';
-      }
-    }
-
-    // 1.7 Distribution (Action vs Information Addressees Separated)
-    const distAct = document.getElementById('distActionContainer');
-    if (distAct) {
-      const actList = l.distribution?.action || [];
-      if (actList.length > 0) {
-        distAct.innerHTML = `<strong>Action:</strong>` + actList.map(a => `<div class="ml-3">• ${escapeHtml(a)}</div>`).join('');
-      } else {
-        distAct.innerHTML = '';
-      }
-    }
-    const distInfo = document.getElementById('distInfoContainer');
-    if (distInfo) {
-      const infoList = l.distribution?.information || [];
-      if (infoList.length > 0) {
-        distInfo.innerHTML = `<strong>Information:</strong>` + infoList.map(i => `<div class="ml-3">• ${escapeHtml(i)}</div>`).join('');
-      } else {
-        distInfo.innerHTML = '';
-      }
-    }
-
-    // 1.8 Page Numbering Standards (Bottom center, 3 spaces above bottom classification)
-    const pageFooter = document.getElementById('pageNumberFooter');
-    if (pageFooter) {
-      const pInfo = l.page_info || { is_multi_page: false, current_page: 1, total_pages: 1 };
-      if (!pInfo.is_multi_page && !pInfo.annex_page && !pInfo.appendix_page) {
-        pageFooter.innerText = '';
-        pageFooter.style.display = 'none';
-      } else if (pInfo.appendix_page) {
-        pageFooter.innerText = `${pInfo.appendix_page}`;
-        pageFooter.style.display = 'block';
-      } else if (pInfo.annex_page) {
-        pageFooter.innerText = `${pInfo.annex_page}`;
-        pageFooter.style.display = 'block';
-      } else {
-        if (pInfo.current_page === 1) {
-          if (l.security_class === 'SECRET' || l.security_class === 'TOP SECRET') {
-            pageFooter.innerText = `1 of ${pInfo.total_pages}`;
-            pageFooter.style.display = 'block';
-          } else {
-            pageFooter.innerText = '';
-            pageFooter.style.display = 'none';
-          }
-        } else {
-          pageFooter.innerText = `${pInfo.current_page}`;
-          pageFooter.style.display = 'block';
-        }
-      }
-    }
-  },
-
-  // 1.9 Bilingual Minute Sheet System Renderer
-  renderMinuteSheet() {
-    const m = this.state.minute;
-    const seqEl = document.getElementById('msDisplayMinuteSeq');
-    if (seqEl) seqEl.innerText = m.minuteSeq;
-    const tagEl = document.getElementById('msDisplayOriginatorTag');
-    if (tagEl) tagEl.innerText = m.originatorTag;
-    const thrEl = document.getElementById('msDisplayOriginatorThrough');
-    if (thrEl) thrEl.innerText = m.originator_through;
-    const addrEl = document.getElementById('msDisplayAddressee');
-    if (addrEl) addrEl.innerText = m.addressee;
-    const dateEl = document.getElementById('msDisplayDate');
-    if (dateEl) dateEl.innerText = m.date;
-    const subjEl = document.getElementById('msDisplaySubject');
-    if (subjEl) subjEl.innerText = m.subject;
-    const m01El = document.getElementById('msDisplayM01Body');
-    if (m01El) m01El.innerText = m.m01_body;
-    const m02El = document.getElementById('msDisplayM02Body');
-    if (m02El) m02El.innerText = m.m02_body;
-
-    const rankSinhala = this.convertRankToSinhala(m.signatory_rank);
-    const sigM01 = document.getElementById('msDisplayM01Sig');
-    if (sigM01) {
-      sigM01.innerHTML = `
-        <div class="font-bold">${escapeHtml(m.signatory_name)}</div>
-        <div>${escapeHtml(rankSinhala)}</div>
-        <div>${escapeHtml(m.signatory_appointment)}</div>
-      `;
-    }
-    const sigM02 = document.getElementById('msDisplayM02Sig');
-    if (sigM02) {
-      sigM02.innerHTML = `
-        <div class="font-bold">නාවික හමුදාපති වෙනුවට</div>
-        <div>කොමදෝරු (සිවිල්)</div>
-        <div>ප්‍රධාන සිවිල් ඉංජිනේරු</div>
-      `;
-    }
-  },
-
-  init() {
-    this.renderCanvas();
-    this.applyToneFormula();
-  }
-};
-
-window.App = App;
-window.addEventListener('DOMContentLoaded', () => App.init());
+/* The legacy `App` façade (a second, Tailwind-only renderer for the old
+   paper canvases) was retired with the Command Deck re-skin. All state now
+   flows through `state` + the renders in app.js / js/skin.js. */
 
 
 

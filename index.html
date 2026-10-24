@@ -1,271 +1,78 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
-  <meta charset="UTF-8">
-  <title>CMSys Documents - Sri Lanka Navy Document & Secretariat System</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    /* Inline control bar polish */
-    .toolbar-select {
-      background-color: #1e293b;
-      border: 1px solid #475569;
-      color: #f1f5f9;
-      font-size: 11px;
-      font-weight: 600;
-      padding: 3px 8px;
-      border-radius: 6px;
-      outline: none;
-      cursor: pointer;
-    }
-    .toolbar-select:focus {
-      border-color: #f59e0b;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="dark">
+    <meta name="theme-color" content="#050c16">
+    <meta http-equiv="refresh" content="0; url=workstation.html">
+    <title>CMSys Documents — Command Deck</title>
+    <link rel="icon" type="image/png" href="logo-crest.png">
+    <style>
+        :root { color-scheme: dark; }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            background:
+                radial-gradient(900px 520px at 20% 0%, rgba(47, 227, 196, .12), transparent 60%),
+                radial-gradient(800px 520px at 80% 100%, rgba(226, 178, 90, .09), transparent 60%),
+                #050c16;
+            color: #eaf2ff;
+            font-family: 'Google Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+        }
+        .splash {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+            padding: 34px 38px;
+            border-radius: 22px;
+            border: 1px solid rgba(151, 190, 235, .17);
+            background: linear-gradient(160deg, rgba(20, 40, 62, .9), rgba(7, 16, 28, .95));
+            box-shadow: 0 40px 100px -40px #000;
+            text-align: center;
+        }
+        .crest {
+            width: 74px; height: 74px;
+            display: grid; place-items: center;
+            border-radius: 20px;
+            border: 1px solid rgba(226, 178, 90, .35);
+            background: radial-gradient(circle at 50% 30%, rgba(226, 178, 90, .22), transparent 70%);
+        }
+        .crest img { width: 52px; height: 52px; object-fit: contain; }
+        h1 { font-size: 19px; font-weight: 700; letter-spacing: -.01em; margin: 0; }
+        h1 span { color: #2fe3c4; }
+        p { margin: 0; font-size: 11.5px; color: #8fa3bf; max-width: 330px; line-height: 1.6; }
+        .bar { width: 190px; height: 3px; border-radius: 3px; background: rgba(255, 255, 255, .08); overflow: hidden; }
+        .bar i { display: block; height: 100%; width: 40%; border-radius: 3px; background: linear-gradient(90deg, #12b39c, #2fe3c4); animation: sweep 1.2s cubic-bezier(.4, 0, .2, 1) infinite; }
+        a {
+            margin-top: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            color: #2fe3c4;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(47, 227, 196, .35);
+            padding-bottom: 2px;
+        }
+        @keyframes sweep {
+            0% { transform: translateX(-110%); }
+            100% { transform: translateX(360%); }
+        }
+    </style>
 </head>
-<body class="flex flex-col h-screen overflow-hidden bg-slate-950 text-slate-100">
-
-  <!-- Command Top Bar (Operational Toolbar) -->
-  <header class="no-print bg-slate-900 border-b border-slate-700 px-4 py-2 flex flex-wrap justify-between items-center text-white gap-2 z-10 shadow-lg">
-    <!-- Brand & Mode Switcher -->
-    <div class="flex items-center space-x-3">
-      <div class="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center font-bold text-slate-950 shadow-md">⚓</div>
-      <div>
-        <span class="font-bold tracking-wider text-sm block">SRI LANKA NAVY • CMSYS DOCUMENTS v2.4</span>
-        <span class="text-[10px] text-slate-400 block -mt-0.5">Naval Correspondence BR 7 & Secretariat System</span>
-      </div>
-      <div class="hidden md:flex items-center space-x-1 pl-3 border-l border-slate-700">
-        <button type="button" id="tabBtnLetterStudio" onclick="App.switchStudioTab('letterstudio')" class="px-3 py-1 rounded text-xs font-bold bg-amber-500 text-slate-950 transition cursor-pointer shadow">
-          📄 Naval Letter Studio (BR 7)
-        </button>
-        <button type="button" id="tabBtnMinuteStudio" onclick="App.switchStudioTab('minutesheet')" class="px-3 py-1 rounded text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition cursor-pointer">
-          📑 Bilingual Minute Sheet (M01/M02)
-        </button>
-      </div>
+<body>
+    <div class="splash">
+        <div class="crest"><img src="logo-crest.png" alt="Sri Lanka Navy crest"></div>
+        <h1><span>CMSys</span> Documents</h1>
+        <p>Opening the Naval Correspondence &amp; Registry Command Deck…</p>
+        <div class="bar"><i></i></div>
+        <a href="workstation.html">Enter workstation</a>
     </div>
-
-    <!-- Architectural Controls (Sections 1.2, 1.3, 1.4, 1.7) -->
-    <div class="flex flex-wrap items-center gap-2">
-      <!-- Security Class Dropdown (Section 1.2) -->
-      <select id="selectSecurityClass" onchange="App.setSecurityClass(this.value)" class="toolbar-select text-rose-400 border-rose-800/60" title="Security Classification Grade">
-        <option value="RESTRICTED" selected>Class: RESTRICTED</option>
-        <option value="CONFIDENTIAL">Class: CONFIDENTIAL</option>
-        <option value="SECRET">Class: SECRET</option>
-        <option value="TOP SECRET">Class: TOP SECRET</option>
-        <option value="UNCLASSIFIED">Class: UNCLASSIFIED</option>
-      </select>
-
-      <!-- Privacy Marking Dropdown (Section 1.2) -->
-      <select id="selectPrivacyMarking" onchange="App.setPrivacyMarking(this.value)" class="toolbar-select text-amber-300 border-amber-800/60" title="Privacy Marking">
-        <option value="NONE" selected>Privacy: None</option>
-        <option value="STAFF IN CONFIDENCE">STAFF IN CONFIDENCE</option>
-        <option value="PERSONAL AND CONFIDENTIAL">PERSONAL AND CONFIDENTIAL</option>
-      </select>
-
-      <!-- Precedence Flag Dropdown (Section 1.3) -->
-      <select id="selectPrecedence" onchange="App.setPrecedence(this.value)" class="toolbar-select text-blue-300 border-blue-800/60" title="Precedence Flag">
-        <option value="ROUTINE" selected>Prec: ROUTINE</option>
-        <option value="PRIORITY">Prec: PRIORITY</option>
-        <option value="IMMEDIATE">Prec: IMMEDIATE</option>
-        <option value="FLASH">Prec: FLASH</option>
-        <option value="OP IMMEDIATE">Prec: OP IMMEDIATE</option>
-      </select>
-
-      <!-- Tone Switcher Dropdown (Section 1.7) -->
-      <select id="br7ToneSelect" onchange="App.applyToneFormula()" class="toolbar-select text-amber-400 border-amber-800/60" title="Correspondence Tone">
-        <option value="junior" selected>Tone: Junior to Senior (Formal Request)</option>
-        <option value="senior">Tone: Senior to Junior (Directive)</option>
-        <option value="equal">Tone: Equal to Equal (Colleague)</option>
-        <option value="do_letter">Tone: DO Letter (Personal)</option>
-      </select>
-
-      <!-- Date Format Dropdown (Section 1.4) -->
-      <select id="selectDateMode" onchange="App.setDateMode(this.value)" class="toolbar-select text-emerald-300 border-emerald-800/60" title="Date Format Mode">
-        <option value="internal" selected>Date: Internal (23 Oct 26)</option>
-        <option value="external">Date: Civil (23rd October 2026)</option>
-        <option value="ink_dating">Date: Ink Line (___ ___ 20__)</option>
-      </select>
-
-      <!-- Stamping Color Toggle (Section 1.2) -->
-      <select id="selectStampingMode" onchange="App.setStampingMode(this.value)" class="toolbar-select text-slate-300" title="Print Stamping Representation">
-        <option value="red" selected>Seal: Red Stamping</option>
-        <option value="monochrome">Seal: Carbon Black</option>
-      </select>
-
-      <!-- Full Master Registry Ledger Link -->
-      <a href="workstation.html" class="bg-slate-800 hover:bg-slate-700 border border-slate-600 px-2.5 py-1 rounded text-xs text-slate-300 transition flex items-center gap-1" title="Open Master Document Registry & Archives">
-        <span>🗄️</span> Ledger
-      </a>
-
-      <!-- Print Action -->
-      <button type="button" onclick="window.print()" class="bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold px-3 py-1 rounded text-xs transition shadow flex items-center gap-1 cursor-pointer">
-        <span>🖨️</span> Print A4
-      </button>
-    </div>
-  </header>
-
-  <!-- Main Workstation Viewport -->
-  <main class="flex-1 paper-viewport">
-    
-    <!-- ===================================================================== -->
-    <!-- MODULE 1: BR 7 NAVAL LETTER CANVAS (Sections 1.1 through 1.8) -->
-    <!-- ===================================================================== -->
-    <div id="letterStudioViewport" class="w-full flex justify-center py-6">
-      <div id="paperCanvas" class="a4-canvas">
-        
-        <!-- Section 1.2: Top Classification Banner (Bold, Uppercase, Underlined) -->
-        <div id="topSecClass" class="security-banner stamp-red">RESTRICTED</div>
-
-        <!-- Section 1.2: Top Privacy Marking (Directly below classification) -->
-        <div id="topPrivacyMarking" class="privacy-marking" style="display: none;"></div>
-
-        <!-- Section 1.3 & 1.4: Superscription Matrix -->
-        <div class="header-grid">
-          <!-- Left-Hand Top Corner (1.4: Ref, File, Functional Addressee, Routing) -->
-          <div class="superscription-left">
-            <div id="displayLetterRef" class="font-semibold">My Ref: CCED/NHQ/2026/0012</div>
-            <div id="displayFileRef" class="text-gray-700">File Ref: CE/EAST/ADM/05</div>
-            <br>
-            <div id="displayAddressee" class="whitespace-pre-line font-bold">The Commander of the Navy
-Naval Headquarters
-Colombo 01</div>
-            <div class="mt-2 text-sm">Through: <span id="displayChannel">The Commander Eastern Naval Area</span></div>
-            <div class="text-sm">Attention: <span id="displayAttention">Director General Civil Engineering</span></div>
-          </div>
-
-          <!-- Right-Hand Top Corner (1.3 & 1.4: Precedence, Copy No, Letterhead, Date) -->
-          <div class="superscription-right">
-            <div id="displayCopyNo" class="copy-no-top-right" style="display: none;">Copy No. 1 of 5</div>
-            <div id="displayPrecedence" class="precedence-top-right">[ROUTINE]</div>
-            <div class="font-bold">COMMAND CIVIL ENGINEERING DEPARTMENT (EAST)</div>
-            <div>SLN DOCKYARD, TRINCOMALEE</div>
-            <div class="text-sm">Tel: 026-2222384 / Ext 3144</div>
-            <div id="displayLetterDate" class="mt-4 font-semibold">Date: 23 Oct 26</div>
-          </div>
-        </div>
-
-        <!-- Section 1.7: Salutation -->
-        <div id="letterSalutation" class="mt-4 font-semibold">Sir,</div>
-
-        <!-- Section 1.5: Subject Statement (Multi-line Symmetrical Rule) -->
-        <div id="displaySubject" class="subject-title">
-          RECONSTRUCTION OF WATER DISTRIBUTION NETWORK - SLNS TISSA
-        </div>
-
-        <!-- Section 1.6: References Block (Reference: / References:, A., B., C.) -->
-        <div id="canvasReferences" class="references-block text-sm"></div>
-
-        <!-- Section 1.6: Hierarchical Arabic Numerals & Sub-Paragraphs -->
-        <div id="canvasParagraphs" class="mt-4"></div>
-
-        <!-- Section 1.7: Subscription Close & Signature Section (Right-hand quadrant, 5 lines below) -->
-        <div id="subscriptionSection" class="signature-block">
-          <div id="complimentaryClose" class="mb-5 font-semibold whitespace-pre-line">I remain, Sir,
-Your obedient Servant,</div>
-          <div id="inkSigLine" style="height: 35px; border-bottom: 1px solid #000; width: 180px; margin-bottom: 8px;"></div>
-          <div id="sigName" class="name">A B C SENEVIRATNE, psc, CEng</div>
-          <div id="sigRank">Commander (CE) SLN</div>
-          <div id="sigAppt">Command Civil Engineering Officer (East)</div>
-          <div id="sigForSuperior" class="superior-delegation" style="display: none;"></div>
-        </div>
-
-        <!-- Clearfix -->
-        <div style="clear: both;"></div>
-
-        <!-- Section 1.7: Enclosures & Annexes (Bottom Left, 2 lines below signature) -->
-        <div id="enclosuresAnnexesBlock" class="enclosures-annexes-block">
-          <div id="annexesContainer" style="width: 48%;"></div>
-          <div id="enclosuresContainer" style="width: 48%;"></div>
-        </div>
-
-        <!-- Section 1.7: Distribution Block (Action vs Information Separated) -->
-        <div id="distributionBlock" class="distribution-block">
-          <div id="distActionContainer" style="width: 48%;"></div>
-          <div id="distInfoContainer" style="width: 48%;"></div>
-        </div>
-
-        <!-- Section 1.8: Page Numbering Standards (Bottom center, 3 spaces above stamp) -->
-        <div id="pageNumberFooter" class="page-number-footer" style="display: none;"></div>
-
-        <!-- Section 1.2: Bottom Privacy Marking (Directly above bottom classification) -->
-        <div id="botPrivacyMarking" class="privacy-marking" style="position: absolute; bottom: 33mm; left: 0; right: 0; display: none;"></div>
-
-        <!-- Section 1.2: Bottom Security Banner (Bold, Uppercase, Underlined) -->
-        <div id="botSecClass" class="security-banner stamp-red" style="position: absolute; bottom: 25.4mm; left: 0; right: 0;">
-          RESTRICTED
-        </div>
-      </div>
-    </div>
-
-    <!-- ===================================================================== -->
-    <!-- MODULE 2: BILINGUAL MINUTE SHEET STUDIO CANVAS (Section 1.9: M01/M02) -->
-    <!-- ===================================================================== -->
-    <div id="minuteStudioViewport" class="w-full justify-center py-6" style="display: none;">
-      <div id="minuteSheetCanvas" class="a4-canvas minute-sheet-paper lang-si">
-        
-        <!-- Header Serial & Originator Marker (Centered, Capital M, Underlined Header) -->
-        <div class="text-center pb-3 border-b-2 border-black mb-4">
-          <div id="msDisplayMinuteSeq" class="inline-block px-3 py-0.5 bg-black text-white font-mono font-bold text-sm rounded">M 01</div>
-          <div class="mt-1">
-            <span id="msDisplayOriginatorTag" class="ms-originator-underlined font-black text-xs uppercase tracking-wider">BY CCEO(E)</span>
-          </div>
-        </div>
-
-        <!-- Minute Sheet Dual Grid Layout (Left Addressee 32% | Right Content 68%) -->
-        <div class="flex items-start">
-          <!-- Left Column: Addressee & Through Channel (32%) -->
-          <div class="w-[32%] pr-4 border-r-2 border-black min-h-[750px] text-xs">
-            <div class="mb-6">
-              <span class="font-bold underline text-[11px] block mb-1">මඟින්:</span>
-              <div id="msDisplayOriginatorThrough" class="font-medium text-slate-800 leading-relaxed whitespace-pre-line"></div>
-            </div>
-            <div>
-              <span class="font-bold underline text-[11px] block mb-1">වෙත:</span>
-              <div id="msDisplayAddressee" class="font-bold text-slate-900 leading-relaxed whitespace-pre-line"></div>
-            </div>
-          </div>
-
-          <!-- Right Column: Minutes Content (68%) -->
-          <div class="w-[68%] pl-6 text-xs text-justify">
-            <!-- Date & Subject Heading -->
-            <div class="flex justify-between items-center mb-3 text-[11px]">
-              <div><strong>දිනය:</strong> <span id="msDisplayDate"></span></div>
-              <div class="text-slate-500 font-mono text-[10px]">NCW/ENG/MIN/01</div>
-            </div>
-
-            <div class="mb-4">
-              <div id="msDisplaySubject" class="font-bold uppercase underline text-xs text-center leading-relaxed"></div>
-            </div>
-
-            <!-- M01: Originator Technical Submission & Inspection Report -->
-            <div class="mb-4">
-              <div class="font-bold text-[11px] mb-1 underline">M 01 - තාක්ෂණික වාර්තාව හා ඇස්තමේන්තු ඉදිරිපත් කිරීම:</div>
-              <div id="msDisplayM01Body" class="leading-relaxed whitespace-pre-line text-xs"></div>
-            </div>
-
-            <!-- M01 Signature Block -->
-            <div id="msDisplayM01Sig" class="mt-6 ml-auto w-64 text-left leading-normal text-xs font-semibold"></div>
-
-            <!-- Perforated Tear-off Horizontal Division Line -->
-            <div class="ms-m02-divider my-6 border-t-2 border-dashed border-black pt-3">
-              <div class="text-center font-bold text-[10px] tracking-wider uppercase text-slate-500 mb-2">--- End of M 01 Submission / Sectional Review ---</div>
-            </div>
-
-            <!-- M02: Departmental Supervising Officer Endorsement / Executive Approval -->
-            <div class="mb-4">
-              <div class="font-bold text-[11px] mb-1 underline">M 02 - දෙපාර්තමේන්තු අධීක්ෂණ නිලධාරී නිර්දේශය හා අනුමැතිය:</div>
-              <div id="msDisplayM02Body" class="leading-relaxed whitespace-pre-line text-xs"></div>
-            </div>
-
-            <!-- M02 Signature Block -->
-            <div id="msDisplayM02Sig" class="mt-6 ml-auto w-64 text-left leading-normal text-xs font-semibold"></div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-  </main>
-
-  <script src="app.js"></script>
+    <script>window.location.replace('workstation.html');</script>
 </body>
 </html>
