@@ -48,10 +48,10 @@ graph TB
     HUB["CMSys Documents Desktop & Desk Terminals"]
   end
 
-  HUB <== "Real-time Bi-directional RTDB Sync" ==> DOCS_RTDB
-  DOCS_RTDB ==> "Mirrored Minutes to Work Orders" ==> V2_RTDB
-  PERS_RTDB ==> "Live Sailor Roster & Transliteration" ==> HUB
-  PRJ_RTDB ==> "Active Project Codes" ==> HUB
+  HUB <-->|"Real-time Bi-directional RTDB Sync"| DOCS_RTDB
+  DOCS_RTDB -->|"Mirrored Minutes to Work Orders"| V2_RTDB
+  PERS_RTDB -->|"Live Sailor Roster & Transliteration"| HUB
+  PRJ_RTDB -->|"Active Project Codes"| HUB
 ```
 
 ---
