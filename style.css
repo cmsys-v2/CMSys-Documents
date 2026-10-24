@@ -1,0 +1,1098 @@
+/* ==========================================================================
+   CMSys Documents — Professional Dark-First Design System
+   Naval Registry · Minute Sheet Studio · Navy BR 7 Letter Studio
+   Theme: Midnight Navy | Accent: Teal / Indigo / Amber
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   CSS CUSTOM PROPERTIES — Design Tokens
+   -------------------------------------------------------------------------- */
+:root {
+    /* Brand Palette */
+    --c-bg-base:       #080e1c;
+    --c-bg-surface:    #0d1527;
+    --c-bg-elevated:   #111e35;
+    --c-bg-card:       #13213d;
+    --c-bg-input:      #0f1a30;
+    --c-bg-hover:      #162340;
+
+    --c-border-subtle: rgba(255,255,255,0.06);
+    --c-border-base:   rgba(255,255,255,0.10);
+    --c-border-strong: rgba(255,255,255,0.18);
+
+    --c-text-primary:  #e8edf5;
+    --c-text-secondary:#8fa3bf;
+    --c-text-muted:    #4e637d;
+    --c-text-white:    #ffffff;
+
+    /* Brand Accents */
+    --c-teal-400:   #2dd4bf;
+    --c-teal-500:   #14b8a6;
+    --c-teal-600:   #0d9488;
+    --c-teal-glow:  rgba(20, 184, 166, 0.30);
+
+    --c-indigo-400: #818cf8;
+    --c-indigo-500: #6366f1;
+    --c-indigo-600: #4f46e5;
+
+    --c-amber-400:  #fbbf24;
+    --c-amber-500:  #f59e0b;
+
+    --c-rose-400:   #fb7185;
+    --c-rose-500:   #f43f5e;
+
+    --c-emerald-400:#34d399;
+
+    /* Shadows */
+    --shadow-card:   0 4px 24px rgba(0,0,0,0.55);
+    --shadow-lg:     0 8px 40px rgba(0,0,0,0.70);
+    --shadow-glow-teal: 0 0 20px rgba(20,184,166,0.25);
+    --shadow-glow-indigo: 0 0 18px rgba(99,102,241,0.30);
+
+    /* Motion */
+    --ease-out: cubic-bezier(0.0, 0, 0.2, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --dur-fast: 150ms;
+    --dur-normal: 220ms;
+    --dur-slow: 350ms;
+}
+
+/* Light mode overrides */
+html:not(.dark) {
+    --c-bg-base:       #f0f4f8;
+    --c-bg-surface:    #ffffff;
+    --c-bg-elevated:   #ffffff;
+    --c-bg-card:       #ffffff;
+    --c-bg-input:      #f8fafc;
+    --c-bg-hover:      #f1f5f9;
+
+    --c-border-subtle: rgba(0,0,0,0.05);
+    --c-border-base:   rgba(0,0,0,0.10);
+    --c-border-strong: rgba(0,0,0,0.18);
+
+    --c-text-primary:  #1e293b;
+    --c-text-secondary:#475569;
+    --c-text-muted:    #94a3b8;
+
+    --shadow-card:   0 1px 8px rgba(0,0,0,0.10);
+    --shadow-lg:     0 4px 20px rgba(0,0,0,0.15);
+}
+
+/* --------------------------------------------------------------------------
+   BASE RESET & ROOT STYLES
+   -------------------------------------------------------------------------- */
+html {
+    scroll-behavior: smooth;
+}
+
+html.dark body {
+    background-color: var(--c-bg-base) !important;
+    color: var(--c-text-primary) !important;
+}
+
+html:not(.dark) body {
+    background-color: var(--c-bg-base) !important;
+    color: var(--c-text-primary) !important;
+}
+
+/* --------------------------------------------------------------------------
+   CUSTOM SCROLLBAR
+   -------------------------------------------------------------------------- */
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.25);
+    border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 116, 139, 0.50);
+}
+.dark ::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.10);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.22);
+}
+
+/* --------------------------------------------------------------------------
+   GLASSMORPHIC HEADER
+   -------------------------------------------------------------------------- */
+.glass-header {
+    background: linear-gradient(
+        180deg,
+        rgba(8, 14, 28, 0.97) 0%,
+        rgba(10, 17, 33, 0.94) 100%
+    );
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border-bottom: 1px solid rgba(45, 212, 191, 0.12) !important;
+    box-shadow: 0 2px 24px rgba(0,0,0,0.70), 0 0 0 1px rgba(45,212,191,0.05) inset;
+}
+
+html:not(.dark) .glass-header {
+    background: linear-gradient(
+        180deg,
+        rgba(15, 23, 42, 0.95) 0%,
+        rgba(15, 23, 42, 0.90) 100%
+    );
+}
+
+.glass-card {
+    background: var(--c-bg-card);
+    backdrop-filter: blur(8px);
+}
+
+/* --------------------------------------------------------------------------
+   NAVIGATION TAB PILLS
+   -------------------------------------------------------------------------- */
+.nav-tab-btn {
+    transition: all var(--dur-normal) var(--ease-out);
+    position: relative;
+    font-size: 0.7rem;
+    letter-spacing: 0.01em;
+}
+
+.nav-tab-btn:hover:not(.active) {
+    background: rgba(255,255,255,0.08);
+    color: #ffffff !important;
+}
+
+.nav-tab-btn.active {
+    background: linear-gradient(135deg, var(--c-teal-500) 0%, var(--c-teal-600) 100%);
+    color: #ffffff !important;
+    box-shadow: 0 2px 12px var(--c-teal-glow), 0 0 0 1px rgba(45,212,191,0.3) inset;
+}
+
+/* --------------------------------------------------------------------------
+   OFFICE REGISTRY PILLS
+   -------------------------------------------------------------------------- */
+.office-pill {
+    transition: all var(--dur-normal) var(--ease-out);
+    font-size: 0.7rem;
+    letter-spacing: 0.01em;
+}
+
+.dark .office-pill:not(.active) {
+    background: rgba(255,255,255,0.05) !important;
+    color: var(--c-text-secondary) !important;
+    border: 1px solid var(--c-border-subtle) !important;
+}
+
+.dark .office-pill:not(.active):hover {
+    background: rgba(255,255,255,0.10) !important;
+    color: var(--c-text-primary) !important;
+    border-color: var(--c-border-base) !important;
+}
+
+.dark .office-pill.active {
+    background: linear-gradient(135deg, var(--c-teal-500), var(--c-teal-600)) !important;
+    color: white !important;
+    border: 1px solid rgba(45,212,191,0.3) !important;
+    box-shadow: 0 2px 10px var(--c-teal-glow);
+}
+
+/* --------------------------------------------------------------------------
+   FLOW TAB PILLS (All / Incoming / Outgoing)
+   -------------------------------------------------------------------------- */
+.flow-pill {
+    transition: all var(--dur-fast) var(--ease-out);
+}
+.dark .flow-pill.active {
+    background: var(--c-bg-elevated) !important;
+    color: var(--c-text-white) !important;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.40);
+}
+.dark .flow-pill:not(.active) {
+    color: var(--c-text-secondary) !important;
+}
+.dark .flow-pill:not(.active):hover {
+    color: var(--c-text-white) !important;
+}
+
+/* --------------------------------------------------------------------------
+   CATEGORY PILLS (ALL / NHQ / Bases etc.)
+   -------------------------------------------------------------------------- */
+.dark .cat-pill {
+    background: rgba(255,255,255,0.05);
+    color: var(--c-text-secondary);
+    border: 1px solid var(--c-border-subtle);
+    transition: all var(--dur-fast) var(--ease-out);
+}
+.dark .cat-pill:hover {
+    background: rgba(255,255,255,0.10);
+    color: var(--c-text-primary);
+}
+.dark .cat-pill.active {
+    background: linear-gradient(135deg, var(--c-teal-500), var(--c-teal-600));
+    color: white;
+    border-color: rgba(45,212,191,0.3);
+    box-shadow: 0 2px 8px var(--c-teal-glow);
+}
+
+/* --------------------------------------------------------------------------
+   CARD / PANEL COMPONENTS
+   -------------------------------------------------------------------------- */
+.dark .cmsys-card {
+    background: var(--c-bg-card) !important;
+    border-color: var(--c-border-base) !important;
+    box-shadow: var(--shadow-card);
+}
+
+.dark .cmsys-card-elevated {
+    background: var(--c-bg-elevated) !important;
+    border-color: var(--c-border-subtle) !important;
+}
+
+/* Override Tailwind dark:bg-slate-900 cards in our system */
+.dark .bg-white,
+.dark [class*="dark:bg-slate-900"] {
+    background-color: var(--c-bg-card) !important;
+}
+.dark [class*="dark:border-slate-800"] {
+    border-color: var(--c-border-base) !important;
+}
+
+/* --------------------------------------------------------------------------
+   METRIC / STAT CARDS
+   -------------------------------------------------------------------------- */
+.dark .stat-card {
+    background: linear-gradient(135deg, var(--c-bg-card) 0%, var(--c-bg-elevated) 100%);
+    border: 1px solid var(--c-border-base);
+    box-shadow: var(--shadow-card);
+    transition: transform var(--dur-normal) var(--ease-out),
+                box-shadow var(--dur-normal) var(--ease-out);
+}
+.dark .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* --------------------------------------------------------------------------
+   REGISTRY TABLE
+   -------------------------------------------------------------------------- */
+
+/* Table Container */
+.dark #registryTableContainer {
+    background: var(--c-bg-card) !important;
+    border-color: var(--c-border-base) !important;
+}
+
+/* Table Head */
+.dark thead {
+    background: var(--c-bg-elevated) !important;
+}
+.dark thead th {
+    color: var(--c-text-muted) !important;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 700;
+    border-bottom: 1px solid var(--c-border-base) !important;
+}
+
+/* Table Body Rows */
+.dark tbody tr {
+    border-bottom: 1px solid var(--c-border-subtle) !important;
+    transition: background-color var(--dur-fast) var(--ease-out);
+}
+.dark tbody tr:hover:not(.row-overdue) {
+    background: rgba(255,255,255,0.03) !important;
+}
+.dark tbody td {
+    color: var(--c-text-primary) !important;
+}
+
+/* Reference Number — prominent mono style */
+.dark .doc-refno {
+    color: var(--c-teal-400) !important;
+    font-family: ui-monospace, 'Courier New', monospace;
+    font-weight: 700;
+    font-size: 0.72rem;
+    letter-spacing: 0.03em;
+}
+
+/* --------------------------------------------------------------------------
+   BADGE SYSTEM — Document Status / Flow
+   -------------------------------------------------------------------------- */
+
+/* Flow Badges */
+.dark .badge-incoming {
+    background: rgba(52, 211, 153, 0.12) !important;
+    color: #34d399 !important;
+    border: 1px solid rgba(52, 211, 153, 0.25) !important;
+}
+.dark .badge-outgoing {
+    background: rgba(129, 140, 248, 0.12) !important;
+    color: #a5b4fc !important;
+    border: 1px solid rgba(129, 140, 248, 0.25) !important;
+}
+
+/* Present Position Badges */
+.badge-position {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 6px;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+
+.dark .badge-position {
+    background: rgba(30, 41, 59, 0.9) !important;
+    color: var(--c-text-secondary) !important;
+    border: 1px solid var(--c-border-base) !important;
+}
+
+/* Specific status badge colours */
+.dark .pos-dispatched   { background: rgba(99,102,241,0.15) !important; color: #a5b4fc !important; border-color: rgba(99,102,241,0.3) !important; }
+.dark .pos-action       { background: rgba(20,184,166,0.15) !important; color: #2dd4bf !important; border-color: rgba(20,184,166,0.3) !important; }
+.dark .pos-received     { background: rgba(251,191,36,0.12) !important; color: #fbbf24 !important; border-color: rgba(251,191,36,0.28) !important; }
+.dark .pos-completed    { background: rgba(52,211,153,0.12) !important; color: #34d399 !important; border-color: rgba(52,211,153,0.28) !important; }
+.dark .pos-filed        { background: rgba(148,163,184,0.10) !important; color: #94a3b8 !important; border-color: rgba(148,163,184,0.22) !important; }
+.dark .pos-letter       { background: rgba(129,140,248,0.13) !important; color: #818cf8 !important; border-color: rgba(129,140,248,0.28) !important; }
+.dark .pos-referred     { background: rgba(251,146,60,0.12) !important; color: #fb923c !important; border-color: rgba(251,146,60,0.25) !important; }
+
+/* --------------------------------------------------------------------------
+   OVERDUE ROW INDICATOR
+   -------------------------------------------------------------------------- */
+@keyframes overdueGlow {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(251, 113, 133, 0.0);
+    }
+    50% {
+        box-shadow: 0 0 0 2px rgba(251, 113, 133, 0.20), inset 0 0 40px rgba(220, 38, 38, 0.06);
+    }
+}
+
+.row-overdue {
+    background-color: rgba(220, 38, 38, 0.06) !important;
+    animation: overdueGlow 3s ease-in-out infinite;
+    border-left: 2px solid rgba(251, 113, 133, 0.60) !important;
+}
+.dark .row-overdue {
+    background-color: rgba(159, 18, 57, 0.18) !important;
+    border-left: 2px solid rgba(251, 113, 133, 0.50) !important;
+}
+
+/* --------------------------------------------------------------------------
+   ACTION BUTTONS IN TABLE
+   -------------------------------------------------------------------------- */
+.dark .btn-action {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--c-border-subtle);
+    border-radius: 8px;
+    padding: 5px 7px;
+    font-size: 0.75rem;
+    color: var(--c-text-secondary);
+    cursor: pointer;
+    transition: all var(--dur-fast) var(--ease-out);
+}
+.dark .btn-action:hover {
+    background: rgba(255,255,255,0.12);
+    color: var(--c-text-white);
+    border-color: var(--c-border-strong);
+    transform: scale(1.08);
+}
+
+/* --------------------------------------------------------------------------
+   PRIMARY ACTION BUTTONS
+   -------------------------------------------------------------------------- */
+.dark .btn-primary {
+    background: linear-gradient(135deg, var(--c-teal-500) 0%, var(--c-teal-600) 100%);
+    color: white;
+    border: 1px solid rgba(45,212,191,0.3);
+    box-shadow: 0 2px 10px var(--c-teal-glow);
+    transition: all var(--dur-normal) var(--ease-out);
+}
+.dark .btn-primary:hover {
+    background: linear-gradient(135deg, var(--c-teal-400) 0%, var(--c-teal-500) 100%);
+    box-shadow: 0 4px 20px var(--c-teal-glow);
+    transform: translateY(-1px);
+}
+
+.dark .btn-indigo {
+    background: linear-gradient(135deg, var(--c-indigo-500) 0%, var(--c-indigo-600) 100%);
+    color: white;
+    border: 1px solid rgba(129,140,248,0.3);
+    box-shadow: 0 2px 10px var(--shadow-glow-indigo);
+    transition: all var(--dur-normal) var(--ease-out);
+}
+.dark .btn-indigo:hover {
+    background: linear-gradient(135deg, var(--c-indigo-400) 0%, var(--c-indigo-500) 100%);
+    box-shadow: var(--shadow-glow-indigo);
+    transform: translateY(-1px);
+}
+
+.dark .btn-ghost {
+    background: rgba(255,255,255,0.05);
+    color: var(--c-text-secondary);
+    border: 1px solid var(--c-border-base);
+    transition: all var(--dur-fast) var(--ease-out);
+}
+.dark .btn-ghost:hover {
+    background: rgba(255,255,255,0.10);
+    color: var(--c-text-primary);
+    border-color: var(--c-border-strong);
+}
+
+/* --------------------------------------------------------------------------
+   FORM INPUTS (Dark Mode)
+   -------------------------------------------------------------------------- */
+.dark input[type=text],
+.dark input[type=number],
+.dark input[type=date],
+.dark input[type=email],
+.dark textarea,
+.dark select {
+    background-color: var(--c-bg-input) !important;
+    border-color: var(--c-border-base) !important;
+    color: var(--c-text-primary) !important;
+    transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
+}
+.dark input[type=text]:focus,
+.dark input[type=number]:focus,
+.dark input[type=date]:focus,
+.dark input[type=email]:focus,
+.dark textarea:focus,
+.dark select:focus {
+    border-color: var(--c-teal-500) !important;
+    box-shadow: 0 0 0 3px rgba(20,184,166,0.15) !important;
+    outline: none !important;
+}
+.dark ::placeholder {
+    color: var(--c-text-muted) !important;
+    opacity: 1;
+}
+.dark select option {
+    background: #1a2d4a;
+    color: var(--c-text-primary);
+}
+
+/* --------------------------------------------------------------------------
+   SEARCH INPUT
+   -------------------------------------------------------------------------- */
+.dark #globalSearchInput {
+    background: rgba(255,255,255,0.06) !important;
+    border-color: rgba(255,255,255,0.10) !important;
+    color: white !important;
+    backdrop-filter: blur(4px);
+}
+.dark #globalSearchInput:focus {
+    background: rgba(255,255,255,0.10) !important;
+    border-color: var(--c-teal-500) !important;
+    box-shadow: 0 0 0 3px rgba(20,184,166,0.12) !important;
+}
+
+/* --------------------------------------------------------------------------
+   SCOPE SELECTOR
+   -------------------------------------------------------------------------- */
+.dark #globalScopeSelect {
+    background: rgba(255,255,255,0.05) !important;
+    border-color: rgba(255,255,255,0.10) !important;
+    color: var(--c-teal-400) !important;
+}
+
+/* --------------------------------------------------------------------------
+   METRIC SECTION HEADER CARDS (Registry / Minute / Letter)
+   -------------------------------------------------------------------------- */
+.dark .section-header-banner {
+    background: linear-gradient(135deg, #0a1628 0%, #0d1f3c 40%, #111e35 100%);
+    border: 1px solid rgba(45,212,191,0.12);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.50), 0 0 0 1px rgba(45,212,191,0.05) inset;
+}
+
+/* --------------------------------------------------------------------------
+   REGISTRY HEADER BAR (Office Tabs + Actions)
+   -------------------------------------------------------------------------- */
+.dark .registry-header-bar {
+    background: linear-gradient(180deg, #0f1a2e 0%, #0d1527 100%);
+    border: 1px solid var(--c-border-base);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.40);
+}
+
+/* --------------------------------------------------------------------------
+   MODALS
+   -------------------------------------------------------------------------- */
+.dark .modal-container {
+    background: var(--c-bg-card) !important;
+    border-color: var(--c-border-strong) !important;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.80), 0 0 0 1px rgba(255,255,255,0.06) inset;
+    color: var(--c-text-primary) !important;
+}
+.dark .modal-container .border-b {
+    border-color: var(--c-border-base) !important;
+}
+.dark .modal-container label {
+    color: var(--c-text-secondary) !important;
+}
+.dark .modal-backdrop {
+    background: rgba(0,0,0,0.80);
+    backdrop-filter: blur(4px);
+}
+
+/* Override tailwind modal containers */
+.dark [class*="bg-white"][class*="rounded"] {
+    background: var(--c-bg-card) !important;
+    border-color: var(--c-border-base) !important;
+}
+
+/* --------------------------------------------------------------------------
+   TYPOGRAPHY ENHANCEMENTS (Dark Mode)
+   -------------------------------------------------------------------------- */
+.dark h1, .dark h2, .dark h3 {
+    color: var(--c-text-white) !important;
+}
+.dark .text-slate-400 {
+    color: var(--c-text-muted) !important;
+}
+.dark .text-slate-500 {
+    color: var(--c-text-muted) !important;
+}
+
+/* --------------------------------------------------------------------------
+   OVERDUE ALERT INPUT (Dark)
+   -------------------------------------------------------------------------- */
+.dark #cfgOverdueDaysInput {
+    background: var(--c-bg-input) !important;
+    border-color: var(--c-border-base) !important;
+    color: var(--c-text-primary) !important;
+    text-align: center;
+}
+
+/* --------------------------------------------------------------------------
+   RANGE SLIDERS
+   -------------------------------------------------------------------------- */
+input[type=range].cal-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 5px;
+    border-radius: 9999px;
+    background: #334155;
+    outline: none;
+}
+input[type=range].cal-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--c-teal-400), var(--c-teal-600));
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(20,184,166,0.40);
+    transition: transform var(--dur-fast);
+}
+input[type=range].cal-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+}
+
+/* --------------------------------------------------------------------------
+   DRAFTING DESK (Minute / Letter Live Preview Background)
+   -------------------------------------------------------------------------- */
+.drafting-desk {
+    background: radial-gradient(ellipse at 50% 0%, #0e1f38 0%, #080e1c 100%);
+    box-shadow: inset 0 0 40px rgba(0,0,0,0.8);
+    border: 1px solid rgba(45,212,191,0.10);
+}
+
+/* --------------------------------------------------------------------------
+   STUDIO MODALS (Minute Sheet Print Studio / Letter Print Studio)
+   -------------------------------------------------------------------------- */
+.studio-modal-container {
+    width: 98vw !important;
+    max-width: 1720px !important;
+    height: 94vh !important;
+    max-height: 94vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    background: var(--c-bg-card) !important;
+    border: 1px solid var(--c-border-strong) !important;
+}
+
+.studio-modal-body {
+    display: flex !important;
+    flex-direction: row !important;
+    flex: 1 1 0% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+}
+
+.studio-modal-sidebar {
+    width: 460px !important;
+    min-width: 420px !important;
+    max-width: 500px !important;
+    height: 100% !important;
+    overflow-y: auto !important;
+    flex-shrink: 0 !important;
+    box-sizing: border-box !important;
+    background: var(--c-bg-elevated) !important;
+    border-right: 1px solid var(--c-border-base) !important;
+}
+
+.studio-modal-canvas-col {
+    flex: 1 1 0% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    background: #06090f !important;
+}
+
+.studio-modal-canvas-scroll {
+    flex: 1 1 0% !important;
+    overflow: auto !important;
+    display: flex !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    background: #04060d !important;
+    padding: 24px !important;
+}
+
+.dark .studio-modal-sidebar {
+    background-color: var(--c-bg-elevated) !important;
+    color: var(--c-text-primary) !important;
+    border-color: var(--c-border-base) !important;
+}
+
+/* --------------------------------------------------------------------------
+   SECTION LABELS & DIVIDERS
+   -------------------------------------------------------------------------- */
+.dark .section-label {
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--c-text-muted) !important;
+}
+
+.dark hr,
+.dark .border-t,
+.dark .border-b {
+    border-color: var(--c-border-subtle) !important;
+}
+
+/* --------------------------------------------------------------------------
+   SETTINGS PAGE
+   -------------------------------------------------------------------------- */
+.dark .settings-section {
+    background: var(--c-bg-card);
+    border: 1px solid var(--c-border-base);
+    border-radius: 16px;
+    padding: 20px;
+}
+
+/* --------------------------------------------------------------------------
+   FIREBASE ECOSYSTEM MODAL
+   -------------------------------------------------------------------------- */
+.dark .cluster-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--c-border-base);
+    border-radius: 12px;
+    transition: all var(--dur-normal) var(--ease-out);
+}
+.dark .cluster-card:hover {
+    background: rgba(255,255,255,0.05);
+    border-color: var(--c-border-strong);
+}
+
+/* --------------------------------------------------------------------------
+   THEME TOGGLE BUTTON
+   -------------------------------------------------------------------------- */
+.dark #themeToggleBtn,
+.dark [onclick="toggleTheme()"] {
+    background: rgba(255,255,255,0.06) !important;
+    border-color: rgba(255,255,255,0.12) !important;
+    color: var(--c-text-secondary) !important;
+    transition: all var(--dur-normal) var(--ease-out);
+}
+.dark [onclick="toggleTheme()"]:hover {
+    background: rgba(255,255,255,0.12) !important;
+    color: var(--c-text-white) !important;
+}
+
+/* --------------------------------------------------------------------------
+   LOADING & EMPTY STATES
+   -------------------------------------------------------------------------- */
+.dark .empty-state {
+    color: var(--c-text-muted) !important;
+}
+
+@keyframes shimmer {
+    0%   { background-position: -600px 0; }
+    100% { background-position: 600px 0; }
+}
+.dark .skeleton {
+    background: linear-gradient(
+        90deg,
+        rgba(255,255,255,0.04) 0%,
+        rgba(255,255,255,0.08) 50%,
+        rgba(255,255,255,0.04) 100%
+    );
+    background-size: 600px 100%;
+    animation: shimmer 1.6s infinite linear;
+    border-radius: 6px;
+}
+
+/* --------------------------------------------------------------------------
+   MINUTE SHEET STYLES (Print paper — always white)
+   -------------------------------------------------------------------------- */
+.minute-sheet-paper {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.70);
+    position: relative;
+    box-sizing: border-box;
+    width: 210mm;
+    min-height: 297mm;
+    padding: 25.4mm 15mm 25.4mm 38.1mm;
+    font-family: 'Abhaya Libre', 'Noto Serif Sinhala', 'Iskoola Pota', 'Times New Roman', serif;
+}
+
+.minute-divider-bar {
+    position: absolute;
+    top: 25.4mm;
+    bottom: 25.4mm;
+    width: 1.5px;
+    background-color: #000000;
+}
+
+.sinhala-formal {
+    font-family: 'Abhaya Libre', 'Noto Serif Sinhala', 'Iskoola Pota', serif;
+    line-height: 1.65;
+}
+
+.ms-header-title {
+    text-align: center;
+    font-weight: 800;
+    font-size: 13pt;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #000000;
+    padding-bottom: 4px;
+    margin-bottom: 12px;
+}
+.ms-central-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border: 1.5px solid #000000;
+    font-weight: 900;
+    font-size: 11pt;
+    font-family: Arial, sans-serif;
+    letter-spacing: 1px;
+}
+.ms-originator-underlined {
+    font-weight: 800;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    letter-spacing: 0.5px;
+}
+.ms-m02-divider {
+    border-top: 1.5px dashed #000000;
+    margin-top: 18px;
+    padding-top: 12px;
+}
+
+/* --------------------------------------------------------------------------
+   NAVY BR 7 LETTER STYLES (Print paper — always white)
+   -------------------------------------------------------------------------- */
+.br7-letter-paper {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.70);
+    position: relative;
+    box-sizing: border-box;
+    width: 210mm;
+    min-height: 297mm;
+    padding: 25.4mm 15mm 25.4mm 38.1mm;
+    font-family: 'Times New Roman', Times, serif;
+    line-height: 1.5;
+}
+
+.br7-security-stamp {
+    font-family: Arial, sans-serif;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-align: center;
+    font-size: 11pt;
+    text-transform: uppercase;
+    padding: 2px 0;
+}
+.br7-security-stamp u {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+.br7-security-RESTRICTED  { color: #b91c1c; }
+.br7-security-CONFIDENTIAL { color: #c2410c; }
+.br7-security-SECRET      { color: #991b1b; }
+.br7-security-TOP_SECRET,
+.br7-security-TOP-SECRET  { color: #7f1d1d; font-weight: 900; }
+.br7-security-UNCLASSIFIED { color: #334155; }
+
+.br7-secret-meta {
+    position: absolute;
+    top: 14mm;
+    right: 15mm;
+    text-align: right;
+    font-family: Arial, monospace, sans-serif;
+    font-size: 8.5pt;
+    font-weight: bold;
+    line-height: 1.3;
+    color: #000000;
+}
+
+.br7-letterhead {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid #000000;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+.br7-crest-img {
+    height: 65px;
+    width: auto;
+    object-fit: contain;
+}
+.br7-originator-info {
+    text-align: right;
+    font-size: 9.5pt;
+    line-height: 1.35;
+}
+
+.br7-ref-block {
+    margin: 8px 0 14px 0;
+    font-size: 10.5pt;
+}
+.br7-ref-item {
+    margin-left: 24px;
+    text-indent: -24px;
+    margin-bottom: 3px;
+}
+
+.br7-para-item {
+    margin-bottom: 12px;
+    text-align: justify;
+    font-size: 11pt;
+    line-height: 1.5;
+    display: flex;
+    align-items: flex-start;
+}
+.br7-para-l1 { margin-left: 0; }
+.br7-para-l2 { margin-left: 24px; }
+.br7-para-l3 { margin-left: 48px; }
+.br7-para-l4 { margin-left: 72px; }
+.br7-para-label {
+    font-weight: bold;
+    min-width: 28px;
+    flex-shrink: 0;
+    user-select: none;
+}
+.br7-para-body { flex: 1 1 0%; }
+
+.br7-sign-block {
+    margin-top: 28px;
+    float: right;
+    width: 290px;
+    text-align: center;
+    font-size: 10.5pt;
+    line-height: 1.35;
+}
+.br7-sign-block .sd-line {
+    font-weight: bold;
+    font-style: italic;
+    margin-bottom: 6px;
+}
+
+.br7-copyto-block {
+    clear: both;
+    margin-top: 35px;
+    padding-top: 10px;
+    border-top: 0.5px solid #64748b;
+    font-size: 9.5pt;
+}
+
+/* --------------------------------------------------------------------------
+   PAGE BREAK HELPER
+   -------------------------------------------------------------------------- */
+.page-break {
+    page-break-after: always;
+    break-after: page;
+}
+
+/* --------------------------------------------------------------------------
+   ANIMATED NOTIFICATION / TOAST STATES
+   -------------------------------------------------------------------------- */
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.toast-enter {
+    animation: fadeInDown var(--dur-normal) var(--ease-out) both;
+}
+
+/* --------------------------------------------------------------------------
+   PRINT MEDIA — Native Browser Print Rules
+   -------------------------------------------------------------------------- */
+@media print {
+    body * {
+        visibility: hidden !important;
+    }
+    #printDirectIframe, #printDirectIframe * {
+        visibility: visible !important;
+    }
+    #printDirectIframe {
+        position: fixed !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+    }
+    @page {
+        size: A4 portrait;
+        margin: 25.4mm 15mm 25.4mm 38.1mm;
+    }
+    @page :first {
+        @top-center { content: ""; }
+    }
+    .page-break {
+        page-break-after: always;
+        break-after: page;
+    }
+}
+
+/* ==========================================================================
+   ADDITIONAL DARK MODAL & FORM OVERRIDES
+   Applied globally for all popup/modal containers
+   ========================================================================== */
+
+/* Modal inner structure */
+.dark [class*="rounded-2xl"][class*="shadow-2xl"] label,
+.dark [style*="background:#13213d"] label {
+    color: var(--c-text-secondary) !important;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+/* Section dividers in modals */
+.dark [style*="background:#13213d"] .border-b,
+.dark [style*="background:#13213d"] .border-t {
+    border-color: rgba(255,255,255,0.08) !important;
+}
+
+/* Danger / warning banners inside modals */
+.dark .bg-rose-50 { background: rgba(244,63,94,0.08) !important; }
+.dark .bg-amber-50 { background: rgba(251,191,36,0.08) !important; }
+.dark .bg-teal-50 { background: rgba(20,184,166,0.08) !important; }
+.dark .bg-blue-50 { background: rgba(59,130,246,0.08) !important; }
+
+/* Table within modals */
+.dark [style*="background:#13213d"] thead {
+    background: rgba(255,255,255,0.04) !important;
+}
+.dark [style*="background:#13213d"] tbody tr {
+    border-bottom: 1px solid rgba(255,255,255,0.05) !important;
+}
+
+/* Status select in modals */
+.dark select {
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z' fill='%238fa3bf'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    padding-right: 24px;
+}
+
+/* ==========================================================================
+   SECTION BANNERS — Minute Sheet Studio & Letter Studio
+   ========================================================================== */
+
+.dark [class*="bg-gradient-to-r from-teal-950"] {
+    background: linear-gradient(135deg, #05101d 0%, #091526 50%, #0d1527 100%) !important;
+    border: 1px solid rgba(20,184,166,0.15) !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.50) !important;
+}
+
+.dark [class*="bg-gradient-to-r from-blue-950"] {
+    background: linear-gradient(135deg, #050a1d 0%, #091020 50%, #0d1527 100%) !important;
+    border: 1px solid rgba(99,102,241,0.15) !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.50) !important;
+}
+
+/* ==========================================================================
+   SETTINGS VIEW
+   ========================================================================== */
+.dark #view-settings .bg-white,
+.dark #view-settings [class*="dark:bg-slate-900"] {
+    background: var(--c-bg-card) !important;
+    border-color: var(--c-border-base) !important;
+}
+
+/* ==========================================================================
+   GLOBAL CORRECTIONS: Tailwind dark classes that need enhancement
+   ========================================================================== */
+
+/* Make sure dark:bg-slate-800 sub-elements look right */
+.dark [class*="dark:bg-slate-800"] {
+    background-color: var(--c-bg-elevated) !important;
+}
+.dark [class*="dark:bg-slate-700"] {
+    background-color: #1e2d42 !important;
+}
+
+/* Ensure text hierarchy */
+.dark .text-slate-800 { color: var(--c-text-primary) !important; }
+.dark .text-slate-700 { color: var(--c-text-secondary) !important; }
+.dark .text-slate-600 { color: var(--c-text-secondary) !important; }
+.dark .text-slate-300 { color: var(--c-text-secondary) !important; }
+.dark .text-slate-200 { color: var(--c-text-primary) !important; }
+.dark .text-slate-100 { color: var(--c-text-primary) !important; }
+
+/* Teal accent text */
+.dark .text-teal-400 { color: #2dd4bf !important; }
+.dark .text-teal-300 { color: #5eead4 !important; }
+
+/* Override all white backgrounds inside dark mode pages */
+.dark main .bg-white {
+    background-color: var(--c-bg-card) !important;
+}
+
+/* Table wrapper overrides */
+.dark .overflow-x-auto {
+    background: transparent !important;
+}
+.dark table {
+    background: transparent !important;
+}
+
+/* ==========================================================================
+   EMPTY STATE STYLING
+   ========================================================================== */
+.dark #registryTableEmptyState {
+    background: transparent !important;
+    color: var(--c-text-muted) !important;
+    padding: 40px;
+    text-align: center;
+}
+
+/* ==========================================================================
+   PRINT-SAFE: Ensure print paper white-on-white regardless of theme
+   ========================================================================== */
+@media screen {
+    .minute-sheet-paper,
+    .br7-letter-paper {
+        box-shadow: 0 12px 48px rgba(0,0,0,0.75), 0 0 0 1px rgba(255,255,255,0.05);
+    }
+}

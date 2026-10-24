@@ -1,0 +1,394 @@
+/* ==========================================================================
+   Sri Lanka Navy CMSys V2 - Local Sinhala & System Fonts Suite
+   Comprehensive typography definitions for UI, Minute Sheets, and Documents
+   ========================================================================== */
+
+/* ── 1. Abhaya Libre (Classical Formal Naval & Government Serif) ── */
+@font-face {
+    font-family: 'Abhaya Libre';
+    src: local('Abhaya Libre Regular'), local('AbhayaLibre-Regular'),
+         url('fonts/Abhaya_Libre/AbhayaLibre-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Abhaya Libre';
+    src: local('Abhaya Libre Medium'), local('AbhayaLibre-Medium'),
+         url('fonts/Abhaya_Libre/AbhayaLibre-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Abhaya Libre';
+    src: local('Abhaya Libre SemiBold'), local('AbhayaLibre-SemiBold'),
+         url('fonts/Abhaya_Libre/AbhayaLibre-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Abhaya Libre';
+    src: local('Abhaya Libre Bold'), local('AbhayaLibre-Bold'),
+         url('fonts/Abhaya_Libre/AbhayaLibre-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Abhaya Libre';
+    src: local('Abhaya Libre ExtraBold'), local('AbhayaLibre-ExtraBold'),
+         url('fonts/Abhaya_Libre/AbhayaLibre-ExtraBold.ttf') format('truetype');
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* ── 2. Gemunu Libre (Contemporary Sinhala Sans-Serif) ── */
+@font-face {
+    font-family: 'Gemunu Libre';
+    src: local('Gemunu Libre Light'), local('GemunuLibre-Light'),
+         url('fonts/Gemunu_Libre/static/GemunuLibre-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Gemunu Libre';
+    src: local('Gemunu Libre Regular'), local('GemunuLibre-Regular'),
+         url('fonts/Gemunu_Libre/static/GemunuLibre-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Gemunu Libre';
+    src: local('Gemunu Libre Medium'), local('GemunuLibre-Medium'),
+         url('fonts/Gemunu_Libre/static/GemunuLibre-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Gemunu Libre';
+    src: local('Gemunu Libre SemiBold'), local('GemunuLibre-SemiBold'),
+         url('fonts/Gemunu_Libre/static/GemunuLibre-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Gemunu Libre';
+    src: local('Gemunu Libre Bold'), local('GemunuLibre-Bold'),
+         url('fonts/Gemunu_Libre/static/GemunuLibre-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Gemunu Libre';
+    src: local('Gemunu Libre ExtraBold'), local('GemunuLibre-ExtraBold'),
+         url('fonts/Gemunu_Libre/static/GemunuLibre-ExtraBold.ttf') format('truetype');
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* ── 3. Noto Sans Sinhala (Clean High-Legibility Digital UI Font) ── */
+@font-face {
+    font-family: 'Noto Sans Sinhala';
+    src: local('Noto Sans Sinhala Light'), local('NotoSansSinhala-Light'),
+         url('fonts/Noto_Sans_Sinhala/static/NotoSansSinhala-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Noto Sans Sinhala';
+    src: local('Noto Sans Sinhala Regular'), local('NotoSansSinhala-Regular'),
+         url('fonts/Noto_Sans_Sinhala/static/NotoSansSinhala-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Noto Sans Sinhala';
+    src: local('Noto Sans Sinhala Medium'), local('NotoSansSinhala-Medium'),
+         url('fonts/Noto_Sans_Sinhala/static/NotoSansSinhala-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Noto Sans Sinhala';
+    src: local('Noto Sans Sinhala SemiBold'), local('NotoSansSinhala-SemiBold'),
+         url('fonts/Noto_Sans_Sinhala/static/NotoSansSinhala-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Noto Sans Sinhala';
+    src: local('Noto Sans Sinhala Bold'), local('NotoSansSinhala-Bold'),
+         url('fonts/Noto_Sans_Sinhala/static/NotoSansSinhala-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Noto Sans Sinhala';
+    src: local('Noto Sans Sinhala ExtraBold'), local('NotoSansSinhala-ExtraBold'),
+         url('fonts/Noto_Sans_Sinhala/static/NotoSansSinhala-ExtraBold.ttf') format('truetype');
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* ── 4. Noto Serif Sinhala (Official Formal Government Print Font) ── */
+@font-face {
+    font-family: 'Noto Serif Sinhala';
+    src: local('Noto Serif Sinhala Light'), local('NotoSerifSinhala-Light'),
+         url('fonts/Noto_Serif_Sinhala/static/NotoSerifSinhala-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Noto Serif Sinhala';
+    src: local('Noto Serif Sinhala Regular'), local('NotoSerifSinhala-Regular'),
+         url('fonts/Noto_Serif_Sinhala/static/NotoSerifSinhala-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Noto Serif Sinhala';
+    src: local('Noto Serif Sinhala Medium'), local('NotoSerifSinhala-Medium'),
+         url('fonts/Noto_Serif_Sinhala/static/NotoSerifSinhala-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Noto Serif Sinhala';
+    src: local('Noto Serif Sinhala SemiBold'), local('NotoSerifSinhala-SemiBold'),
+         url('fonts/Noto_Serif_Sinhala/static/NotoSerifSinhala-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Noto Serif Sinhala';
+    src: local('Noto Serif Sinhala Bold'), local('NotoSerifSinhala-Bold'),
+         url('fonts/Noto_Serif_Sinhala/static/NotoSerifSinhala-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Noto Serif Sinhala';
+    src: local('Noto Serif Sinhala ExtraBold'), local('NotoSerifSinhala-ExtraBold'),
+         url('fonts/Noto_Serif_Sinhala/static/NotoSerifSinhala-ExtraBold.ttf') format('truetype');
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* ── 5. Google Sans (Modern Digital Interface Font) ── */
+@font-face {
+    font-family: 'Google Sans';
+    src: local('Google Sans Regular'), local('GoogleSans-Regular'),
+         url('fonts/Google_Sans/static/GoogleSans-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Google Sans';
+    src: local('Google Sans Medium'), local('GoogleSans-Medium'),
+         url('fonts/Google_Sans/static/GoogleSans-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Google Sans';
+    src: local('Google Sans SemiBold'), local('GoogleSans-SemiBold'),
+         url('fonts/Google_Sans/static/GoogleSans-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Google Sans';
+    src: local('Google Sans Bold'), local('GoogleSans-Bold'),
+         url('fonts/Google_Sans/static/GoogleSans-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Google Sans';
+    src: local('Google Sans Italic'), local('GoogleSans-Italic'),
+         url('fonts/Google_Sans/static/GoogleSans-Italic.ttf') format('truetype');
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+}
+
+/* ── 6. Maname (Traditional Literary & Stylistic Sinhala Serif) ── */
+@font-face {
+    font-family: 'Maname';
+    src: local('Maname'), local('Maname Regular'), local('Maname-Regular'),
+         url('fonts/Maname/Maname-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* ── 7. Yaldevi (Modern Compact Sinhala Sans) ── */
+@font-face {
+    font-family: 'Yaldevi';
+    src: local('Yaldevi Light'), local('Yaldevi-Light'),
+         url('fonts/Yaldevi/static/Yaldevi-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Yaldevi';
+    src: local('Yaldevi Regular'), local('Yaldevi-Regular'),
+         url('fonts/Yaldevi/static/Yaldevi-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Yaldevi';
+    src: local('Yaldevi Medium'), local('Yaldevi-Medium'),
+         url('fonts/Yaldevi/static/Yaldevi-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Yaldevi';
+    src: local('Yaldevi SemiBold'), local('Yaldevi-SemiBold'),
+         url('fonts/Yaldevi/static/Yaldevi-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Yaldevi';
+    src: local('Yaldevi Bold'), local('Yaldevi-Bold'),
+         url('fonts/Yaldevi/static/Yaldevi-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* ── 8. Stick No Bills (Bold Condensed Sinhala Display) ── */
+@font-face {
+    font-family: 'Stick No Bills';
+    src: local('Stick No Bills Regular'), local('StickNoBills-Regular'),
+         url('fonts/Stick_No_Bills/static/StickNoBills-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Stick No Bills';
+    src: local('Stick No Bills SemiBold'), local('StickNoBills-SemiBold'),
+         url('fonts/Stick_No_Bills/static/StickNoBills-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Stick No Bills';
+    src: local('Stick No Bills Bold'), local('StickNoBills-Bold'),
+         url('fonts/Stick_No_Bills/static/StickNoBills-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* ── 9. Specialized Roman & Headings Fonts (Humanist 521 & Inter) ── */
+@font-face {
+    font-family: 'Humanst521 Lt BT';
+    src: local('Humanst521 Lt BT Light'), local('Humanst521 Lt BT'), local('Humanist521BT-Light'),
+         url('fonts/Humanst521-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Humanst521 Lt BT';
+    src: local('Humanst521 Lt BT Light Italic'), local('Humanst521 Lt BT Italic'), local('Humanist521BT-LightItalic'),
+         url('fonts/Humanst521-LightItalic.ttf') format('truetype');
+    font-weight: 300;
+    font-style: italic;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Humanist 521';
+    src: local('Humanst521 Lt BT Light'), local('Humanst521 Lt BT'), local('Humanist521BT-Light'),
+         url('fonts/Humanst521-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Humanist 521';
+    src: local('Humanst521 Lt BT Light Italic'), local('Humanst521 Lt BT Italic'), local('Humanist521BT-LightItalic'),
+         url('fonts/Humanst521-LightItalic.ttf') format('truetype');
+    font-weight: 300;
+    font-style: italic;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'ZCOOL XiaoWei';
+    src: local('ZCOOL XiaoWei Regular'), local('ZCOOL XiaoWei'), local('ZCOOLXiaoWei-Regular'),
+         url('fonts/ZCOOLXiaoWei-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* ── 10. System Variables & Typography Defaults ── */
+:root {
+    --font-system: 'Google Sans', 'Inter', 'Humanist 521', 'Noto Sans Sinhala', 'Gemunu Libre', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-ui: var(--font-system);
+    --font-sinhala-default: 'Noto Sans Sinhala', 'Gemunu Libre', 'Abhaya Libre', sans-serif;
+    --font-sinhala-serif: 'Abhaya Libre', 'Noto Serif Sinhala', 'Maname', 'Iskoola Pota', serif;
+    --font-sinhala-sans: 'Noto Sans Sinhala', 'Gemunu Libre', 'Yaldevi', sans-serif;
+    --font-minute-sheet: 'Abhaya Libre', 'Noto Serif Sinhala', 'Iskoola Pota', serif;
+    --font-latin-clean: 'Humanist 521', 'Humanst521 Lt BT', 'Google Sans', 'Inter', sans-serif;
+}
+
+/* ── 11. Utility Classes for Sinhala & Document Typography ── */
+.font-abhaya { font-family: 'Abhaya Libre', 'Noto Serif Sinhala', 'Iskoola Pota', serif !important; }
+.font-gemunu { font-family: 'Gemunu Libre', 'Noto Sans Sinhala', sans-serif !important; }
+.font-noto-sans { font-family: 'Noto Sans Sinhala', sans-serif !important; }
+.font-noto-serif { font-family: 'Noto Serif Sinhala', 'Abhaya Libre', 'Iskoola Pota', serif !important; }
+.font-googlesans { font-family: 'Google Sans', 'Noto Sans Sinhala', sans-serif !important; }
+.font-humanist { font-family: 'Humanist 521', 'Humanst521 Lt BT', sans-serif !important; }
+.font-maname { font-family: 'Maname', 'Abhaya Libre', serif !important; }
+.font-yaldevi { font-family: 'Yaldevi', 'Noto Sans Sinhala', sans-serif !important; }
+.font-sticknobills { font-family: 'Stick No Bills', 'Noto Sans Sinhala', sans-serif !important; }
+
+.font-sinhala { font-family: var(--font-sinhala-default) !important; }
+.font-sinhala-serif { font-family: var(--font-sinhala-serif) !important; }
+.font-sinhala-sans { font-family: var(--font-sinhala-sans) !important; }
+
+/* ── 12. Diacritic Conjuncts & Legibility Optimizations (Min line-height 1.6 to prevent diacritic collision) ── */
+.sinhala, [lang="si"], .font-sinhala, .font-sinhala-serif, .font-sinhala-sans,
+.font-abhaya, .font-gemunu, .sinhala-formal, .minute-sheet-paper, .naval-minute-paper, #minuteSheetPrintArea {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "kern" 1, "liga" 1;
+    line-height: 1.65;
+}

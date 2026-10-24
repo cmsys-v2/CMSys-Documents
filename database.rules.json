@@ -1,0 +1,93 @@
+{
+  "rules": {
+    ".read": true,
+    ".write": true,
+    "document_registry": {
+      ".indexOn": [
+        "id",
+        "office_section",
+        "flow_type",
+        "ref_no",
+        "file_no",
+        "date_recorded",
+        "date_letter",
+        "present_position",
+        "directed_to",
+        "directed_type",
+        "project_id",
+        "priority",
+        "status"
+      ]
+    },
+    "job_minutes": {
+      ".indexOn": [
+        "id",
+        "ref_no",
+        "directed_to",
+        "directed_type",
+        "project_id",
+        "date_received",
+        "position",
+        "priority"
+      ]
+    },
+    "naval_letters": {
+      ".indexOn": [
+        "id",
+        "letter_ref",
+        "file_no",
+        "letter_date",
+        "security_class",
+        "precedence",
+        "br7_tone",
+        "status",
+        "is_registered_outgoing"
+      ]
+    },
+    "file_registry": {
+      ".indexOn": [
+        "id",
+        "file_no",
+        "office_section",
+        "category",
+        "status"
+      ]
+    },
+    "registry_prefixes": {
+      ".indexOn": [
+        "id",
+        "office_section",
+        "category",
+        "flow_type",
+        "is_default"
+      ]
+    },
+    "minute_templates": {
+      ".indexOn": [
+        "id",
+        "category",
+        "lang"
+      ]
+    },
+    "naval_letter_templates": {
+      ".indexOn": [
+        "id",
+        "category",
+        "security_class",
+        "br7_tone"
+      ]
+    },
+    "system_settings": {
+      ".indexOn": [
+        "updated_at"
+      ]
+    },
+    "system_status": {
+      ".indexOn": [
+        "system",
+        "version",
+        "last_sync"
+      ]
+    }
+  }
+}
