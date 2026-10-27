@@ -1,0 +1,92 @@
+{
+    "success": true,
+    "data": [
+        {
+            "id": "tpl_br7_directive",
+            "title": "Directive to Subordinate Unit \/ Base (BR 7 Directive)",
+            "category": "Directives",
+            "security_class": "RESTRICTED",
+            "precedence": "PRIORITY",
+            "br7_tone": "junior",
+            "addressee_to": "The Commanding Officer\nSLNS Tissa\nTrincomalee",
+            "channel_through": "",
+            "subject": "EXPEDITION OF DEFECT RECTIFICATION WORKS - WATERFRONT JETTY",
+            "references_list": [
+                "(a) Inspection Report CCED\/INS\/2026\/14 dated 02 October 2026"
+            ],
+            "paragraphs": [
+                {
+                    "num": "1.",
+                    "text": "Reference (a), you are hereby directed to coordinate with the Command Civil Engineering Department to facilitate immediate defect rectification at the Waterfront Jetty."
+                },
+                {
+                    "num": "2.",
+                    "text": "The nominated CE working party will commence bollard reinforcement and deck concrete repair operations with effect from 26 October 2026."
+                },
+                {
+                    "num": "3.",
+                    "text": "You are requested to ensure berthing clearances and unhindered vehicle access for equipment transport during work hours."
+                },
+                {
+                    "num": "4.",
+                    "text": "Progress report is to be rendered to this office upon completion of Phase 01."
+                }
+            ],
+            "enclosures_list": [
+                "Defect rectification schedule"
+            ],
+            "copy_to_list": [
+                "Commander Eastern Naval Area",
+                "Command Operations Officer (East)",
+                "File Copy"
+            ],
+            "created_at": "2026-10-23 21:43:49",
+            "updated_at": "2026-10-23 21:43:49"
+        },
+        {
+            "id": "tpl_br7_nhq_approval",
+            "title": "Submission to NHQ for Project Work Approval (BR 7)",
+            "category": "NHQ Submissions",
+            "security_class": "RESTRICTED",
+            "precedence": "ROUTINE",
+            "br7_tone": "senior",
+            "addressee_to": "The Commander of the Navy\nNaval Headquarters\nPO Box 593\nColombo 01",
+            "channel_through": "Through: The Commander Eastern Naval Area",
+            "subject": "RECONSTRUCTION AND WATER SUPPLY UPGRADE AT WARDROOM COMPLEX - SLNS TISSA",
+            "references_list": [
+                "(a) NHQ Letter NHQ\/CE\/05\/2026\/042 dated 10 September 2026",
+                "(b) COMEN Signal DTG 150830Z OCT 26"
+            ],
+            "paragraphs": [
+                {
+                    "num": "1.",
+                    "text": "I have the honour to submit for your kind consideration and approval please that an on-site structural and plumbing inspection was carried out at the Wardroom Complex of SLNS Tissa."
+                },
+                {
+                    "num": "2.",
+                    "text": "The existing main distribution pipe network has developed severe corrosion resulting in recurring pressure drops and significant wastage of potable water. A comprehensive Bill of Quantities (BOQ) and structural drawings have been formulated by this department."
+                },
+                {
+                    "num": "3.",
+                    "text": "The total estimated cost for the proposed replacement works amounts to Rs. 1,485,000.00 (Rupees One Million Four Hundred and Eighty-Five Thousand only). Detailed cost breakdown is forwarded herewith at Annex A."
+                },
+                {
+                    "num": "4.",
+                    "text": "In view of the urgency, it is respectfully recommended that administrative and financial approval be granted to initiate departmental procurement and execution."
+                }
+            ],
+            "enclosures_list": [
+                "Annex A: Detailed Cost Estimate & BOQ (CE\/TS\/EST\/2026\/08)",
+                "Annex B: Site Layout Drawing No. CCED\/DRG\/2026\/045"
+            ],
+            "copy_to_list": [
+                "The Director General Civil Engineering, NHQ",
+                "The Command Logistics Officer (East)",
+                "The Commanding Officer, SLNS Tissa",
+                "Office Copy"
+            ],
+            "created_at": "2026-10-23 21:43:49",
+            "updated_at": "2026-10-23 21:43:49"
+        }
+    ]
+}

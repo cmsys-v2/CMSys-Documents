@@ -1,0 +1,129 @@
+{
+    "success": true,
+    "data": {
+        "minute_config": {
+            "si": {
+                "addressees": [
+                    "ධජ නිලධාරී නාවික හමුදා මූලස්ථානය",
+                    "අණදෙන නිලධාරී - ශ්‍රීලංනෞ තිස්ස",
+                    "විධායක නිලධාරී - ශ්‍රීලංනෞ තිස්ස",
+                    "සිවිල් ඉංජිනේරු අධ්‍යක්‍ෂ ජනරාල්",
+                    "කොට්ඨාස සිවිල් ඉංජිනේරු නිලධාරී (නැගෙනහිර)",
+                    "විධායක නිලධාරී - ශ්‍රීලංනෞ ඩොක්යාර්ඩ්",
+                    "වැඩබලන කොට්ඨාස සිවිල් ඉංජිනේරු නිලධාරී (නැ)"
+                ],
+                "originators": [
+                    "කොට්ඨාස සිවිල් ඉංජිනේරු නිලධාරී (නැගෙනහිර) මඟින්",
+                    "විධායක නිලධාරී මඟින්",
+                    "වැඩ භාර නිලධාරී (සිවිල්) මඟින්"
+                ],
+                "signatoryTitles": [
+                    "කොට්ඨාස සිවිල් ඉංජිනේරු නිලධාරී (නැගෙනහිර)",
+                    "විධායක නිලධාරී",
+                    "වැඩ භාර නිලධාරී",
+                    "සහකාර විනයාරක්ෂකාධිපති (නැ)"
+                ],
+                "endorsements": [
+                    "නිර්දේශ කර ඉදිරිපත් කරමි.",
+                    "අනුමැතිය සඳහා ඉදිරිපත් කරමි.",
+                    "අනුමත කරමි.",
+                    "ක්‍රියාමාර්ග ගැනීම සඳහා යොමු කරමි.",
+                    "සලකා බලා වාර්තා කරන්න."
+                ]
+            },
+            "en": {
+                "addressees": [
+                    "Flag Officer Commanding Naval Fleet",
+                    "Commanding Officer - SLNS Tissa",
+                    "Executive Officer - SLNS Tissa",
+                    "Director General Civil Engineering",
+                    "Command Civil Engineering Officer (East)",
+                    "Executive Officer - SLN Dockyard"
+                ],
+                "originators": [
+                    "Through Command Civil Engineering Officer (East)",
+                    "Through Executive Officer",
+                    "Through Officer in Charge (Civil)"
+                ],
+                "signatoryTitles": [
+                    "Command Civil Engineering Officer (East)",
+                    "Executive Officer",
+                    "Officer in Charge",
+                    "Staff Officer (CE)"
+                ],
+                "endorsements": [
+                    "Recommended and forwarded for approval please.",
+                    "Submitted for your kind approval please.",
+                    "Approved.",
+                    "Referred for necessary action please."
+                ]
+            }
+        },
+        "letter_config": {
+            "letterheads": [
+                {
+                    "id": "lh_east",
+                    "office": "COMMAND CIVIL ENGINEERING DEPARTMENT (EAST)",
+                    "station": "SLN DOCKYARD, TRINCOMALEE",
+                    "tel": "026-2222384 \/ Ext 3144",
+                    "email": "cceoeast@navy.lk",
+                    "crest": "logo-crest.png",
+                    "is_default": true
+                }
+            ],
+            "addressees": [
+                "The Commander of the Navy, Naval Headquarters, Colombo 01",
+                "The Commander Eastern Naval Area, SLN Dockyard, Trincomalee",
+                "The Director General Civil Engineering, Naval Headquarters, Colombo",
+                "The Command Logistics Officer (East), SLN Dockyard, Trincomalee",
+                "The Commanding Officer, SLNS Tissa, Trincomalee",
+                "The Executive Officer, SLN Dockyard, Trincomalee"
+            ],
+            "tones": {
+                "senior": {
+                    "label": "Superior \/ Senior Officer (BR 7 Official)",
+                    "opening": "1. I have the honour to submit for your kind consideration and approval please that",
+                    "salutation": "Sir \/ Commander,",
+                    "closing": "I have the honour to be, Sir, Your obedient Servant,"
+                },
+                "equal": {
+                    "label": "Equal \/ Contemporary Command \/ Colleague",
+                    "opening": "1. Forwarded herewith for your kind information and necessary concurrence please.",
+                    "salutation": "Dear Sir \/ Commander,",
+                    "closing": "Yours sincerely,"
+                },
+                "junior": {
+                    "label": "Junior \/ Subordinate Base or Unit",
+                    "opening": "1. You are hereby directed to initiate immediate action regarding",
+                    "salutation": "Officer-in-Charge \/ Commander,",
+                    "closing": "For strict compliance please,"
+                },
+                "external": {
+                    "label": "Civil Authorities \/ Contractors \/ External Agencies",
+                    "opening": "1. I am directed by the Commander Eastern Naval Area to inform you that",
+                    "salutation": "Dear Sir \/ Madam,",
+                    "closing": "Yours faithfully,"
+                }
+            },
+            "signatories": [
+                {
+                    "name": "K A KAHANDAWA",
+                    "rank": "Commander (CE)",
+                    "appointment": "Command Civil Engineering Officer (East)"
+                },
+                {
+                    "name": "S P SILVA",
+                    "rank": "Lieutenant Commander (CE)",
+                    "appointment": "Staff Officer (Civil Engineering - Projects)"
+                }
+            ],
+            "distribution_presets": [
+                "Director General Civil Engineering, NHQ",
+                "Commander Eastern Naval Area",
+                "Command Logistics Officer (East)",
+                "Base Commander, SLNS Tissa",
+                "Office \/ File Copy"
+            ]
+        }
+    }
+}

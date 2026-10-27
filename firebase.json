@@ -1,15 +1,78 @@
 {
-  "database": {
-    "rules": "database.rules.json"
-  },
   "hosting": {
+    "target": "docs",
     "public": ".",
     "ignore": [
       "firebase.json",
+      ".firebaserc",
       "**/.*",
+      "**/.*/**",
+      "node_modules/**",
       "**/node_modules/**",
+      "scratch/**",
+      "**/scratch/**",
+      "tests/**",
+      "**/tests/**",
+      "Docs/**",
+      "**/Docs/**",
+      "CMSys_Documents_System_Architecture*.*",
+      "fonts/ZCOOLXiaoWei-Regular.ttf",
+      "fonts/Google_Sans/**",
       "*.php",
-      "*.ps1"
+      "*.ps1",
+      "*.cmd",
+      "*.bat",
+      "*.sql",
+      "*.bak",
+      "*.pdf"
+    ],
+    "cleanUrls": true,
+    "rewrites": [
+      {
+        "source": "/letters/**",
+        "destination": "/letters/index.html"
+      },
+      {
+        "source": "/minute/**",
+        "destination": "/minute/index.html"
+      },
+      {
+        "source": "/minutes/**",
+        "destination": "/minute/index.html"
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
+    "headers": [
+      {
+        "source": "**/*.@(jpg|jpeg|gif|png|webp|svg|ico|woff|woff2|ttf|eot)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=2592000, stale-while-revalidate=86400"
+          }
+        ]
+      },
+      {
+        "source": "**/*.@(js|css|json)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "public, max-age=604800, stale-while-revalidate=86400"
+          }
+        ]
+      },
+      {
+        "source": "**/*.@(html|htm)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache, must-revalidate"
+          }
+        ]
+      }
     ]
   }
 }

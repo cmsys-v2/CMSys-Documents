@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full dark">
+<head>
+  <meta charset="UTF-8">
+  <script>document.write('<base href="' + (location.pathname.indexOf('/CMSys Documents/') === 0 ? '/CMSys%20Documents/' : '/') + '">');</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minute Sheet Studio (M01 / M02) — Sri Lanka Navy CMSys Documents</title>
+  <!-- Tailwind CSS (Offline Static) -->
+  <link rel="stylesheet" href="tailwind-static.css">
+  <!-- Sinhala Fonts Suite -->
+  <link rel="stylesheet" href="sinhala-fonts.css">
+  <!-- Master Custom Styles -->
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" href="logo-crest.png">
+  <style>
+    html.dark { background-color: #080e1c !important; color: #e8edf5 !important; }
+    .toolbar-select {
+      background-color: #1e293b;
+      border: 1px solid #475569;
+      color: #f1f5f9;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 6px;
+      outline: none;
+      cursor: pointer;
+    }
+    .toolbar-select:focus {
+      border-color: #14b8a6;
+    }
+  </style>
+</head>
+<body class="h-full font-sans antialiased flex flex-col bg-slate-950 text-slate-100 overflow-hidden" style="background-color:#080e1c;color:#e8edf5;">
+
+  <!-- ========================================================================= -->
+  <!-- COMMAND TOP BAR                                                           -->
+  <!-- ========================================================================= -->
+  <header class="no-print glass-header sticky top-0 z-40 border-b border-teal-500/20 shadow-xl text-white bg-slate-900/95 backdrop-blur-md">
+    <div class="max-w-[99vw] mx-auto px-4 py-2 flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- Brand & Mode Switcher -->
+      <div class="flex items-center gap-3 shrink-0">
+        <a href="./" class="flex items-center gap-2.5 text-white hover:opacity-90 transition" title="Go to Master Document Registry & Workstation">
+          <img src="logo-crest.png" alt="Sri Lanka Navy" class="h-9 w-9 object-contain drop-shadow">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-bold tracking-wider text-sm block">SRI LANKA NAVY • CMSYS DOCUMENTS</span>
+              <span class="text-[9px] font-mono px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-500/40 font-bold uppercase tracking-wider">
+                MINUTE STUDIO
+              </span>
+            </div>
+            <span class="text-[10px] text-teal-400 font-semibold block -mt-0.5">Bilingual Minute Sheet Studio (M01 / M02 & Operational Endorsements)</span>
+          </div>
+        </a>
+
+        <!-- Fast Domain Nav Switcher -->
+        <div class="hidden md:flex items-center space-x-1.5 pl-3 border-l border-slate-700">
+          <a href="./" class="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition" title="Master Document Registry & Workstation">
+            📑 Master Workstation
+          </a>
+          <a href="letters" class="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-800 text-amber-300 hover:bg-slate-700 transition" title="Dedicated Naval Letter Studio (Navy BR 7)">
+            ✉️ Letter Studio (/letters)
+          </a>
+          <span class="px-3 py-1 rounded-lg text-xs font-bold bg-teal-600 text-white shadow" title="You are currently in Dedicated Minute Studio">
+            📜 Minute Studio (/minute)
+          </span>
+        </div>
+      </div>
+
+      <!-- Quick Action Controls -->
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- Language Switcher -->
+        <div class="flex items-center gap-1 bg-slate-800 p-0.5 rounded-lg border border-slate-700 text-xs">
+          <button type="button" onclick="setMinuteLang('si')" id="btnMsLangSi" class="px-2.5 py-1 rounded font-bold bg-teal-600 text-white transition">
+            🇱🇰 සිංහල
+          </button>
+          <button type="button" onclick="setMinuteLang('en')" id="btnMsLangEn" class="px-2.5 py-1 rounded font-medium text-slate-400 hover:text-white transition">
+            🇬🇧 English
+          </button>
+        </div>
+
+        <!-- Font Selector -->
+        <select id="msFontFamilySelect" onchange="setMinuteFont(this.value)" class="toolbar-select text-teal-300 border-teal-600/60 font-semibold" title="Minute Typographic Font">
+          <option value="'Abhaya Libre', 'Noto Serif Sinhala', serif" selected>Abhaya Libre (Naval Serif)</option>
+          <option value="'Gemunu Libre', 'Noto Sans Sinhala', sans-serif">Gemunu Libre (Naval Sans)</option>
+          <option value="'Noto Serif Sinhala', serif">Noto Serif Sinhala</option>
+          <option value="'Noto Sans Sinhala', sans-serif">Noto Sans Sinhala</option>
+          <option value="'Times New Roman', serif">Times New Roman</option>
+        </select>
+
+        <!-- Auto-Shrink Tool -->
+        <button type="button" onclick="autoShrinkMinuteToFit()" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-teal-900/60 text-teal-300 hover:bg-teal-800 border border-teal-600/40 transition flex items-center gap-1 cursor-pointer" title="Auto-calibrate font & line height to fit single A4 page">
+          <span>⚡</span> Auto-Shrink Fit
+        </button>
+
+        <!-- Print Studio Modal Button -->
+        <button type="button" onclick="openMinutePrintStudioModal()" class="px-3 py-1 rounded-lg text-xs font-bold bg-slate-800 text-white hover:bg-slate-700 border border-slate-600 transition flex items-center gap-1 cursor-pointer" title="Open A4 Print Setup & Zoom Studio">
+          <span>🖨️</span> Print Setup
+        </button>
+
+        <!-- Save Button -->
+        <button type="button" onclick="saveMinuteRecord()" class="px-3.5 py-1 rounded-lg text-xs font-bold bg-teal-600 hover:bg-teal-500 text-white transition flex items-center gap-1 shadow cursor-pointer">
+          <span>💾</span> Save Minute
+        </button>
+
+        <!-- Direct Native Print -->
+        <button type="button" onclick="window.print()" class="px-3 py-1 rounded-lg text-xs font-bold bg-amber-500 hover:bg-amber-400 text-slate-950 transition flex items-center gap-1 shadow cursor-pointer">
+          <span>🖨️</span> Direct Print
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- MAIN WORKSPACE                                                            -->
+  <!-- ========================================================================= -->
+  <main class="flex-1 overflow-hidden p-3 sm:p-5 max-w-[99vw] mx-auto w-full flex flex-col gap-4">
+    
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 flex-1 overflow-hidden">
+      
+      <!-- Left: Drafting Controls & Input Fields -->
+      <div class="lg:col-span-6 bg-slate-900/90 p-5 rounded-2xl border border-slate-800 shadow-xl space-y-4 overflow-y-auto max-h-[calc(100vh-80px)]">
+        
+        <!-- Header Quick Bar: Autofill & Reset -->
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3 flex-wrap gap-2">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-black uppercase tracking-wider text-teal-400 flex items-center gap-1">
+              <span>✍️</span> Minute Drafting Desk
+            </span>
+          </div>
+
+          <div class="flex items-center gap-1.5">
+            <select id="msAutofillSelect" onchange="autoFillMinuteFromRegistry(this.value)" class="text-xs px-2.5 py-1 border border-slate-700 rounded-lg bg-slate-800 text-slate-200 outline-none max-w-[220px]">
+              <option value="">⚡ Autofill from Registry Minute</option>
+            </select>
+            <button type="button" onclick="resetMinuteForm()" class="text-xs text-rose-400 hover:underline px-2 py-1 font-bold">
+              Clear
+            </button>
+          </div>
+        </div>
+
+        <!-- Central Minute Sequence & Underlined Originator Tag -->
+        <div class="p-3 bg-teal-950/20 rounded-xl border border-teal-900/40 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="font-bold text-teal-300 uppercase text-[10px]">Central Minute Sequence No</label>
+              <span class="text-[9px] text-teal-400 font-mono">e.g. M 01, M 02</span>
+            </div>
+            <input type="text" id="msInputMinuteSeq" oninput="updateMinutePreview()" value="M 01" placeholder="M 01" class="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded-lg font-mono font-bold text-xs outline-none text-white">
+          </div>
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="font-bold text-teal-300 uppercase text-[10px]">Underlined Originator Tag</label>
+              <select id="msOriginatorTagPreset" onchange="applyOriginatorTagPreset(this.value)" class="text-[9px] px-1 py-0.5 border border-teal-700 rounded bg-slate-800 text-teal-300 outline-none">
+                <option value="">-- Presets --</option>
+                <option value="BY CCEO(E)">BY CCEO(E)</option>
+                <option value="BY DNCE">BY DNCE</option>
+                <option value="BY SEC">BY SEC</option>
+                <option value="BY DNW">BY DNW</option>
+                <option value="BY COMEN">BY COMEN</option>
+              </select>
+            </div>
+            <input type="text" id="msInputOriginatorTag" oninput="updateMinutePreview()" value="BY CCEO(E)" placeholder="BY CCEO(E)" class="w-full px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded-lg font-bold uppercase text-xs outline-none text-white">
+          </div>
+        </div>
+
+        <!-- Typographic Calibration Slider Controls -->
+        <div class="p-3 bg-slate-800/60 rounded-xl border border-slate-700/80 space-y-3 text-xs">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-300 uppercase text-[10px] flex items-center gap-1.5">
+              <span>📐</span> Typographic Calibration & Paper Binding Controls
+            </span>
+            <button type="button" onclick="autoShrinkMinuteToFit()" class="text-[10px] font-bold text-teal-300 bg-teal-950/80 px-2 py-0.5 rounded border border-teal-700 hover:bg-teal-900 cursor-pointer flex items-center gap-1">
+              <span>⚡</span> Auto-Shrink Fit
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <!-- Divider Width Slider (50% to 100%) -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-[10px] font-bold text-slate-400 uppercase">Divider Width % (50% to 100%)</label>
+                <span id="msDividerWidthBadge" class="text-[10px] font-mono font-bold text-teal-400">100%</span>
+              </div>
+              <input type="range" id="msDividerWidthSlider" min="50" max="100" value="100" oninput="onMinuteDividerWidthSlider(this.value)" class="cal-slider w-full">
+            </div>
+
+            <!-- Right Margin Offset Slider (10mm to 35mm for punch hole & arch-lever binding) -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-[10px] font-bold text-slate-400 uppercase">Right Margin Offset (Hole Punch / Binding)</label>
+                <span id="msRightMarginBadge" class="text-[10px] font-mono font-bold text-teal-400">20 mm</span>
+              </div>
+              <input type="range" id="msRightMarginSlider" min="10" max="35" value="20" oninput="onMinuteRightMarginSlider(this.value)" class="cal-slider w-full">
+            </div>
+
+            <!-- Base Font Size Adjuster (8.5pt to 13pt) -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-[10px] font-bold text-slate-400 uppercase">Base Font Size (8.5pt - 13pt)</label>
+                <span id="msFontSizeBadge" class="text-[10px] font-mono font-bold text-teal-400">11.0 pt</span>
+              </div>
+              <input type="range" id="msFontSizeSlider" min="8.5" max="13" step="0.5" value="11" oninput="onMinuteFontSizeSlider(this.value)" class="cal-slider w-full">
+            </div>
+
+            <!-- Line Height Leading Adjustment (1.4 to 2.2) -->
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-[10px] font-bold text-slate-400 uppercase">Line Height Leading (1.4 - 2.2)</label>
+                <span id="msLineHeightBadge" class="text-[10px] font-mono font-bold text-teal-400">1.65</span>
+              </div>
+              <input type="range" id="msLineHeightSlider" min="1.4" max="2.2" step="0.05" value="1.65" oninput="onMinuteLineHeightSlider(this.value)" class="cal-slider w-full">
+            </div>
+          </div>
+        </div>
+
+        <!-- Minute Reference & Date -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-[11px] font-bold text-slate-300 uppercase">Minute Ref Number</label>
+              <button type="button" onclick="autoGenerateMinuteRef()" class="text-[10px] font-bold text-teal-400 hover:underline">
+                ⚡ Generate Ref
+              </button>
+            </div>
+            <input type="text" id="msInputRefNo" oninput="updateMinutePreview()" placeholder="CCED/A/10/2216/26" class="w-full px-3 py-2 border border-slate-700 rounded-xl text-xs font-mono font-bold bg-slate-800 text-white outline-none">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-300 uppercase mb-1">Minute Date</label>
+            <input type="text" id="msInputDate" oninput="updateMinutePreview()" placeholder="2026 ඔක්තෝබර් මස 23" class="w-full px-3 py-2 border border-slate-700 rounded-xl text-xs bg-slate-800 text-white outline-none">
+          </div>
+        </div>
+
+        <!-- Addressees (Left Column) -->
+        <div class="space-y-2 p-3 bg-amber-950/20 rounded-xl border border-amber-900/40">
+          <div class="flex items-center justify-between">
+            <label class="text-[11px] font-bold text-amber-400 uppercase flex items-center gap-1.5">
+              <span>📌</span> Addressees (යොමුවන පාර්ශ්ව)
+            </label>
+            <button type="button" onclick="addMinuteAddresseeRow()" class="text-[10px] font-bold text-amber-300 bg-amber-900/60 px-2 py-0.5 rounded border border-amber-700 cursor-pointer">
+              + Add Addressee
+            </button>
+          </div>
+          <div id="msAddresseesContainer" class="space-y-1.5">
+            <!-- Populated dynamically via app.js -->
+          </div>
+        </div>
+
+        <!-- Subject Line -->
+        <div>
+          <label class="block text-[11px] font-bold text-slate-300 uppercase mb-1">Subject / විෂයය <span class="text-rose-500">*</span></label>
+          <input type="text" id="msInputSubject" oninput="updateMinutePreview()" placeholder="ගොඩනැගිලි ප්‍රතිසංස්කරණ ඇස්තමේන්තුව සකස් කිරීම පිළිබඳව" class="w-full px-3 py-2 border border-slate-700 rounded-xl text-xs font-bold bg-slate-800 text-white outline-none">
+        </div>
+
+        <!-- M-01 Originator Designation -->
+        <div class="space-y-1">
+          <div class="flex items-center justify-between">
+            <label class="text-[11px] font-bold text-rose-400 uppercase">M-01 Originator Designation (මඟින් යොමු කරන)</label>
+            <select id="msOriginatorSelect" onchange="applyMinuteOriginatorPreset(this.value)" class="text-[10px] px-2 py-0.5 border border-rose-700 rounded bg-slate-800 text-slate-300 font-semibold outline-none">
+              <option value="">-- Choose from Settings --</option>
+            </select>
+          </div>
+          <input type="text" id="msInputOriginator" oninput="updateMinutePreview()" placeholder="කොට්ඨාස සිවිල් ඉංජිනේරු නිලධාරී (නැගෙනහිර) මඟින්" class="w-full px-3 py-2 border border-slate-700 rounded-xl text-xs bg-slate-800 text-white outline-none">
+        </div>
+
+        <!-- Sinhala Naval Rank Transliteration Engine Widget -->
+        <div class="p-3 bg-indigo-950/20 rounded-xl border border-indigo-900/40 space-y-2 text-xs">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-indigo-300 uppercase text-[10px] flex items-center gap-1.5">
+              <span>⚓</span> Sinhala Naval Rank Transliteration Engine
+            </span>
+            <span class="text-[9px] text-indigo-400 font-medium">SLN Official Designations</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center">
+            <div class="sm:col-span-5">
+              <select id="rankTransliterateSelect" onchange="onRankSelectChange(this.value)" class="w-full px-2 py-1 bg-slate-900 border border-indigo-700 rounded-lg text-xs font-semibold outline-none text-white">
+                <option value="">-- Quick Rank Lookup --</option>
+                <option value="Commander (CE)">Commander (CE)</option>
+                <option value="Lt Cdr (CE)">Lt Cdr (CE)</option>
+                <option value="Lieutenant (CE)">Lieutenant (CE)</option>
+                <option value="Sub Lieutenant (CE)">Sub Lieutenant (CE)</option>
+                <option value="MCPO">MCPO</option>
+                <option value="FCPO">FCPO</option>
+                <option value="CPO">CPO</option>
+                <option value="PO">PO</option>
+                <option value="Leading">Leading Seaman</option>
+                <option value="Able Seaman">Able Seaman (AB)</option>
+                <option value="Ordinary Seaman">Ordinary Seaman (OD)</option>
+              </select>
+            </div>
+            <div class="sm:col-span-4">
+              <input type="text" id="rankSinhalaResult" readonly placeholder="සිංහල නිල නාමය..." class="w-full px-2 py-1 bg-slate-900 border border-indigo-700 rounded-lg text-xs font-bold text-indigo-200 outline-none">
+            </div>
+            <div class="sm:col-span-3 flex items-center gap-1">
+              <button type="button" onclick="insertTransliteratedRankToPara()" class="flex-1 py-1 px-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-[10px] font-bold cursor-pointer">
+                + In Para
+              </button>
+              <button type="button" onclick="setTransliteratedRankToSign()" class="flex-1 py-1 px-1.5 bg-slate-700 hover:bg-slate-800 text-white rounded text-[10px] font-bold cursor-pointer">
+                Set Sign
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Paragraphs Dynamic Section -->
+        <div class="space-y-2 p-3 bg-slate-800/40 rounded-xl border border-slate-700">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <label class="text-[11px] font-bold text-slate-300 uppercase flex items-center gap-1.5">
+              <span>📝</span> Paragraphs Content (ඡේද අන්තර්ගතය)
+            </label>
+            <div class="flex items-center gap-1.5">
+              <select id="msSailorInsertSelect" onchange="insertSailorIntoMinute(this.value)" class="text-[10px] px-2 py-0.5 border border-slate-600 rounded bg-slate-900 text-slate-200 max-w-[160px] outline-none">
+                <option value="">👤 Insert Sailor</option>
+              </select>
+              <button type="button" onclick="addMinuteParagraphRow()" class="text-[10px] font-bold text-teal-300 bg-teal-900/60 px-2 py-0.5 rounded border border-teal-700 cursor-pointer">
+                + Add Para
+              </button>
+            </div>
+          </div>
+          <div id="msParagraphsContainer" class="space-y-2">
+            <!-- Populated dynamically via app.js -->
+          </div>
+        </div>
+
+        <!-- Recommendation & Signatory Block -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-300 uppercase mb-1">Final Recommendation / ඉදිරිපත් කිරීම</label>
+            <input type="text" id="msInputRecommendation" oninput="updateMinutePreview()" placeholder="ඉදිරි කටයුතු සඳහා කාරුණිකව ඉදිරිපත් කරමි." class="w-full px-3 py-2 border border-slate-700 rounded-xl text-xs bg-slate-800 text-white outline-none">
+          </div>
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="block text-[11px] font-bold text-slate-300 uppercase">Signatory Title</label>
+              <select id="msSignatorySelect" onchange="applyMinuteSignatoryPreset(this.value)" class="text-[10px] px-1.5 py-0.5 border border-slate-700 rounded bg-slate-800 text-slate-300 outline-none">
+                <option value="">-- Presets --</option>
+              </select>
+            </div>
+            <input type="text" id="msInputSignatory" oninput="updateMinutePreview()" placeholder="කොට්ඨාස සිවිල් ඉංජිනේරු නිලධාරී (නැගෙනහිර)" class="w-full px-3 py-2 border border-slate-700 rounded-xl text-xs bg-slate-800 text-white outline-none">
+          </div>
+        </div>
+
+        <!-- Minute 02 (M-02) Endorsement Section Toggle -->
+        <div class="p-3 bg-blue-950/20 rounded-xl border border-blue-900/40 space-y-3">
+          <label class="flex items-center justify-between cursor-pointer select-none">
+            <span class="text-xs font-bold text-blue-300 flex items-center gap-1.5">
+              <span>🔖</span> Minute 02 (M-02) Endorsement & Forwarding
+            </span>
+            <input type="checkbox" id="msToggleM02" onchange="toggleM02Section(this.checked)" class="w-4 h-4 text-blue-600 rounded">
+          </label>
+
+          <div id="msM02FieldsContainer" class="hidden space-y-3 pt-2 border-t border-blue-900/50">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">M-02 Addressee</label>
+                <input type="text" id="msM02InputAddressee" oninput="updateMinutePreview()" placeholder="විධායක නිලධාරී - ශ්‍රීලංනෞ තිස්ස" class="w-full px-2.5 py-1.5 border border-slate-700 rounded-lg text-xs bg-slate-900 outline-none text-white">
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">M-02 Originator Designation</label>
+                <input type="text" id="msM02InputOriginator" oninput="updateMinutePreview()" placeholder="කොට්ඨාස සිවිල් ඉංජිනේරු නිලධාරී (නැගෙනහිර) මඟින්" class="w-full px-2.5 py-1.5 border border-slate-700 rounded-lg text-xs bg-slate-900 outline-none text-white">
+              </div>
+            </div>
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase">M-02 Action Endorsement</label>
+                <select id="msM02EndorsementPreset" onchange="applyM02EndorsementPhrase(this.value)" class="text-[10px] px-1.5 py-0.5 border border-slate-700 rounded bg-slate-900 outline-none text-slate-300">
+                  <option value="">-- Quick Phrases --</option>
+                </select>
+              </div>
+              <textarea id="msM02InputText" oninput="updateMinutePreview()" rows="2" placeholder="නිර්දේශ කර ඉදිරිපත් කරමි." class="w-full px-2.5 py-1.5 border border-slate-700 rounded-lg text-xs bg-slate-900 outline-none text-white"></textarea>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">M-02 Date</label>
+                <input type="text" id="msM02InputDate" oninput="updateMinutePreview()" placeholder="2026 ඔක්තෝබර් මස 23" class="w-full px-2.5 py-1.5 border border-slate-700 rounded-lg text-xs bg-slate-900 outline-none text-white">
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">M-02 Signatory Title</label>
+                <input type="text" id="msM02InputSignatory" oninput="updateMinutePreview()" placeholder="කොට්ඨාස සිවිල් ඉංජිනේරු නිලධාරී (නැගෙනහිර)" class="w-full px-2.5 py-1.5 border border-slate-700 rounded-lg text-xs bg-slate-900 outline-none text-white">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="pt-3 border-t border-slate-800 flex items-center justify-between gap-2 flex-wrap">
+          <button type="button" onclick="saveMinuteAsTemplatePrompt()" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 transition-all cursor-pointer">
+            📋 Save as Template
+          </button>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="saveMinuteRecord()" class="px-4 py-2 rounded-xl text-xs font-bold bg-teal-600 hover:bg-teal-700 text-white shadow-xs transition-all cursor-pointer">
+              💾 Save Minute Record
+            </button>
+            <button type="button" onclick="openMinutePrintStudioModal()" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white shadow-xs transition-all cursor-pointer flex items-center gap-1.5 border border-slate-700">
+              🖨️ Print Studio / PDF
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Authentic Live A4 Paper Desk Preview -->
+      <div class="lg:col-span-6 drafting-desk p-4 sm:p-6 rounded-2xl border border-slate-800 bg-slate-900/60 flex flex-col justify-between overflow-hidden shadow-2xl max-h-[calc(100vh-80px)]">
+        <div class="flex items-center justify-between mb-2 shrink-0">
+          <span class="text-xs font-black text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+            <span>📄</span> Authentic A4 Naval Minute Paper View (210 × 297 mm)
+          </span>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="openMinutePrintStudioModal()" class="text-xs font-bold text-teal-300 bg-slate-800/90 px-3 py-1 rounded-lg border border-teal-600/40 hover:bg-slate-700 flex items-center gap-1 cursor-pointer">
+              <span>🖨️</span> Print Setup Window
+            </button>
+          </div>
+        </div>
+
+        <!-- Scrollable Desk Canvas -->
+        <div class="paper-viewport flex-1 overflow-y-auto p-4 flex justify-center bg-slate-950/80 rounded-xl border border-slate-800">
+          <div id="minuteLivePaper" class="a4-canvas minute-sheet-paper w-full max-w-[680px] min-h-[960px] p-8 sm:p-10 text-black text-xs leading-relaxed relative bg-white shadow-2xl">
+            <!-- Populated dynamically via updateMinutePreview() -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: MINUTE PRINT STUDIO                                                -->
+  <!-- ========================================================================= -->
+  <div id="modalMinutePrintStudio" class="fixed inset-0 z-50 hidden items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-xs">
+    <div class="studio-modal-container bg-slate-900 rounded-2xl shadow-2xl border border-slate-700 overflow-hidden flex flex-col text-slate-100 max-w-5xl w-full max-h-[95vh]">
+      
+      <!-- Modal Header -->
+      <div class="px-5 py-3 flex items-center justify-between border-b border-teal-900/40 text-white bg-gradient-to-r from-teal-950 via-slate-900 to-slate-950 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <span class="w-8 h-8 rounded-lg bg-teal-500/20 border border-teal-400/30 flex items-center justify-center text-lg">🖨️</span>
+          <div>
+            <h3 class="font-bold text-sm sm:text-base text-white">Naval Minute Sheet Print Studio & Layout Manager</h3>
+            <p class="text-[10px] text-teal-200">Millimeter-Calibrated A4 Margins • Arch-Lever Hole Punch Spacing • Authentic Dual-Column Vertical Divider</p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="executeMinuteDirectPrint()" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-teal-500 hover:bg-teal-400 text-slate-950 shadow-sm flex items-center gap-1.5 cursor-pointer">
+            <span>🖨️</span> Print via Browser
+          </button>
+          <button type="button" onclick="closeMinutePrintStudioModal()" class="w-8 h-8 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-bold text-base cursor-pointer">
+            ✕
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal Body (Two Columns) -->
+      <div class="studio-modal-body grid grid-cols-1 lg:grid-cols-12 flex-1 overflow-hidden p-4 gap-4">
+        
+        <!-- Left: Quick Toggles & Density Adjusters -->
+        <div class="lg:col-span-4 space-y-4 overflow-y-auto pr-2">
+          <div class="p-3 bg-slate-800 rounded-xl border border-slate-700 space-y-2">
+            <h4 class="font-bold text-xs uppercase text-slate-300">⚙️ Layout Presets</h4>
+            <div class="space-y-1.5 text-xs">
+              <label class="flex items-center gap-2 cursor-pointer select-none">
+                <input type="checkbox" id="msPrintShowBorders" checked onchange="syncMinutePrintStudioPreview()" class="w-4 h-4 text-teal-600 rounded">
+                <span class="text-xs font-semibold">Render Central Vertical Line</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer select-none">
+                <input type="checkbox" id="msPrintShowFilingHoles" checked onchange="syncMinutePrintStudioPreview()" class="w-4 h-4 text-teal-600 rounded">
+                <span class="text-xs font-semibold">Reserve 20mm Right Filing Margin (Hole-Punch)</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="p-3 bg-slate-800 rounded-xl border border-slate-700 space-y-2">
+            <h4 class="font-bold text-xs uppercase text-slate-300">📄 Typography & Divider</h4>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div>
+                <label class="block text-[10px] font-bold text-slate-400 uppercase">Font Size (pt)</label>
+                <select id="msPrintFontSize" onchange="syncMinutePrintStudioPreview()" class="w-full mt-0.5 px-2 py-1 border border-slate-600 rounded-lg bg-slate-900 outline-none font-semibold text-white">
+                  <option value="9.5">9.5 pt</option>
+                  <option value="10.5">10.5 pt</option>
+                  <option value="11" selected>11 pt (Standard)</option>
+                  <option value="12">12 pt</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-400 uppercase">Vertical Divider</label>
+                <select id="msPrintDividerPct" onchange="syncMinutePrintStudioPreview()" class="w-full mt-0.5 px-2 py-1 border border-slate-600 rounded-lg bg-slate-900 outline-none font-semibold text-white">
+                  <option value="30">30% (Wide Right)</option>
+                  <option value="33" selected>33% (Standard)</option>
+                  <option value="38">38% (Balanced)</option>
+                  <option value="42">42% (Spacious)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-2 pt-2">
+            <button type="button" onclick="executeMinuteDirectPrint()" class="w-full py-2.5 rounded-xl font-bold bg-teal-600 hover:bg-teal-700 text-white shadow-sm flex items-center justify-center gap-2 cursor-pointer">
+              <span>🖨️</span> Send to Printer (Ctrl+P)
+            </button>
+          </div>
+        </div>
+
+        <!-- Right Canvas: Live Zoomable Paper View -->
+        <div class="lg:col-span-8 flex flex-col overflow-hidden bg-slate-950 rounded-xl border border-slate-800">
+          <div class="p-2 bg-slate-900 border-b border-slate-800 flex items-center justify-between text-xs text-slate-300">
+            <span class="font-bold flex items-center gap-1.5">
+              <span>📄</span> Live A4 Paper Sheet Preview
+            </span>
+            <div class="flex items-center gap-2">
+              <button type="button" onclick="adjustMinuteStudioZoom(-10)" class="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 font-bold">-</button>
+              <span id="msStudioZoomBadge" class="font-mono text-xs w-12 text-center">100%</span>
+              <button type="button" onclick="adjustMinuteStudioZoom(10)" class="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 font-bold">+</button>
+              <button type="button" onclick="setMinuteStudioZoomFit()" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-[11px] font-semibold">Fit</button>
+            </div>
+          </div>
+          <div id="msStudioCanvasScrollArea" class="paper-viewport flex-1 overflow-y-auto p-4 flex justify-center">
+            <div id="msStudioPaperCanvas" class="a4-canvas minute-sheet-paper w-[210mm] min-h-[297mm] p-[20mm] text-black bg-white shadow-2xl relative transition-transform origin-top">
+              <!-- Populated dynamically via syncMinutePrintStudioPreview() -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden Isolated Iframe for Direct Native Printing -->
+  <iframe id="printDirectIframe" style="display:none; width:0; height:0; border:0;"></iframe>
+
+  <!-- Firebase Compat SDK (Offline Local Copies for Naval Intranet) -->
+  <script src="firebase-app-compat.js"></script>
+  <script src="firebase-database-compat.js"></script>
+
+  <!-- Core App Logic -->
+  <script src="app.js"></script>
+</body>
+</html>

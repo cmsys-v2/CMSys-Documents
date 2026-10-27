@@ -1,0 +1,14 @@
+# Sri Lanka Navy - CMSys Documents URL Routing & Rewrite Engine
+Options -MultiViews +FollowSymLinks
+RewriteEngine On
+RewriteBase /CMSys%20Documents/
+
+# Redirect workstation.html to root without double-encoding spaces
+RewriteRule ^workstation\.html$ /CMSys\ Documents/ [R=301,L,NE]
+
+# Clean routing for /letters -> letters/index.html
+RewriteRule ^letters/?$ letters/index.html [L,QSA]
+
+# Clean routing for /minute and /minutes -> minute/index.html
+RewriteRule ^minute/?$ minute/index.html [L,QSA]
+RewriteRule ^minutes/?$ minute/index.html [L,QSA]

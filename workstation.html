@@ -2,6 +2,13 @@
 <html lang="en" class="h-full dark">
 <head>
     <meta charset="UTF-8">
+    <script>
+      if (location.pathname.indexOf('/CMSys Documents/') === 0) {
+        window.location.replace('/CMSys%20Documents/');
+      } else {
+        window.location.replace('/');
+      }
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CMSys Documents — Naval Document, Minute & Registry System</title>
     <!-- Tailwind CSS (Offline Static) -->

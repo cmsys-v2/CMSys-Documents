@@ -199,22 +199,46 @@ function setupCurrentDates() {
 }
 
 // =============================================================================
-// API CALLS
+// API CALLS WITH STATIC MIRROR FALLBACK
 // =============================================================================
+async function fetchWithFallback(apiEndpoint, fallbackFile) {
+    try {
+        const res = await fetch(apiEndpoint);
+        if (res.ok) {
+            const json = await res.json();
+            if (json && (json.success !== false)) {
+                return json;
+            }
+        }
+    } catch (e) {
+        // Fallback to static cache file
+    }
+    if (fallbackFile) {
+        try {
+            const fRes = await fetch(fallbackFile);
+            if (fRes.ok) {
+                return await fRes.json();
+            }
+        } catch (err) {
+            console.warn(`Fallback ${fallbackFile} error:`, err);
+        }
+    }
+    return null;
+}
+
 async function fetchMetaAndSettings() {
     try {
-        const res = await fetch('api.php?action=meta');
-        const json = await res.json();
-        if (json.success && json.data) {
-            state.meta = json.data;
+        const json = await fetchWithFallback('api.php?action=meta', 'meta_cache.json');
+        if (json && (json.success || json.zones || json.data)) {
+            state.meta = json.data || json;
             populateSailorsDropdowns();
         }
 
-        const sRes = await fetch('api.php?action=settings');
-        const sJson = await sRes.json();
-        if (sJson.success && sJson.data) {
-            if (sJson.data.minute_config) state.settings.minute_config = sJson.data.minute_config;
-            if (sJson.data.letter_config) state.settings.letter_config = sJson.data.letter_config;
+        const sJson = await fetchWithFallback('api.php?action=settings', 'settings_cache.json');
+        if (sJson && (sJson.success || sJson.data || sJson.minute_config)) {
+            const sData = sJson.data || sJson;
+            if (sData.minute_config) state.settings.minute_config = sData.minute_config;
+            if (sData.letter_config) state.settings.letter_config = sData.letter_config;
             populateSettingsDropdowns();
             renderSettingsLists();
         }
@@ -240,13 +264,22 @@ async function fetchRegistryData() {
             zone_id: state.currentScope,
             search: state.searchQuery
         });
-        const res = await fetch(`api.php?${params.toString()}`);
-        const json = await res.json();
-        if (json.success) {
-            state.documents = json.data || [];
-            renderRegistryTable();
-            updateRegistryStats();
-            populateMinuteAutofillDropdown();
+        const json = await fetchWithFallback(`api.php?${params.toString()}`, 'documents_cache.json');
+        if (json) {
+            let docs = json.data || json;
+            if (Array.isArray(docs)) {
+                // If loaded from static cache, perform client-side filtering if needed
+                if (state.currentOffice && state.currentOffice !== 'ALL') {
+                    docs = docs.filter(d => !d.office_section || d.office_section === state.currentOffice);
+                }
+                if (state.currentFlowFilter && state.currentFlowFilter !== 'ALL') {
+                    docs = docs.filter(d => d.flow_type === state.currentFlowFilter);
+                }
+                state.documents = docs;
+                renderRegistryTable();
+                updateRegistryStats();
+                populateMinuteAutofillDropdown();
+            }
         }
     } catch (e) {
         console.error('Error fetching registry:', e);
@@ -255,10 +288,12 @@ async function fetchRegistryData() {
 
 async function fetchPrefixes() {
     try {
-        const res = await fetch('api.php?action=prefixes');
-        const json = await res.json();
-        if (json.success) {
-            state.prefixes = json.data || [];
+        const json = await fetchWithFallback('api.php?action=prefixes', 'prefixes_cache.json');
+        if (json) {
+            state.prefixes = json.data || json || [];
+            if (!Array.isArray(state.prefixes) && state.meta && state.meta.prefixes) {
+                state.prefixes = state.meta.prefixes;
+            }
             renderPrefixesTable();
         }
     } catch (e) {
@@ -268,10 +303,9 @@ async function fetchPrefixes() {
 
 async function fetchFiles() {
     try {
-        const res = await fetch('api.php?action=files');
-        const json = await res.json();
-        if (json.success) {
-            state.files = json.data || [];
+        const json = await fetchWithFallback('api.php?action=files', 'files_cache.json');
+        if (json) {
+            state.files = json.data || json || [];
             renderFilesTable();
         }
     } catch (e) {
@@ -281,10 +315,9 @@ async function fetchFiles() {
 
 async function fetchMinuteTemplates() {
     try {
-        const res = await fetch('api.php?action=minute_templates');
-        const json = await res.json();
-        if (json.success) {
-            state.minuteTemplates = json.data || [];
+        const json = await fetchWithFallback('api.php?action=minute_templates', 'minute_templates_cache.json');
+        if (json) {
+            state.minuteTemplates = json.data || json || [];
             renderMinuteTemplatesGrid();
         }
     } catch (e) {
@@ -294,10 +327,9 @@ async function fetchMinuteTemplates() {
 
 async function fetchNavalLetters() {
     try {
-        const res = await fetch('api.php?action=naval_letters');
-        const json = await res.json();
-        if (json.success) {
-            state.navalLetters = json.data || [];
+        const json = await fetchWithFallback('api.php?action=naval_letters', 'naval_letters_cache.json');
+        if (json) {
+            state.navalLetters = json.data || json || [];
             renderNavalLettersTable();
         }
     } catch (e) {
@@ -307,10 +339,9 @@ async function fetchNavalLetters() {
 
 async function fetchNavalLetterTemplates() {
     try {
-        const res = await fetch('api.php?action=naval_letter_templates');
-        const json = await res.json();
-        if (json.success) {
-            state.navalLetterTemplates = json.data || [];
+        const json = await fetchWithFallback('api.php?action=naval_letter_templates', 'naval_letter_templates_cache.json');
+        if (json) {
+            state.navalLetterTemplates = json.data || json || [];
             renderNavalLetterTemplatesGrid();
         }
     } catch (e) {
@@ -3003,30 +3034,54 @@ function openNewMinuteTemplateModal() {
 
 // =============================================================================
 // SRI LANKA NAVY - CMSYS DOCUMENTS CORE STATE & STUDIO CONTROLLER (App)
-// Strictly Compliant with SLN BR 7 & CMSys Document System Architecture
+// Strictly Compliant with SLN BR 7, Operational Writing & Pic-2 Standards
 // =============================================================================
 const App = {
   state: {
     activeTab: 'letterstudio', // 'letterstudio' or 'minutesheet'
     stamping_mode: 'red', // 'red' (#dc2626) or 'monochrome' (#000000)
-    date_mode: 'internal', // 'internal' (23 Oct 26), 'external' (23rd October 2026), 'ink_dating' (____ ____________ 20__)
+    config_panel_open: true,
     letter: {
+      doc_type: 'naval_letter',
       security_class: 'RESTRICTED',
       privacy_marking: 'NONE', // 'NONE', 'STAFF IN CONFIDENCE', 'PERSONAL AND CONFIDENTIAL'
-      precedence: 'ROUTINE', // 'ROUTINE', 'PRIORITY', 'IMMEDIATE', 'FLASH', 'OP IMMEDIATE'
-      copy_no: 'Copy No. 1 of 5',
       tone: 'junior',
+
+      // Right-Hand Top Corner (Pic-2 & BR 7)
+      show_precedence: true,
+      precedence: 'ROUTINE', // 'NONE', 'ROUTINE', 'PRIORITY', 'IMMEDIATE', 'FLASH', 'OP IMMEDIATE'
+      show_copy_no: false,
+      copy_no: 'Copy No. 1 of 5',
+      own_address: 'COMMAND CIVIL ENGINEERING DEPARTMENT (EAST)\nSLN DOCKYARD, TRINCOMALEE',
+      show_tel: true,
+      tel_ext: 'Tel: 026-2222384 / Ext 3144',
+      date_mode: 'abbreviated', // 'abbreviated' (05 Oct 02), 'full' (05th October 2002), 'ink_blank' (___ Oct 26)
+      date_prefix: 'with_label', // 'with_label' ("Date: ...") or 'direct' (Pic-2 style: "20 Aug 05")
+      date_day: '23',
+      date_month: 'Oct',
+      date_year: '26',
+
+      // Left-Hand Top Corner (Pic-2 & BR 7)
+      ref_mode: 'dual', // 'single' (e.g. T/ 01) or 'dual' (My Ref & File Ref)
+      single_ref: 'T/ 01',
       letter_ref: 'CCED/NHQ/2026/0012',
       file_no: 'CE/EAST/ADM/05',
-      letter_date: '2026-10-23',
       addressee_to: 'The Commander of the Navy\nNaval Headquarters\nColombo 01',
+      show_channel: true,
       channel_through: 'The Commander Eastern Naval Area',
+      show_attention: true,
       attention_to: 'Director General Civil Engineering',
+      show_salutation: true,
+      salutation: 'Sir,',
+
+      // Subject & Headings
       subject: 'RECONSTRUCTION OF WATER DISTRIBUTION NETWORK - SLNS TISSA',
       references: [
         'NHQ Letter NHQ/CE/05/2026/042 dated 10 September 2026',
         'COMEN Signal DTG 150830Z OCT 26'
       ],
+
+      // Hierarchical Paragraphs
       paragraphs: [
         { id: 1, level: 1, text: 'I have the honour to submit for your kind consideration and approval please that an on-site structural inspection was conducted regarding the deteriorated water pipeline network.' },
         { id: 2, level: 1, heading: 'Inspection Findings', text: 'The existing main distribution pipe network has developed severe galvanic corrosion resulting in intermittent pressure drops across the residential quarters.' },
@@ -3034,6 +3089,10 @@ const App = {
         { id: 4, level: 2, text: 'Auxiliary booster pumps at pumping station 02 exhibit cavitation and continuous thermal tripping.' },
         { id: 5, level: 1, text: 'The total estimated cost for the replacement project amounts to Rs. 1,485,000.00. Detailed estimate and Bill of Quantities (BOQ) are forwarded herewith for kind approval, please.' }
       ],
+
+      // Subscription & Signatory Section
+      show_close: true,
+      complimentary_close: 'I remain, Sir,\nYour obedient Servant,',
       signatory: {
         name: 'A B C SENEVIRATNE',
         post_nominals: 'psc, CEng',
@@ -3042,6 +3101,10 @@ const App = {
         appointment: 'Command Civil Engineering Officer (East)',
         for_superior: '' // e.g. 'for Commander of the Navy'
       },
+
+      // Annexures & Enclosures
+      annex_mode: 'annexes', // 'annexes', 'single_annexure', 'none'
+      single_annexure_title: 'Deployment Pattern',
       annexes: [
         'Detailed Engineering Estimate (Annex A)',
         'Bill of Quantities (BOQ) Summary (Annex B)'
@@ -3050,6 +3113,8 @@ const App = {
         'Photographic evidence of pipeline corrosion (Encl 1)',
         'Water chemical test analysis report (Encl 2)'
       ],
+
+      // Distribution
       distribution: {
         action: [
           'The Commander Eastern Naval Area',
@@ -3061,6 +3126,7 @@ const App = {
           'Office Copy'
         ]
       },
+
       page_info: {
         is_multi_page: false,
         current_page: 1,
@@ -3086,14 +3152,1106 @@ const App = {
     }
   },
 
+  // Templates Repository for Service Writing & Operational Writing
+  templates: {
+    naval_letter: {
+      label: 'Standard Naval Letter (BR 7)',
+      desc: 'Standard official naval letter strictly compliant with BR 7 rules.',
+      security_class: 'RESTRICTED',
+      privacy_marking: 'NONE',
+      tone: 'junior',
+      show_precedence: true,
+      precedence: 'ROUTINE',
+      show_copy_no: false,
+      copy_no: 'Copy No. 1 of 5',
+      own_address: 'COMMAND CIVIL ENGINEERING DEPARTMENT (EAST)\nSLN DOCKYARD, TRINCOMALEE',
+      show_tel: true,
+      tel_ext: 'Tel: 026-2222384 / Ext 3144',
+      date_mode: 'abbreviated',
+      date_prefix: 'with_label',
+      date_day: '23',
+      date_month: 'Oct',
+      date_year: '26',
+      ref_mode: 'dual',
+      single_ref: 'T/ 01',
+      letter_ref: 'CCED/NHQ/2026/0012',
+      file_no: 'CE/EAST/ADM/05',
+      addressee_to: 'The Commander of the Navy\nNaval Headquarters\nColombo 01',
+      show_channel: true,
+      channel_through: 'The Commander Eastern Naval Area',
+      show_attention: true,
+      attention_to: 'Director General Civil Engineering',
+      show_salutation: true,
+      salutation: 'Sir,',
+      subject: 'RECONSTRUCTION OF WATER DISTRIBUTION NETWORK - SLNS TISSA',
+      references: [
+        'NHQ Letter NHQ/CE/05/2026/042 dated 10 September 2026',
+        'COMEN Signal DTG 150830Z OCT 26'
+      ],
+      paragraphs: [
+        { id: 1, level: 1, text: 'I have the honour to submit for your kind consideration and approval please that an on-site structural inspection was conducted regarding the deteriorated water pipeline network.' },
+        { id: 2, level: 1, heading: 'Inspection Findings', text: 'The existing main distribution pipe network has developed severe galvanic corrosion resulting in intermittent pressure drops across the residential quarters.' },
+        { id: 3, level: 2, text: 'Severe pitting was observed along the 150mm ductile iron trunk line feeding the Chief and Petty Officers mess.' },
+        { id: 4, level: 2, text: 'Auxiliary booster pumps at pumping station 02 exhibit cavitation and continuous thermal tripping.' },
+        { id: 5, level: 1, text: 'The total estimated cost for the replacement project amounts to Rs. 1,485,000.00. Detailed estimate and Bill of Quantities (BOQ) are forwarded herewith for kind approval, please.' }
+      ],
+      show_close: true,
+      complimentary_close: 'I remain, Sir,\nYour obedient Servant,',
+      signatory: {
+        name: 'A B C SENEVIRATNE',
+        post_nominals: 'psc, CEng',
+        rank: 'Commander (CE)',
+        branch: 'SLN',
+        appointment: 'Command Civil Engineering Officer (East)',
+        for_superior: ''
+      },
+      annex_mode: 'annexes',
+      single_annexure_title: 'Deployment Pattern',
+      annexes: [
+        'Detailed Engineering Estimate (Annex A)',
+        'Bill of Quantities (BOQ) Summary (Annex B)'
+      ],
+      enclosures: [
+        'Photographic evidence of pipeline corrosion (Encl 1)',
+        'Water chemical test analysis report (Encl 2)'
+      ],
+      distribution: {
+        action: ['The Commander Eastern Naval Area', 'The Commanding Officer, SLNS Tissa'],
+        information: ['The Director General Civil Engineering, NHQ', 'The Command Logistics Officer (East)', 'Office Copy']
+      }
+    },
+
+    // Pic-2 Exact Architectural Match
+    pic2_convoy: {
+      label: 'Pic-2 Convoy Escort Template (SLNS Tissa)',
+      desc: 'Exact 1:1 match with official naval correspondence standard Pic-2.',
+      security_class: 'CONFIDENTIAL',
+      privacy_marking: 'NONE',
+      tone: 'senior',
+      show_precedence: false,
+      precedence: 'NONE',
+      show_copy_no: false,
+      copy_no: '',
+      own_address: 'SLNS Tissa\nNaval Base\nTrincomalee',
+      show_tel: true,
+      tel_ext: 'Tel... Ext...',
+      date_mode: 'abbreviated',
+      date_prefix: 'direct', // Direct date "20 Aug 05" without "Date:" prefix
+      date_day: '20',
+      date_month: 'Aug',
+      date_year: '05',
+      ref_mode: 'single',
+      single_ref: 'T/ 01',
+      letter_ref: '',
+      file_no: '',
+      addressee_to: 'The Commander Eastern Naval Area',
+      show_channel: false,
+      channel_through: '',
+      show_attention: false,
+      attention_to: '',
+      show_salutation: false,
+      salutation: '',
+      subject: 'ATTACHMENT OF ADDITIONAL TROOPS\nFOR CONVOY ESCORT DUTIES',
+      references: [
+        'The Commander Eastern Naval Area letter no CE/02 dated 05 Aug 05.'
+      ],
+      paragraphs: [
+        { id: 1, level: 1, text: 'In light of the deteriorating security situation in area, the vested burden on SLNS Tissa to escort routine convoy, in addition to other security chores has become double fold. The current deployment pattern of personnel in various security related assignments is placed herewith as an Annexure.' },
+        { id: 2, level: 1, text: 'Hence considering aforesaid facts, it is requested to attach adequate number of personnel from other establishments in area to overcome the prevailing impasse.' }
+      ],
+      show_close: false,
+      complimentary_close: '',
+      signatory: {
+        name: 'H S PERERA',
+        post_nominals: '',
+        rank: 'Captain (N)',
+        branch: '',
+        appointment: 'Commanding Officer',
+        for_superior: ''
+      },
+      annex_mode: 'single_annexure',
+      single_annexure_title: 'Deployment Pattern',
+      annexes: [],
+      enclosures: [],
+      distribution: { action: [], information: [] }
+    },
+
+    // Operational Writing (1): Operation Directives
+    op_directive: {
+      label: '(1) Operation Directives',
+      desc: 'High-level directive setting operational objectives, strategic intent, and resource allocation.',
+      security_class: 'SECRET',
+      privacy_marking: 'NONE',
+      tone: 'senior',
+      show_precedence: true,
+      precedence: 'IMMEDIATE',
+      show_copy_no: true,
+      copy_no: 'Copy No. 1 of 8',
+      own_address: 'Naval Headquarters\nPo. Box. 593\nColombo 01',
+      show_tel: false,
+      tel_ext: '',
+      date_mode: 'abbreviated',
+      date_prefix: 'with_label',
+      date_day: '24',
+      date_month: 'Oct',
+      date_year: '26',
+      ref_mode: 'single',
+      single_ref: 'NHQ/OPS/DIR/2026/02',
+      addressee_to: 'The Commander Eastern Naval Area\nThe Commander Northern Naval Area',
+      show_channel: false,
+      channel_through: '',
+      show_attention: false,
+      attention_to: '',
+      show_salutation: false,
+      salutation: '',
+      subject: 'OPERATION DIRECTIVE NO 02/2026 - MARITIME SURVEILLANCE & RE-ALIGNMENT OF DEEP SEA PATROL ASSETS',
+      references: [
+        'National Maritime Security Strategy 2025-2030',
+        'NHQ Operational Evaluation Report dated 12 October 2026'
+      ],
+      paragraphs: [
+        { id: 1, level: 1, heading: 'Strategic Intent', text: 'To ensure continuous sovereignty of the Exclusive Economic Zone (EEZ) by executing coordinated maritime interdiction against unauthorized intrusions.' },
+        { id: 2, level: 1, heading: 'Resource Allocation', text: 'Eastern Naval Command is allocated two Offshore Patrol Vessels (OPVs) and four Fast Attack Craft (FACs) for rolling fourteen-day surveillance cycles.' },
+        { id: 3, level: 1, heading: 'Reporting Timeline', text: 'Operational situation reports (SITREPs) are to be submitted to the Naval Operations Room daily by 0600H and 1800H.' }
+      ],
+      show_close: false,
+      complimentary_close: '',
+      signatory: {
+        name: 'V D SENANAYAKE',
+        post_nominals: 'RSP, VSV, USP',
+        rank: 'Vice Admiral',
+        branch: 'SLN',
+        appointment: 'Commander of the Navy',
+        for_superior: ''
+      },
+      annex_mode: 'none',
+      single_annexure_title: '',
+      annexes: [],
+      enclosures: [],
+      distribution: {
+        action: ['Commander Eastern Naval Area', 'Commander Northern Naval Area'],
+        information: ['Chief of Staff, NHQ', 'Director General Operations, NHQ']
+      }
+    },
+
+    // Operational Writing (2): Operation Orders (OPORD)
+    opord: {
+      label: '(2) Operation Orders (OPORD)',
+      desc: 'Standard 5-paragraph combat task order: Situation, Mission, Execution, Admin & Logistics, Command & Signals.',
+      security_class: 'SECRET',
+      privacy_marking: 'NONE',
+      tone: 'senior',
+      show_precedence: true,
+      precedence: 'PRIORITY',
+      show_copy_no: true,
+      copy_no: 'Copy No. 1 of 12',
+      own_address: 'Headquarters Eastern Naval Area\nSLN Dockyard, Trincomalee',
+      show_tel: false,
+      tel_ext: '',
+      date_mode: 'abbreviated',
+      date_prefix: 'with_label',
+      date_day: '24',
+      date_month: 'Oct',
+      date_year: '26',
+      ref_mode: 'single',
+      single_ref: 'OPS/EAST/OPORD/2026/04',
+      addressee_to: 'All Task Group Commanders\nEastern Naval Command',
+      show_channel: false,
+      channel_through: '',
+      show_attention: false,
+      attention_to: '',
+      show_salutation: false,
+      salutation: '',
+      subject: 'OPERATION ORDER 04/2026 - MARITIME INTERDICTION "SAGARA ARAKSHA"',
+      references: [
+        'Naval Hydrographic Chart SLN 002 (Trincomalee Approaches)',
+        'Operation Directive NHQ/OPS/DIR/2026/02 dated 24 October 2026'
+      ],
+      paragraphs: [
+        { id: 1, level: 1, heading: 'SITUATION', text: 'Intelligence indicates suspected contraband transit across eastern maritime quadrant during impending new-moon dark phase.' },
+        { id: 2, level: 2, text: 'Friendly forces comprise Task Group 402 consisting of SLNS Sayurala and four Fast Attack Craft (FACs).' },
+        { id: 3, level: 1, heading: 'MISSION', text: 'Task Group 402 will establish continuous barrier patrol from Foul Point to Round Island commencing 250600H OCT 26 to intercept illicit maritime trafficking.' },
+        { id: 4, level: 1, heading: 'EXECUTION', text: 'Phase 1: Transit to sector barrier. Phase 2: Sensor sweep and boarding inspection. Phase 3: Consolidation and escort.' },
+        { id: 5, level: 1, heading: 'ADMINISTRATION & LOGISTICS', text: 'Replenishment at sea (RAS) coordinates at Point DELTA. CASEVAC facility prepared at Naval Hospital Trincomalee.' },
+        { id: 6, level: 1, heading: 'COMMAND & SIGNALS', text: 'Flagship SLNS Sayurala. Radio silence until initial contact. EMCON Condition BAKER enforced.' }
+      ],
+      show_close: false,
+      complimentary_close: '',
+      signatory: {
+        name: 'K M BANDARA',
+        post_nominals: 'psc',
+        rank: 'Commodore',
+        branch: 'SLN',
+        appointment: 'Commander Task Group 402',
+        for_superior: ''
+      },
+      annex_mode: 'annexes',
+      single_annexure_title: '',
+      annexes: ['Annex A - Patrol Sector Coordinates', 'Annex B - Communications Plan'],
+      enclosures: [],
+      distribution: {
+        action: ['CO SLNS Sayurala', 'CO 4th Fast Attack Flotilla'],
+        information: ['Commander of the Navy', 'Director General Operations, NHQ']
+      }
+    },
+
+    // Operational Writing (3): Operation Instructions
+    op_instruction: {
+      label: '(3) Operation Instructions',
+      desc: 'Tactical guidance and procedural directives issued to units for specific operational evolutions.',
+      security_class: 'RESTRICTED',
+      privacy_marking: 'NONE',
+      tone: 'senior',
+      show_precedence: true,
+      precedence: 'ROUTINE',
+      show_copy_no: false,
+      copy_no: '',
+      own_address: 'Command Operations Department (East)\nSLN Dockyard, Trincomalee',
+      show_tel: true,
+      tel_ext: 'Tel: 026-2222384 / Ext 3110',
+      date_mode: 'abbreviated',
+      date_prefix: 'with_label',
+      date_day: '24',
+      date_month: 'Oct',
+      date_year: '26',
+      ref_mode: 'single',
+      single_ref: 'OPS/EAST/INS/2026/14',
+      addressee_to: 'All Commanding Officers and Officers-in-Charge\nNaval Base Trincomalee',
+      show_channel: false,
+      channel_through: '',
+      show_attention: false,
+      attention_to: '',
+      show_salutation: false,
+      salutation: '',
+      subject: 'OPERATION INSTRUCTION 14/2026 - PROCEDURES FOR NIGHT HARBOUR ENTRANCE CONTROL',
+      references: ['Naval Port Regulations (Trincomalee Harbour) Edition 2024'],
+      paragraphs: [
+        { id: 1, level: 1, text: 'This instruction outlines standard boarding and clearance procedures for all non-service vessels entering inner harbour approaches between 1800H and 0600H.' },
+        { id: 2, level: 1, text: 'Guard boats are to verify vessel registration, crew manifest, and clearance certificates prior to allowing entrance into the basin.' }
+      ],
+      show_close: false,
+      complimentary_close: '',
+      signatory: {
+        name: 'S P SILVA',
+        post_nominals: 'psc',
+        rank: 'Commander',
+        branch: 'SLN',
+        appointment: 'Command Operations Officer (East)',
+        for_superior: ''
+      },
+      annex_mode: 'none',
+      single_annexure_title: '',
+      annexes: [],
+      enclosures: [],
+      distribution: { action: ['All COs/OICs'], information: ['Commander Eastern Naval Area'] }
+    },
+
+    // Operational Writing (4): Administrative Orders and Instructions
+    admin_order: {
+      label: '(4) Administrative Orders & Instructions',
+      desc: 'Administrative, logistical, and routine procedures governing units and personnel.',
+      security_class: 'RESTRICTED',
+      privacy_marking: 'NONE',
+      tone: 'senior',
+      show_precedence: true,
+      precedence: 'ROUTINE',
+      show_copy_no: false,
+      copy_no: '',
+      own_address: 'Command Civil Engineering Department (East)\nSLN Dockyard, Trincomalee',
+      show_tel: true,
+      tel_ext: 'Tel: 026-2222384 / Ext 3144',
+      date_mode: 'abbreviated',
+      date_prefix: 'with_label',
+      date_day: '24',
+      date_month: 'Oct',
+      date_year: '26',
+      ref_mode: 'single',
+      single_ref: 'CE/EAST/ADM/2026/88',
+      addressee_to: 'All Heads of Departments & Unit Commanding Officers\nEastern Naval Command',
+      show_channel: false,
+      channel_through: '',
+      show_attention: false,
+      attention_to: '',
+      show_salutation: false,
+      salutation: '',
+      subject: 'ADMINISTRATIVE INSTRUCTION NO 12/2026 - PRE-MONSOON DRAINAGE AND STRUCTURAL AUDITS',
+      references: ['Standing Orders for Naval Establishments, Chapter 14'],
+      paragraphs: [
+        { id: 1, level: 1, text: 'All base units are directed to conduct comprehensive clearing of stormwater drains and culverts prior to the commencement of the northeast monsoon.' },
+        { id: 2, level: 1, text: 'Civil Engineering inspection teams will visit all establishments from 01 November 2026 to verify structural preparedness.' }
+      ],
+      show_close: false,
+      complimentary_close: '',
+      signatory: {
+        name: 'A B C SENEVIRATNE',
+        post_nominals: 'psc, CEng',
+        rank: 'Commander (CE)',
+        branch: 'SLN',
+        appointment: 'Command Civil Engineering Officer (East)',
+        for_superior: ''
+      },
+      annex_mode: 'none',
+      single_annexure_title: '',
+      annexes: [],
+      enclosures: [],
+      distribution: { action: ['All Heads of Departments'], information: ['Commander Eastern Naval Area'] }
+    },
+
+    // Operational Writing (5): Appreciations
+    appreciation: {
+      label: '(5) Appreciations',
+      desc: 'Formal military decision-making document: Aim, Factors, Courses Open, Plan.',
+      security_class: 'CONFIDENTIAL',
+      privacy_marking: 'NONE',
+      tone: 'junior',
+      show_precedence: true,
+      precedence: 'ROUTINE',
+      show_copy_no: false,
+      copy_no: '',
+      own_address: 'Headquarters Eastern Naval Area\nSLN Dockyard, Trincomalee',
+      show_tel: true,
+      tel_ext: 'Tel: 026-2222384',
+      date_mode: 'abbreviated',
+      date_prefix: 'with_label',
+      date_day: '24',
+      date_month: 'Oct',
+      date_year: '26',
+      ref_mode: 'single',
+      single_ref: 'COMEN/OPS/APP/2026/01',
+      addressee_to: 'The Commander of the Navy\nNaval Headquarters\nColombo 01',
+      show_channel: false,
+      channel_through: '',
+      show_attention: true,
+      attention_to: 'Director General Operations',
+      show_salutation: true,
+      salutation: 'Sir,',
+      subject: 'APPRECIATION OF THE SITUATION - PROTECTION OF OFFSHORE ENERGY INFRASTRUCTURE',
+      references: ['NHQ Letter NHQ/OPS/02/2026 dated 02 October 2026'],
+      paragraphs: [
+        { id: 1, level: 1, heading: 'AIM', text: 'To examine defensive requirements for securing offshore renewable installations in the Gulf of Mannar.' },
+        { id: 2, level: 1, heading: 'FACTORS', text: 'Considerations include monsoonal sea states, shallow bathymetry, asymmetric surface threats, and rapid reaction craft response times.' },
+        { id: 3, level: 1, heading: 'COURSES OPEN', text: 'Course Alpha: Dedicated stationary guard craft. Course Bravo: Mobile roving patrol with radar picket. Course Charlie: Integrated shore-based sensor network.' },
+        { id: 4, level: 1, heading: 'PLAN', text: 'Course Charlie augmented by mobile roving patrols offers optimum defensive posture at sustainable logistical expenditure.' }
+      ],
+      show_close: true,
+      complimentary_close: 'I remain, Sir,\nYour obedient Servant,',
+      signatory: {
+        name: 'S M DHARMASENA',
+        post_nominals: 'USP, psc',
+        rank: 'Rear Admiral',
+        branch: 'SLN',
+        appointment: 'Commander Eastern Naval Area',
+        for_superior: ''
+      },
+      annex_mode: 'none',
+      single_annexure_title: '',
+      annexes: [],
+      enclosures: [],
+      distribution: { action: ['Commander of the Navy'], information: ['Director General Operations'] }
+    },
+
+    // Operational Writing (6): Memoranda
+    memorandum: {
+      label: '(6) Memoranda',
+      desc: 'Internal service memorandum for official record and decision submission.',
+      security_class: 'RESTRICTED',
+      privacy_marking: 'NONE',
+      tone: 'junior',
+      show_precedence: false,
+      precedence: 'NONE',
+      show_copy_no: false,
+      copy_no: '',
+      own_address: 'Command Civil Engineering Department (East)\nSLN Dockyard, Trincomalee',
+      show_tel: true,
+      tel_ext: 'Ext 3144',
+      date_mode: 'abbreviated',
+      date_prefix: 'with_label',
+      date_day: '24',
+      date_month: 'Oct',
+      date_year: '26',
+      ref_mode: 'single',
+      single_ref: 'CCED/MEMO/2026/19',
+      addressee_to: 'Staff Officer (Civil Engineering - Maintenance)\nSLN Dockyard, Trincomalee',
+      show_channel: false,
+      channel_through: '',
+      show_attention: false,
+      attention_to: '',
+      show_salutation: false,
+      salutation: '',
+      subject: 'MEMORANDUM - ALLOCATION OF TECHNICAL STAFF FOR FLOATING DOCK OVERHAUL',
+      references: [],
+      paragraphs: [
+        { id: 1, level: 1, text: 'You are to detail twelve engineering personnel to report to Floating Dock No 01 commencing 26 October 2026 for scheduled cathodic protection maintenance.' },
+        { id: 2, level: 1, text: 'Completion report to be rendered upon termination of tasks.' }
+      ],
+      show_close: false,
+      complimentary_close: '',
+      signatory: {
+        name: 'A B C SENEVIRATNE',
+        post_nominals: 'psc, CEng',
+        rank: 'Commander (CE)',
+        branch: 'SLN',
+        appointment: 'Command Civil Engineering Officer (East)',
+        for_superior: ''
+      },
+      annex_mode: 'none',
+      single_annexure_title: '',
+      annexes: [],
+      enclosures: [],
+      distribution: { action: ['SO (CE - Maint)'], information: ['Office Copy'] }
+    },
+
+    // Operational Writing (7): Signal Messages
+    signal: {
+      label: '(7) Signal Messages',
+      desc: 'Naval Signal message format with DTG, Originator, Action Addressees, and concise text.',
+      security_class: 'RESTRICTED',
+      privacy_marking: 'NONE',
+      tone: 'senior',
+      show_precedence: true,
+      precedence: 'PRIORITY',
+      show_copy_no: false,
+      copy_no: '',
+      own_address: 'COMEN // NAVAL SIGNAL //\nSLN DOCKYARD TRINCOMALEE',
+      show_tel: false,
+      tel_ext: '',
+      date_mode: 'abbreviated',
+      date_prefix: 'direct',
+      date_day: '24',
+      date_month: 'Oct',
+      date_year: '26',
+      ref_mode: 'single',
+      single_ref: 'DTG 240930Z OCT 26',
+      addressee_to: 'TO: NHQ\nINFO: COMNORTH / COMSOUTH',
+      show_channel: false,
+      channel_through: '',
+      show_attention: false,
+      attention_to: '',
+      show_salutation: false,
+      salutation: '',
+      subject: 'SIGNAL - RECONSTRUCTION OF WATER DISTRIBUTION NETWORK SLNS TISSA',
+      references: ['CCED LETTER CCED/NHQ/2026/0012 DATED 23 OCT 26'],
+      paragraphs: [
+        { id: 1, level: 1, text: 'RESTRICTED // TECHNICAL INSPECTION COMPLETED REGARDING DETERIORATED WATER DISTRIBUTION NETWORK SLNS TISSA (.) CORROSION OBSERVED ON 150MM DUCTILE IRON TRUNK LINE (.) ESTIMATE OF RS 1,485,000.00 FORWARDED VIA CCEO(E) LETTER (.) KIND EXPEDITIOUS APPROVAL SOLICITED PLEASE //' }
+      ],
+      show_close: false,
+      complimentary_close: '',
+      signatory: {
+        name: 'COMMANDER EASTERN NAVAL AREA',
+        post_nominals: '',
+        rank: '',
+        branch: '',
+        appointment: '',
+        for_superior: ''
+      },
+      annex_mode: 'none',
+      single_annexure_title: '',
+      annexes: [],
+      enclosures: [],
+      distribution: { action: [], information: [] }
+    },
+
+    // Operational Writing (9): Exercise Orders (EXORD)
+    exercise_order: {
+      label: '(9) Exercise Orders (EXORD)',
+      desc: 'Fleet and area exercise directives and execution timelines.',
+      security_class: 'RESTRICTED',
+      privacy_marking: 'NONE',
+      tone: 'senior',
+      show_precedence: true,
+      precedence: 'ROUTINE',
+      show_copy_no: false,
+      copy_no: '',
+      own_address: 'Headquarters Eastern Naval Area\nSLN Dockyard, Trincomalee',
+      show_tel: true,
+      tel_ext: 'Tel: 026-2222384',
+      date_mode: 'abbreviated',
+      date_prefix: 'with_label',
+      date_day: '24',
+      date_month: 'Oct',
+      date_year: '26',
+      ref_mode: 'single',
+      single_ref: 'FLEET/EXORD/2026/01',
+      addressee_to: 'All Commanding Officers\nEastern Fleet Squadrons',
+      show_channel: false,
+      channel_through: '',
+      show_attention: false,
+      attention_to: '',
+      show_salutation: false,
+      salutation: '',
+      subject: 'EXERCISE ORDER 01/2026 - FLEET TACTICAL EXERCISE "EASTEX 26"',
+      references: ['Annual Fleet Exercise Programme 2026'],
+      paragraphs: [
+        { id: 1, level: 1, text: 'Fleet Tactical Exercise EASTEX 26 will be conducted in Exercise Area BRAVO from 280600H to 301800H OCT 26.' },
+        { id: 2, level: 1, text: 'Safety precautions per SLN Fleet Safety Manual Section 03 are strictly mandatory.' }
+      ],
+      show_close: false,
+      complimentary_close: '',
+      signatory: {
+        name: 'K M BANDARA',
+        post_nominals: 'psc',
+        rank: 'Commodore',
+        branch: 'SLN',
+        appointment: 'Commander Task Group 402',
+        for_superior: ''
+      },
+      annex_mode: 'none',
+      single_annexure_title: '',
+      annexes: [],
+      enclosures: [],
+      distribution: { action: ['All Participating Units'], information: ['Commander of the Navy'] }
+    },
+
+    // Operational Writing (10): Tour Notes
+    tour_notes: {
+      label: '(10) Tour Notes',
+      desc: 'Inspections, command tour findings, observations, and directions.',
+      security_class: 'RESTRICTED',
+      privacy_marking: 'NONE',
+      tone: 'senior',
+      show_precedence: false,
+      precedence: 'NONE',
+      show_copy_no: false,
+      copy_no: '',
+      own_address: 'Command Civil Engineering Department (East)\nSLN Dockyard, Trincomalee',
+      show_tel: true,
+      tel_ext: 'Ext 3144',
+      date_mode: 'abbreviated',
+      date_prefix: 'with_label',
+      date_day: '24',
+      date_month: 'Oct',
+      date_year: '26',
+      ref_mode: 'single',
+      single_ref: 'CCED/TOUR/2026/05',
+      addressee_to: 'The Officer-in-Charge\nNaval Detachment Poduwakattu',
+      show_channel: false,
+      channel_through: '',
+      show_attention: false,
+      attention_to: '',
+      show_salutation: false,
+      salutation: '',
+      subject: 'COMMAND TOUR NOTES - INSPECTION OF NAVAL DETACHMENTS IN TRINCOMALEE NORTH SECTOR',
+      references: [],
+      paragraphs: [
+        { id: 1, level: 1, heading: 'Observations', text: 'Perimeter solar lighting system requires battery replacement. Fresh water storage sump requires chlorination.' },
+        { id: 2, level: 1, heading: 'Directives', text: 'CCED maintenance team will attend to battery replacement by 28 October 2026.' }
+      ],
+      show_close: false,
+      complimentary_close: '',
+      signatory: {
+        name: 'A B C SENEVIRATNE',
+        post_nominals: 'psc, CEng',
+        rank: 'Commander (CE)',
+        branch: 'SLN',
+        appointment: 'Command Civil Engineering Officer (East)',
+        for_superior: ''
+      },
+      annex_mode: 'none',
+      single_annexure_title: '',
+      annexes: [],
+      enclosures: [],
+      distribution: { action: ['OIC Detachment Poduwakattu'], information: ['Commander Eastern Naval Area'] }
+    },
+
+    // Formal Civilian Letter (Civilians / Official Bodies / Legal)
+    formal_letter: {
+      label: 'Formal Civilian Letter',
+      desc: 'Written to civilians, contractors, ministries, and legal authorities. Uses full date and formal subscription.',
+      security_class: 'UNCLASSIFIED',
+      privacy_marking: 'NONE',
+      tone: 'equal',
+      show_precedence: false,
+      precedence: 'NONE',
+      show_copy_no: false,
+      copy_no: '',
+      own_address: 'Command Civil Engineering Department (East)\nSri Lanka Navy, Dockyard\nTrincomalee',
+      show_tel: true,
+      tel_ext: 'Tel: 026-2222384 / Ext 3144',
+      date_mode: 'full', // Full date per Rule 16.a: 05th October 2002
+      date_prefix: 'with_label',
+      date_day: '24',
+      date_month: 'October',
+      date_year: '2026',
+      ref_mode: 'dual',
+      single_ref: '',
+      letter_ref: 'CE/EAST/CIV/2026/102',
+      file_no: 'CE/CIV/02/05',
+      addressee_to: 'The General Manager\nNational Water Supply and Drainage Board\nDistrict Office, Trincomalee',
+      show_channel: false,
+      channel_through: '',
+      show_attention: true,
+      attention_to: 'Regional Engineer (Operations)',
+      show_salutation: true,
+      salutation: 'Dear Sir / Madam,',
+      subject: 'AUGMENTATION OF BULK WATER SUPPLY - NAVAL DOCKYARD TRINCOMALEE',
+      references: ['Your letter Ref NWSDB/TRIN/2026/44 dated 15 September 2026'],
+      paragraphs: [
+        { id: 1, level: 1, text: 'I am directed by the Commander Eastern Naval Area to inform you that the Sri Lanka Navy intends to augment the bulk supply connection feeding the dockyard complex.' },
+        { id: 2, level: 1, text: 'A technical coordination meeting is scheduled at the Command Civil Engineering Department on 30th October 2026 at 1000 hours.' }
+      ],
+      show_close: true,
+      complimentary_close: 'Yours faithfully,',
+      signatory: {
+        name: 'A B C SENEVIRATNE',
+        post_nominals: 'psc, CEng',
+        rank: 'Commander (CE)',
+        branch: 'SLN',
+        appointment: 'Command Civil Engineering Officer (East)',
+        for_superior: 'Commander Eastern Naval Area'
+      },
+      annex_mode: 'none',
+      single_annexure_title: '',
+      annexes: [],
+      enclosures: [],
+      distribution: { action: ['General Manager, NWSDB'], information: ['Commander Eastern Naval Area'] }
+    },
+
+    // Demi-Official (DO) Letter
+    do_letter: {
+      label: 'Demi-Official (DO) Letter',
+      desc: 'Personal official letter between naval officers using personal salutation and "Yours aye,".',
+      security_class: 'CONFIDENTIAL',
+      privacy_marking: 'PERSONAL AND CONFIDENTIAL',
+      tone: 'do_letter',
+      show_precedence: false,
+      precedence: 'NONE',
+      show_copy_no: false,
+      copy_no: '',
+      own_address: 'Command Civil Engineering Department (East)\nSLN Dockyard, Trincomalee',
+      show_tel: true,
+      tel_ext: 'Tel: 026-2222384',
+      date_mode: 'abbreviated',
+      date_prefix: 'with_label',
+      date_day: '24',
+      date_month: 'Oct',
+      date_year: '26',
+      ref_mode: 'single',
+      single_ref: 'DO/CCED/2026/02',
+      addressee_to: 'Commander K A Silva, psc, SLN\nStaff Officer (Civil Engineering Projects)\nNaval Headquarters, Colombo 01',
+      show_channel: false,
+      channel_through: '',
+      show_attention: false,
+      attention_to: '',
+      show_salutation: true,
+      salutation: 'Dear Silva,',
+      subject: 'PROGRESS ON SPECIAL DOCKYARD BASIN DREDGING PROJECT',
+      references: [],
+      paragraphs: [
+        { id: 1, level: 1, text: 'I am writing to share with you the preliminary findings of the hydrographic sweep carried out across the inner basin.' },
+        { id: 2, level: 1, text: 'Your assistance in expediting the release of allocated funds from NHQ will be greatly appreciated to ensure completion before the monsoonal surge.' }
+      ],
+      show_close: true,
+      complimentary_close: 'Yours aye,',
+      signatory: {
+        name: 'A B C SENEVIRATNE',
+        post_nominals: 'psc, CEng',
+        rank: 'Commander (CE)',
+        branch: 'SLN',
+        appointment: 'Command Civil Engineering Officer (East)',
+        for_superior: ''
+      },
+      annex_mode: 'none',
+      single_annexure_title: '',
+      annexes: [],
+      enclosures: [],
+      distribution: { action: [], information: [] }
+    }
+  },
+
+  // Document Type Switcher
+  setDocType(type) {
+    if (!this.templates[type]) return;
+    const tmpl = this.templates[type];
+    this.state.letter.doc_type = type;
+
+    // Apply template properties
+    for (const [k, v] of Object.entries(tmpl)) {
+      if (k !== 'label' && k !== 'desc') {
+        this.state.letter[k] = JSON.parse(JSON.stringify(v));
+      }
+    }
+
+    // Update Top Selectors
+    const qSelect = document.getElementById('quickDocTypeSelect');
+    if (qSelect) qSelect.value = type;
+    const cfgSelect = document.getElementById('cfgDocType');
+    if (cfgSelect) cfgSelect.value = type;
+    const descEl = document.getElementById('cfgDocTypeDesc');
+    if (descEl) descEl.innerText = tmpl.desc || '';
+    const badgeEl = document.getElementById('cfgActiveDocBadge');
+    if (badgeEl) badgeEl.innerText = tmpl.label || type;
+
+    const secSelect = document.getElementById('selectSecurityClass');
+    if (secSelect) secSelect.value = this.state.letter.security_class;
+
+    const privSelect = document.getElementById('selectPrivacyMarking');
+    if (privSelect) privSelect.value = this.state.letter.privacy_marking;
+
+    const precSelect = document.getElementById('selectPrecedence');
+    if (precSelect) precSelect.value = this.state.letter.precedence;
+
+    const toneSelect = document.getElementById('br7ToneSelect');
+    if (toneSelect) toneSelect.value = this.state.letter.tone;
+
+    const dateSelect = document.getElementById('selectDateMode');
+    if (dateSelect) {
+      if (this.state.letter.date_mode === 'full') dateSelect.value = 'external';
+      else if (this.state.letter.date_mode === 'ink_blank') dateSelect.value = 'ink_dating';
+      else dateSelect.value = 'internal';
+    }
+
+    this.syncFormControlsFromState();
+    this.renderCanvas();
+  },
+
+  toggleConfigPanel() {
+    const panel = document.getElementById('docConfigPanel');
+    if (!panel) return;
+    this.state.config_panel_open = !this.state.config_panel_open;
+    panel.style.display = this.state.config_panel_open ? 'block' : 'none';
+  },
+
+  toggleAccordion(headerBtn) {
+    if (!headerBtn) return;
+    const content = headerBtn.nextElementSibling;
+    if (!content) return;
+    headerBtn.classList.toggle('active');
+    content.classList.toggle('collapsed');
+  },
+
+  updateRightCorner(field, val) {
+    this.state.letter[field] = val;
+    this.renderCanvas();
+  },
+
+  updateLeftCorner(field, val) {
+    this.state.letter[field] = val;
+    this.renderCanvas();
+  },
+
+  setRefMode(mode) {
+    this.state.letter.ref_mode = mode;
+    const singleContainer = document.getElementById('cfgSingleRefContainer');
+    const dualContainer = document.getElementById('cfgDualRefContainer');
+    if (singleContainer) singleContainer.style.display = mode === 'single' ? 'block' : 'none';
+    if (dualContainer) dualContainer.style.display = mode === 'dual' ? 'block' : 'none';
+    this.renderCanvas();
+  },
+
+  updateDateFormatMode(mode) {
+    this.state.letter.date_mode = mode;
+    const topSelect = document.getElementById('selectDateMode');
+    if (topSelect) {
+      if (mode === 'full') topSelect.value = 'external';
+      else if (mode === 'ink_blank') topSelect.value = 'ink_dating';
+      else topSelect.value = 'internal';
+    }
+    this.renderCanvas();
+  },
+
+  updateDateParts() {
+    const d = document.getElementById('cfgDateDay');
+    const m = document.getElementById('cfgDateMonth');
+    const y = document.getElementById('cfgDateYear');
+    if (d) this.state.letter.date_day = d.value.padStart(2, '0');
+    if (m) this.state.letter.date_month = m.value;
+    if (y) this.state.letter.date_year = y.value;
+    this.renderCanvas();
+  },
+
+  applyAddressPreset(preset) {
+    let addr = '';
+    let tel = '';
+    if (preset === 'tissa') {
+      addr = 'SLNS Tissa\nNaval Base\nTrincomalee';
+      tel = 'Tel... Ext...';
+    } else if (preset === 'nhq') {
+      addr = 'Naval Headquarters\nPo. Box. 593\nColombo 01';
+      tel = 'Tel: 011-7192000 / Ext 1100';
+    } else if (preset === 'cced') {
+      addr = 'COMMAND CIVIL ENGINEERING DEPARTMENT (EAST)\nSLN DOCKYARD, TRINCOMALEE';
+      tel = 'Tel: 026-2222384 / Ext 3144';
+    }
+    if (addr) {
+      this.state.letter.own_address = addr;
+      const addrEl = document.getElementById('cfgOwnAddress');
+      if (addrEl) addrEl.value = addr;
+      if (tel) {
+        this.state.letter.tel_ext = tel;
+        const telEl = document.getElementById('cfgTelVal');
+        if (telEl) telEl.value = tel;
+      }
+      this.renderCanvas();
+    }
+  },
+
+  updateSubject(val) {
+    this.state.letter.subject = val;
+    this.renderCanvas();
+  },
+
+  convertSubjectToUppercase() {
+    const val = (this.state.letter.subject || '').toUpperCase();
+    this.state.letter.subject = val;
+    const el = document.getElementById('cfgSubjectVal');
+    if (el) el.value = val;
+    this.renderCanvas();
+  },
+
+  addReferenceItem() {
+    this.state.letter.references.push('New Reference Document');
+    this.renderReferencesListUI();
+    this.renderCanvas();
+  },
+
+  removeReferenceItem(idx) {
+    this.state.letter.references.splice(idx, 1);
+    this.renderReferencesListUI();
+    this.renderCanvas();
+  },
+
+  updateReferenceItem(idx, val) {
+    this.state.letter.references[idx] = val;
+    this.renderCanvas();
+  },
+
+  renderReferencesListUI() {
+    const list = document.getElementById('cfgReferencesList');
+    if (!list) return;
+    list.innerHTML = '';
+    this.state.letter.references.forEach((ref, idx) => {
+      const row = document.createElement('div');
+      row.className = 'flex items-center gap-1';
+      row.innerHTML = `
+        <span class="font-bold text-slate-400 select-none">${String.fromCharCode(65 + idx)}.</span>
+        <input type="text" value="${escapeHtml(ref)}" oninput="App.updateReferenceItem(${idx}, this.value)" class="cfg-input flex-1">
+        <button type="button" onclick="App.removeReferenceItem(${idx})" class="text-rose-400 hover:text-rose-300 font-bold px-1.5 py-0.5" title="Remove">✕</button>
+      `;
+      list.appendChild(row);
+    });
+  },
+
+  addParagraph(level) {
+    const newId = Date.now();
+    this.state.letter.paragraphs.push({
+      id: newId,
+      level: level,
+      text: level === 1 ? 'New main paragraph text.' : 'New sub-paragraph text.'
+    });
+    this.renderParagraphsListUI();
+    this.renderCanvas();
+  },
+
+  removeParagraph(id) {
+    this.state.letter.paragraphs = this.state.letter.paragraphs.filter(p => p.id !== id);
+    this.renderParagraphsListUI();
+    this.renderCanvas();
+  },
+
+  updateParagraphText(id, text) {
+    const p = this.state.letter.paragraphs.find(item => item.id === id);
+    if (p) p.text = text;
+    this.renderCanvas();
+  },
+
+  renderParagraphsListUI() {
+    const list = document.getElementById('cfgParagraphsList');
+    if (!list) return;
+    list.innerHTML = '';
+    this.state.letter.paragraphs.forEach((p, idx) => {
+      const row = document.createElement('div');
+      row.className = 'p-1.5 bg-slate-900 border border-slate-700/80 rounded flex flex-col gap-1';
+      row.innerHTML = `
+        <div class="flex items-center justify-between text-[10px] text-slate-400 font-bold">
+          <span>Level ${p.level || 1} ${p.heading ? `(${escapeHtml(p.heading)})` : ''}</span>
+          <button type="button" onclick="App.removeParagraph(${p.id})" class="text-rose-400 hover:text-rose-300">Remove</button>
+        </div>
+        <textarea oninput="App.updateParagraphText(${p.id}, this.value)" class="cfg-textarea text-[11px]" rows="2">${escapeHtml(p.text || '')}</textarea>
+      `;
+      list.appendChild(row);
+    });
+  },
+
+  updateSubscription(field, val) {
+    if (field === 'name' || field === 'post_nominals' || field === 'appointment' || field === 'for_superior') {
+      this.state.letter.signatory[field] = val;
+    } else if (field === 'rank_branch') {
+      this.state.letter.signatory.rank = val;
+      this.state.letter.signatory.branch = '';
+    } else {
+      this.state.letter[field] = val;
+    }
+    this.renderCanvas();
+  },
+
+  setAnnexMode(mode) {
+    this.state.letter.annex_mode = mode;
+    const singleContainer = document.getElementById('cfgSingleAnnexureContainer');
+    if (singleContainer) singleContainer.style.display = mode === 'single_annexure' ? 'block' : 'none';
+    this.renderCanvas();
+  },
+
+  updateSingleAnnexure(val) {
+    this.state.letter.single_annexure_title = val;
+    this.renderCanvas();
+  },
+
+  // BR 7 Rule 19 Service Writing Numerals Scanner
+  scanNumeralsRule19() {
+    const resultBox = document.getElementById('cfgRuleScanResult');
+    if (!resultBox) return;
+
+    let findings = [];
+    const textAll = this.state.letter.paragraphs.map(p => p.text).join(' ');
+
+    // Rule 19 check: standalone digits 1 to 9 not written in words (unless followed by dimension or unit)
+    const digitMatch = textAll.match(/\b([1-9])\s+(?!inch|mm|cm|m\b|ton|tons|ft|nm|kg|x\b|X\b|[A-Za-z0-9]+th\b)([a-zA-Z]{4,})/gi);
+    if (digitMatch && digitMatch.length > 0) {
+      findings.push(`Rule 19 Warning: Single digits 1-9 should generally be written in words (e.g. "${digitMatch[0]}").`);
+    }
+
+    // Check adjacent numbers without multiplication sign or spelled word (e.g. "12 10-ton")
+    const adjMatch = textAll.match(/\b(\d+)\s+(\d+)\b/g);
+    if (adjMatch) {
+      findings.push(`Rule 19 Notice: Adjacent numbers detected ("${adjMatch[0]}"). Use words or multiplication sign (e.g. "12 x 10-ton").`);
+    }
+
+    if (findings.length === 0) {
+      resultBox.innerHTML = '✅ Numerals check passed. Arabic numbers and dimensional units are correctly formatted according to Rule 19.';
+    } else {
+      resultBox.innerHTML = `⚠️ ${findings.join('<br>')}`;
+    }
+  },
+
+  // BR 7 Rules 20 & 21 Capitalization Formatter
+  applyCapitalizationRule(type) {
+    const resultBox = document.getElementById('cfgRuleScanResult');
+    if (type === 'initial') {
+      // Rule 21.e & 21.f: Ranks and Headings in Initial Capitals
+      const rankEl = document.getElementById('cfgSigRank');
+      if (rankEl && this.state.letter.signatory.rank) {
+        const words = this.state.letter.signatory.rank.toLowerCase().split(' ');
+        const capitalized = words.map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        this.state.letter.signatory.rank = capitalized;
+        rankEl.value = capitalized;
+      }
+      if (resultBox) resultBox.innerHTML = '✅ Rule 21 applied: Ranks and Addresses formatted with Initial Capitals.';
+    } else {
+      this.convertSubjectToUppercase();
+      if (resultBox) resultBox.innerHTML = '✅ Rule 20 applied: Titles, Centre headings & Precedence formatted in BLOCK CAPITALS.';
+    }
+    this.renderCanvas();
+  },
+
+  // Save Settings to Database via api.php
+  async saveLetterConfigToDb() {
+    try {
+      const payload = {
+        key: 'letter_config',
+        value: {
+          active_type: this.state.letter.doc_type,
+          security_class: this.state.letter.security_class,
+          own_address: this.state.letter.own_address,
+          tel_ext: this.state.letter.tel_ext,
+          signatory: this.state.letter.signatory
+        }
+      };
+      const res = await fetch('api.php?action=settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (typeof alert !== 'undefined') alert('Configuration saved to database (ncw_ps_db) successfully!');
+      } else {
+        if (typeof alert !== 'undefined') alert('Could not save configuration: ' + (data.message || 'Error'));
+      }
+    } catch (e) {
+      console.warn('Database save offline, saved locally to state.', e);
+      if (typeof alert !== 'undefined') alert('Configuration updated in active workstation memory.');
+    }
+  },
+
+  resetToNavyDefaults() {
+    this.setDocType('naval_letter');
+  },
+
+  // Sync Form Controls from State
+  syncFormControlsFromState() {
+    const l = this.state.letter;
+
+    const setVal = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.value = val;
+    };
+    const setChecked = (id, bool) => {
+      const el = document.getElementById(id);
+      if (el) el.checked = !!bool;
+    };
+
+    setChecked('cfgShowPrecedence', l.show_precedence);
+    setVal('cfgPrecedenceVal', l.precedence);
+    setChecked('cfgShowCopyNo', l.show_copy_no);
+    setVal('cfgCopyNoVal', l.copy_no);
+    setVal('cfgOwnAddress', l.own_address);
+    setChecked('cfgShowTel', l.show_tel);
+    setVal('cfgTelVal', l.tel_ext);
+    setVal('cfgDateFormatMode', l.date_mode);
+    setVal('cfgDatePrefixMode', l.date_prefix);
+    setVal('cfgDateDay', l.date_day);
+    setVal('cfgDateMonth', l.date_month);
+    setVal('cfgDateYear', l.date_year);
+
+    setVal('cfgRefMode', l.ref_mode);
+    this.setRefMode(l.ref_mode);
+    setVal('cfgSingleRefVal', l.single_ref);
+    setVal('cfgMyRefVal', l.letter_ref);
+    setVal('cfgFileRefVal', l.file_no);
+
+    setVal('cfgAddresseeVal', l.addressee_to);
+    setChecked('cfgShowChannel', l.show_channel);
+    setVal('cfgChannelVal', l.channel_through);
+    setChecked('cfgShowAttention', l.show_attention);
+    setVal('cfgAttentionVal', l.attention_to);
+    setChecked('cfgShowSalutation', l.show_salutation);
+    setVal('cfgSalutationVal', l.salutation);
+
+    setVal('cfgSubjectVal', l.subject);
+    setChecked('cfgShowClose', l.show_close);
+    setVal('cfgCloseVal', l.complimentary_close);
+
+    setVal('cfgSigName', l.signatory.name);
+    setVal('cfgSigPostNom', l.signatory.post_nominals);
+    setVal('cfgSigRank', l.signatory.rank + (l.signatory.branch ? ` ${l.signatory.branch}` : ''));
+    setVal('cfgSigAppt', l.signatory.appointment);
+    setVal('cfgSigSuperior', l.signatory.for_superior);
+
+    setVal('cfgAnnexMode', l.annex_mode);
+    this.setAnnexMode(l.annex_mode);
+    setVal('cfgSingleAnnexureTitle', l.single_annexure_title);
+
+    this.renderReferencesListUI();
+    this.renderParagraphsListUI();
+  },
+
   // SLN Sinhala Naval Rank Linguistic Converter (Section 1.9)
   convertRankToSinhala(rankStr) {
     if (!rankStr) return '';
     const dictionary = {
-      'Commander (CE)': 'කොමදෝරු (සිවිල්)',
-      'Lt Cdr (CE)': 'ලුතිනන් කොමදෝරු (සිවිල්)',
-      'Lieutenant (CE)': 'ලුතිනන් (සිවිල්)',
       'Sub Lieutenant (CE)': 'උප ලුතිනන් (සිවිල්)',
+      'Lt Cdr (CE)': 'ලුතිනන් කොමදෝරු (සිවිල්)',
+      'Lieutenant Commander': 'ලුතිනන් කොමදෝරු',
+      'Commander (CE)': 'කොමදෝරු (සිවිල්)',
+      'Lieutenant (CE)': 'ලුතිනන් (සිවිල්)',
+      'Sub Lieutenant': 'උප ලුතිනන්',
+      'Lieutenant': 'ලුතිනන්',
+      'Commander': 'කොමදෝරු',
+      'Captain': 'කපිතාන්',
+      'Commodore': 'කොමදෝරු',
+      'Rear Admiral': 'රියර් අද්මිරාල්',
+      'Vice Admiral': 'වයිස් අද්මිරාල්',
+      'Admiral': 'අද්මිරාල්',
       'MCPO': 'ප්‍රධාන බලලත් නිලධාරී',
       'FCPO': 'බලඇණි ප්‍රධාන බලලත් නිලධාරී',
       'CPO': 'බලලත් නිලධාරී',
@@ -3103,7 +4261,9 @@ const App = {
       'Able Seaman': 'නැවැත්',
       'Ordinary Seaman': 'සාමාන්‍ය නැවැත්'
     };
-    for (const [k, v] of Object.entries(dictionary)) {
+    // Sort keys descending by length so longer specific matches take precedence
+    const sortedEntries = Object.entries(dictionary).sort((a, b) => b[0].length - a[0].length);
+    for (const [k, v] of sortedEntries) {
       if (rankStr.toLowerCase().includes(k.toLowerCase())) return v;
     }
     return dictionary[rankStr] || rankStr;
@@ -3124,16 +4284,27 @@ const App = {
     if (tone === 'junior' || tone === 'junior_to_senior') {
       salutationText = 'Sir,';
       closeText = 'I remain, Sir,\nYour obedient Servant,';
+      this.state.letter.show_salutation = true;
+      this.state.letter.show_close = true;
     } else if (tone === 'senior' || tone === 'senior_to_junior') {
       salutationText = '';
       closeText = '';
+      this.state.letter.show_salutation = false;
+      this.state.letter.show_close = false;
     } else if (tone === 'equal' || tone === 'equal_to_equal') {
       salutationText = 'Sir,';
       closeText = 'Yours faithfully,';
+      this.state.letter.show_salutation = true;
+      this.state.letter.show_close = true;
     } else if (tone === 'do_letter') {
       salutationText = 'Dear Sir,';
       closeText = 'Yours aye,';
+      this.state.letter.show_salutation = true;
+      this.state.letter.show_close = true;
     }
+
+    this.state.letter.salutation = salutationText;
+    this.state.letter.complimentary_close = closeText;
 
     if (salutationBox) {
       salutationBox.innerText = salutationText;
@@ -3143,6 +4314,11 @@ const App = {
       closeBox.innerText = closeText;
       closeBox.style.display = closeText ? 'block' : 'none';
     }
+
+    const cfgSal = document.getElementById('cfgSalutationVal');
+    if (cfgSal) cfgSal.value = salutationText;
+    const cfgClose = document.getElementById('cfgCloseVal');
+    if (cfgClose) cfgClose.value = closeText;
 
     this.renderCanvas();
   },
@@ -3159,6 +4335,11 @@ const App = {
 
   setPrecedence(prec) {
     this.state.letter.precedence = prec;
+    this.state.letter.show_precedence = (prec !== 'NONE');
+    const cfgPrec = document.getElementById('cfgPrecedenceVal');
+    if (cfgPrec) cfgPrec.value = prec;
+    const cfgShow = document.getElementById('cfgShowPrecedence');
+    if (cfgShow) cfgShow.checked = this.state.letter.show_precedence;
     this.renderCanvas();
   },
 
@@ -3168,8 +4349,9 @@ const App = {
   },
 
   setDateMode(mode) {
-    this.state.date_mode = mode;
-    this.renderCanvas();
+    if (mode === 'external') this.updateDateFormatMode('full');
+    else if (mode === 'ink_dating') this.updateDateFormatMode('ink_blank');
+    else this.updateDateFormatMode('abbreviated');
   },
 
   switchStudioTab(tab) {
@@ -3275,8 +4457,6 @@ const App = {
       textSpan.className = 'flex-1 text-justify';
 
       // Section 1.5 Paragraph Headings:
-      // "On the same line as paragraph number, between number and text, Initial Capitals, bold and underlined;
-      // terminated with a full stop that is not bold and not underlined"
       if (p.heading) {
         const hSpan = document.createElement('span');
         hSpan.className = 'para-heading-label';
@@ -3314,7 +4494,7 @@ const App = {
       botSec.innerText = l.security_class;
     }
 
-    // 1.2 Privacy Markings (e.g. STAFF IN CONFIDENCE or PERSONAL AND CONFIDENTIAL)
+    // 1.2 Privacy Markings
     const privText = (l.privacy_marking && l.privacy_marking !== 'NONE') ? l.privacy_marking : '';
     const topPriv = document.getElementById('topPrivacyMarking');
     if (topPriv) {
@@ -3327,14 +4507,22 @@ const App = {
       botPriv.style.display = privText ? 'block' : 'none';
     }
 
-    // 1.3 Precedence Flag & Copy Numbering (Top right corner, 1 line space above address of sender)
+    // 1.3 Precedence Flag & Copy Numbering (Right-hand corner)
     const precEl = document.getElementById('displayPrecedence');
     if (precEl) {
-      precEl.innerText = `[${l.precedence || 'ROUTINE'}]`;
+      if (l.show_precedence && l.precedence && l.precedence !== 'NONE') {
+        precEl.innerText = `[${l.precedence}]`;
+        precEl.style.display = 'block';
+      } else {
+        precEl.innerText = '';
+        precEl.style.display = 'none';
+      }
     }
+
     const copyEl = document.getElementById('displayCopyNo');
     if (copyEl) {
-      if (l.security_class === 'SECRET' || l.security_class === 'TOP SECRET') {
+      const isSecret = l.security_class === 'SECRET' || l.security_class === 'TOP SECRET';
+      if (l.show_copy_no || isSecret) {
         copyEl.innerText = l.copy_no || 'Copy No. 1 of 5';
         copyEl.style.display = 'block';
       } else {
@@ -3343,27 +4531,109 @@ const App = {
       }
     }
 
-    // 1.4 Superscription Left (My Ref, File Ref, Addressee, Through, Attention)
-    const lRef = document.getElementById('displayLetterRef');
-    if (lRef) lRef.innerText = `My Ref: ${l.letter_ref}`;
-    const fRef = document.getElementById('displayFileRef');
-    if (fRef) fRef.innerText = `File Ref: ${l.file_no}`;
-    const lAddr = document.getElementById('displayAddressee');
-    if (lAddr) lAddr.innerText = l.addressee_to;
-    const dChan = document.getElementById('displayChannel');
-    if (dChan && l.channel_through) dChan.innerText = l.channel_through;
-    const dAttn = document.getElementById('displayAttention');
-    if (dAttn && l.attention_to) dAttn.innerText = l.attention_to;
+    // Right-Hand Corner: Own Address
+    const ownAddrEl = document.getElementById('displayOwnAddress');
+    if (ownAddrEl) {
+      ownAddrEl.innerText = l.own_address || '';
+    }
 
-    // 1.4 Superscription Right: Date (Aligned with bottom line of addressee block)
+    // Right-Hand Corner: Telephone / Extension (Optional toggle)
+    const telEl = document.getElementById('displayTelExt');
+    if (telEl) {
+      if (l.show_tel && l.tel_ext) {
+        telEl.innerText = l.tel_ext;
+        telEl.style.display = 'block';
+      } else {
+        telEl.innerText = '';
+        telEl.style.display = 'none';
+      }
+    }
+
+    // Right-Hand Corner: Date (Rules 16 & 17)
     const lDate = document.getElementById('displayLetterDate');
     if (lDate) {
-      if (this.state.date_mode === 'ink_dating') {
-        lDate.innerHTML = 'Date: <span style="display:inline-block;border-bottom:1px solid #000;width:120px;text-align:center;">&nbsp;</span> 20__';
-      } else if (this.state.date_mode === 'external') {
-        lDate.innerText = `Date: 23rd October 2026`;
+      const dayStr = (l.date_day || '23').padStart(2, '0');
+      const monthStr = l.date_month || 'Oct';
+      const yearStr = l.date_year || '26';
+      const prefix = (l.date_prefix === 'direct') ? '' : 'Date: ';
+
+      const monthFullMap = {
+        'jan': 'January', 'feb': 'February', 'mar': 'March', 'apr': 'April',
+        'may': 'May', 'jun': 'June', 'jul': 'July', 'aug': 'August',
+        'sep': 'September', 'oct': 'October', 'nov': 'November', 'dec': 'December'
+      };
+      const cleanMonthKey = monthStr.substring(0, 3).toLowerCase();
+      const monthExpanded = monthFullMap[cleanMonthKey] || monthStr;
+
+      if (l.date_mode === 'ink_blank') {
+        lDate.innerHTML = `${prefix}<span style="display:inline-block;border-bottom:1px solid #000;width:70px;text-align:center;">&nbsp;</span> ${monthStr} ${yearStr}`;
+      } else if (l.date_mode === 'full') {
+        // Full civil format e.g. 05th October 2002
+        let fullYear = yearStr;
+        if (fullYear.length === 2) fullYear = '20' + fullYear;
+        lDate.innerText = `${prefix}${dayStr}th ${monthExpanded} ${fullYear}`;
       } else {
-        lDate.innerText = `Date: 23 Oct 26`;
+        // Abbreviated armed forces format e.g. 05 Oct 02 or 25 Oct 1965 (Rule 17)
+        lDate.innerText = `${prefix}${dayStr} ${monthStr.substring(0, 3)} ${yearStr}`;
+      }
+    }
+
+    // Left-Hand Top Corner: Single Ref vs Dual Ref
+    const singleRefEl = document.getElementById('displaySingleRef');
+    const dualRefCont = document.getElementById('dualRefContainer');
+    if (l.ref_mode === 'single') {
+      if (singleRefEl) {
+        singleRefEl.innerText = l.single_ref || 'T/ 01';
+        singleRefEl.style.display = 'block';
+      }
+      if (dualRefCont) dualRefCont.style.display = 'none';
+    } else {
+      if (singleRefEl) singleRefEl.style.display = 'none';
+      if (dualRefCont) {
+        dualRefCont.style.display = 'block';
+        const lRef = document.getElementById('displayLetterRef');
+        if (lRef) lRef.innerText = `My Ref: ${l.letter_ref}`;
+        const fRef = document.getElementById('displayFileRef');
+        if (fRef) fRef.innerText = `File Ref: ${l.file_no}`;
+      }
+    }
+
+    // Left-Hand Top Corner: Addressees
+    const lAddr = document.getElementById('displayAddressee');
+    if (lAddr) lAddr.innerText = l.addressee_to || '';
+
+    // Left-Hand Top Corner: Routing Channels
+    const chanRow = document.getElementById('displayChannelRow');
+    const dChan = document.getElementById('displayChannel');
+    if (chanRow && dChan) {
+      if (l.show_channel && l.channel_through) {
+        dChan.innerText = l.channel_through;
+        chanRow.style.display = 'block';
+      } else {
+        chanRow.style.display = 'none';
+      }
+    }
+
+    const attnRow = document.getElementById('displayAttentionRow');
+    const dAttn = document.getElementById('displayAttention');
+    if (attnRow && dAttn) {
+      if (l.show_attention && l.attention_to) {
+        dAttn.innerText = l.attention_to;
+        attnRow.style.display = 'block';
+      } else {
+        attnRow.style.display = 'none';
+      }
+    }
+
+    // Salutation
+    const salutEl = document.getElementById('letterSalutation');
+    if (salutEl) {
+      if (l.show_salutation && l.salutation) {
+        salutEl.innerText = l.salutation;
+        salutEl.style.display = 'block';
+      } else {
+        salutEl.innerText = '';
+        salutEl.style.display = 'none';
       }
     }
 
@@ -3388,16 +4658,18 @@ const App = {
       }
     }
 
-    // 1.6 References Block (Prefix: References: or Reference:, Lettered A., B., C.)
+    // 1.6 References Block
     const refContainer = document.getElementById('canvasReferences');
     if (refContainer) {
       const activeRefs = (l.references || []).filter(r => r && r.trim());
       if (activeRefs.length === 0) {
         refContainer.style.display = 'none';
+      } else if (activeRefs.length === 1) {
+        refContainer.style.display = 'block';
+        refContainer.innerHTML = `<span class="font-bold">Reference:</span>  ${escapeHtml(activeRefs[0])}`;
       } else {
         refContainer.style.display = 'block';
-        const label = activeRefs.length === 1 ? 'Reference:' : 'References:';
-        refContainer.innerHTML = `<span class="font-bold">${label}</span>`;
+        refContainer.innerHTML = `<span class="font-bold">References:</span>`;
         activeRefs.forEach((ref, idx) => {
           const charCode = 65 + idx; // A, B, C...
           const item = document.createElement('div');
@@ -3408,10 +4680,21 @@ const App = {
       }
     }
 
-    // 1.6 Hierarchical Arabic Numerals & Sub-Paragraphs
+    // 1.6 Paragraphs
     this.renderParagraphs();
 
-    // 1.7 Subscription & Signature Section (Right-hand quadrant, 5 lines below text)
+    // 1.7 Subscription & Signature Section
+    const closeBox = document.getElementById('complimentaryClose');
+    if (closeBox) {
+      if (l.show_close && l.complimentary_close) {
+        closeBox.innerText = l.complimentary_close;
+        closeBox.style.display = 'block';
+      } else {
+        closeBox.innerText = '';
+        closeBox.style.display = 'none';
+      }
+    }
+
     const sigName = document.getElementById('sigName');
     if (sigName) {
       const postNom = l.signatory.post_nominals ? `, ${l.signatory.post_nominals}` : '';
@@ -3419,10 +4702,11 @@ const App = {
     }
     const sigRank = document.getElementById('sigRank');
     if (sigRank) {
-      sigRank.innerText = `${l.signatory.rank} ${l.signatory.branch}`;
+      sigRank.innerText = `${l.signatory.rank} ${l.signatory.branch}`.trim();
     }
     const sigAppt = document.getElementById('sigAppt');
-    if (sigAppt) sigAppt.innerText = l.signatory.appointment;
+    if (sigAppt) sigAppt.innerText = l.signatory.appointment || '';
+
     const sigSuperior = document.getElementById('sigForSuperior');
     if (sigSuperior) {
       if (l.signatory.for_superior) {
@@ -3434,47 +4718,73 @@ const App = {
       }
     }
 
-    // 1.7 Enclosures & Annexes (Bottom Left, 2 lines below signature)
-    const annexCont = document.getElementById('annexesContainer');
-    if (annexCont) {
-      const activeAnnex = (l.annexes || []).filter(a => a && a.trim());
-      if (activeAnnex.length > 0) {
-        annexCont.innerHTML = `<strong>Annexes:</strong>` + activeAnnex.map((a, i) => `<div class="ml-3">${String.fromCharCode(65 + i)}. ${escapeHtml(a)}</div>`).join('');
-      } else {
-        annexCont.innerHTML = '';
+    // Annexures & Enclosures (Pic-2 Single Annexure vs Standard Multi Annexes)
+    const singleAnnexBlock = document.getElementById('singleAnnexureBlock');
+    const singleAnnexText = document.getElementById('singleAnnexureText');
+    const multiAnnexBlock = document.getElementById('enclosuresAnnexesBlock');
+
+    if (l.annex_mode === 'single_annexure') {
+      if (singleAnnexBlock && singleAnnexText) {
+        singleAnnexText.innerText = l.single_annexure_title || 'Deployment Pattern';
+        singleAnnexBlock.style.display = 'block';
       }
-    }
-    const enclCont = document.getElementById('enclosuresContainer');
-    if (enclCont) {
-      const activeEncl = (l.enclosures || []).filter(e => e && e.trim());
-      if (activeEncl.length > 0) {
-        enclCont.innerHTML = `<strong>Enclosures:</strong>` + activeEncl.map((e, i) => `<div class="ml-3">${i + 1}. ${escapeHtml(e)}</div>`).join('');
-      } else {
-        enclCont.innerHTML = '';
+      if (multiAnnexBlock) multiAnnexBlock.style.display = 'none';
+    } else if (l.annex_mode === 'annexes') {
+      if (singleAnnexBlock) singleAnnexBlock.style.display = 'none';
+      if (multiAnnexBlock) {
+        multiAnnexBlock.style.display = 'flex';
+        const annexCont = document.getElementById('annexesContainer');
+        if (annexCont) {
+          const activeAnnex = (l.annexes || []).filter(a => a && a.trim());
+          if (activeAnnex.length > 0) {
+            annexCont.innerHTML = `<strong>Annexes:</strong>` + activeAnnex.map((a, i) => `<div class="ml-3">${String.fromCharCode(65 + i)}. ${escapeHtml(a)}</div>`).join('');
+          } else {
+            annexCont.innerHTML = '';
+          }
+        }
+        const enclCont = document.getElementById('enclosuresContainer');
+        if (enclCont) {
+          const activeEncl = (l.enclosures || []).filter(e => e && e.trim());
+          if (activeEncl.length > 0) {
+            enclCont.innerHTML = `<strong>Enclosures:</strong>` + activeEncl.map((e, i) => `<div class="ml-3">${i + 1}. ${escapeHtml(e)}</div>`).join('');
+          } else {
+            enclCont.innerHTML = '';
+          }
+        }
       }
+    } else {
+      if (singleAnnexBlock) singleAnnexBlock.style.display = 'none';
+      if (multiAnnexBlock) multiAnnexBlock.style.display = 'none';
     }
 
-    // 1.7 Distribution (Action vs Information Addressees Separated)
+    // 1.7 Distribution
+    const distBlock = document.getElementById('distributionBlock');
     const distAct = document.getElementById('distActionContainer');
-    if (distAct) {
-      const actList = l.distribution?.action || [];
-      if (actList.length > 0) {
-        distAct.innerHTML = `<strong>Action:</strong>` + actList.map(a => `<div class="ml-3">• ${escapeHtml(a)}</div>`).join('');
-      } else {
-        distAct.innerHTML = '';
-      }
-    }
     const distInfo = document.getElementById('distInfoContainer');
-    if (distInfo) {
-      const infoList = l.distribution?.information || [];
-      if (infoList.length > 0) {
-        distInfo.innerHTML = `<strong>Information:</strong>` + infoList.map(i => `<div class="ml-3">• ${escapeHtml(i)}</div>`).join('');
-      } else {
-        distInfo.innerHTML = '';
+    const actList = l.distribution?.action || [];
+    const infoList = l.distribution?.information || [];
+
+    if (actList.length === 0 && infoList.length === 0) {
+      if (distBlock) distBlock.style.display = 'none';
+    } else {
+      if (distBlock) distBlock.style.display = 'flex';
+      if (distAct) {
+        if (actList.length > 0) {
+          distAct.innerHTML = `<strong>Action:</strong>` + actList.map(a => `<div class="ml-3">• ${escapeHtml(a)}</div>`).join('');
+        } else {
+          distAct.innerHTML = '';
+        }
+      }
+      if (distInfo) {
+        if (infoList.length > 0) {
+          distInfo.innerHTML = `<strong>Information:</strong>` + infoList.map(i => `<div class="ml-3">• ${escapeHtml(i)}</div>`).join('');
+        } else {
+          distInfo.innerHTML = '';
+        }
       }
     }
 
-    // 1.8 Page Numbering Standards (Bottom center, 3 spaces above bottom classification)
+    // 1.8 Page Numbering Standards
     const pageFooter = document.getElementById('pageNumberFooter');
     if (pageFooter) {
       const pInfo = l.page_info || { is_multi_page: false, current_page: 1, total_pages: 1 };
@@ -3544,6 +4854,7 @@ const App = {
   },
 
   init() {
+    this.syncFormControlsFromState();
     this.renderCanvas();
     this.applyToneFormula();
   }

@@ -1467,3 +1467,239 @@ input[type=range].cal-slider::-webkit-slider-thumb:hover {
 #ltrStudioPaperCanvas .br7-security-UNCLASSIFIED * {
     color: #334155 !important;
 }
+
+/* ==========================================================================
+   DOCUMENT SETTINGS & CONFIGURATION PANEL STYLES (BR 7 & OPERATIONAL WRITING)
+   ========================================================================== */
+#docConfigPanel {
+    width: 420px;
+    min-width: 380px;
+    max-width: 440px;
+    background-color: #0b1329;
+    border: 1px solid #1e293b;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    color: #e2e8f0;
+    font-size: 11px;
+    line-height: 1.4;
+    overflow-y: auto;
+    max-height: calc(100vh - 80px);
+    position: sticky;
+    top: 16px;
+    z-index: 20;
+    transition: all 0.25s ease-in-out;
+}
+
+#docConfigPanel::-webkit-scrollbar {
+    width: 6px;
+}
+#docConfigPanel::-webkit-scrollbar-track {
+    background: #0f172a;
+}
+#docConfigPanel::-webkit-scrollbar-thumb {
+    background: #334155;
+    border-radius: 4px;
+}
+#docConfigPanel::-webkit-scrollbar-thumb:hover {
+    background: #475569;
+}
+
+.cfg-header {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-bottom: 1px solid #334155;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.cfg-section {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.cfg-accordion-header {
+    width: 100%;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.02);
+    border: none;
+    color: #f8fafc;
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.cfg-accordion-header:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.cfg-accordion-header .acc-icon {
+    transition: transform 0.2s ease;
+}
+
+.cfg-accordion-header.active .acc-icon {
+    transform: rotate(90deg);
+}
+
+.cfg-accordion-content {
+    padding: 12px 14px;
+    display: block;
+    space-y: 10px;
+    background: rgba(0, 0, 0, 0.15);
+}
+
+.cfg-accordion-content.collapsed {
+    display: none;
+}
+
+.cfg-group {
+    margin-bottom: 10px;
+}
+
+.cfg-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    color: #94a3b8;
+    margin-bottom: 4px;
+    font-size: 10.5px;
+}
+
+.cfg-input, .cfg-select, .cfg-textarea {
+    width: 100%;
+    background-color: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    color: #f1f5f9;
+    padding: 5px 8px;
+    font-size: 11px;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cfg-input:focus, .cfg-select:focus, .cfg-textarea:focus {
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+}
+
+.cfg-textarea {
+    resize: vertical;
+    min-height: 52px;
+}
+
+.cfg-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 0;
+}
+
+.cfg-switch {
+    position: relative;
+    display: inline-block;
+    width: 32px;
+    height: 18px;
+}
+
+.cfg-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.cfg-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #334155;
+    transition: .2s;
+    border-radius: 18px;
+}
+
+.cfg-slider:before {
+    position: absolute;
+    content: "";
+    height: 12px;
+    width: 12px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .2s;
+    border-radius: 50%;
+}
+
+input:checked + .cfg-slider {
+    background-color: #f59e0b;
+}
+
+input:checked + .cfg-slider:before {
+    transform: translateX(14px);
+}
+
+.cfg-hint {
+    font-size: 9.5px;
+    color: #64748b;
+    margin-top: 3px;
+    line-height: 1.3;
+}
+
+.cfg-hint.warning {
+    color: #fbbf24;
+}
+
+.cfg-pill-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #cbd5e1;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.cfg-pill-btn:hover {
+    background: rgba(245, 158, 11, 0.2);
+    border-color: #f59e0b;
+    color: #fef3c7;
+}
+
+.cfg-pill-btn.active {
+    background: #f59e0b;
+    border-color: #f59e0b;
+    color: #0f172a;
+    font-weight: 700;
+}
+
+/* Pic-2 Exact Single Annexure Line */
+.annexure-single-line {
+    clear: both;
+    margin-top: 24px;
+    font-size: 10.5pt;
+    font-weight: 700;
+    text-align: left;
+}
+
+.annexure-single-line .annexure-text {
+    font-weight: 400;
+    margin-left: 8px;
+}
+
+/* Single Ref Line (Pic-2 T/ 01 style) */
+.ref-single-line {
+    font-size: 10.5pt;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+

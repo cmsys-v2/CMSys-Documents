@@ -1,0 +1,89 @@
+{
+    "success": true,
+    "count": 2,
+    "data": [
+        {
+            "id": "ltr_20261024_142832_53a769",
+            "letter_ref": "NHQ\/ENG\/2026\/0042",
+            "file_no": "NCW\/25\/01",
+            "letter_date": "2026-10-24",
+            "security_class": "RESTRICTED",
+            "precedence": "ROUTINE",
+            "letterhead_office": "COMMAND CIVIL ENGINEERING DEPARTMENT (EAST)",
+            "letterhead_station": "SLN DOCKYARD, TRINCOMALEE",
+            "letterhead_tel": "026-2222384 \/ Ext 3144",
+            "letterhead_email": "cceoeast@navy.lk",
+            "addressee_to": "The Commander of the Navy",
+            "channel_through": "",
+            "attention_to": "",
+            "subject": "CONSTRUCTION OF NEW JETTY AT SLN DOCKYARD",
+            "references_list": [],
+            "br7_tone": "junior",
+            "salutation": "",
+            "paragraphs": [
+                {
+                    "num": "1.",
+                    "text": "I have the honour to submit for your kind consideration..."
+                }
+            ],
+            "complimentary_close": "",
+            "signatory_name": "K M A PERERA",
+            "signatory_rank": "Captain (CE)",
+            "signatory_appointment": "Command Civil Engineering Officer (East)",
+            "enclosures_list": [],
+            "copy_to_list": [],
+            "is_registered_outgoing": 0,
+            "registered_doc_id": null,
+            "status": "Draft",
+            "created_at": "2026-10-24 14:28:32",
+            "updated_at": "2026-10-24 14:28:32"
+        },
+        {
+            "id": "ltr_20261023_182241_6ad9c5",
+            "letter_ref": "CCED\/NHQ\/2026\/0014",
+            "file_no": "CE\/01\/01",
+            "letter_date": "2026-10-23",
+            "security_class": "RESTRICTED",
+            "precedence": "ROUTINE",
+            "letterhead_office": "COMMAND CIVIL ENGINEERING DEPARTMENT (EAST)",
+            "letterhead_station": "SLN DOCKYARD, TRINCOMALEE",
+            "letterhead_tel": "026-2222384 \/ Ext 3144",
+            "letterhead_email": "cceoeast@navy.lk",
+            "addressee_to": "The Commander of the Navy\nNaval Headquarters\nColombo 01",
+            "channel_through": "Through: The Commander Eastern Naval Area",
+            "attention_to": "",
+            "subject": "ESTIMATE FOR JETTY BOLLARD REINFORCEMENT - SLN DOCKYARD",
+            "references_list": [
+                "(a) NHQ Letter NHQ\/CE\/2026\/089"
+            ],
+            "br7_tone": "senior",
+            "salutation": "Sir \/ Commander,",
+            "paragraphs": [
+                {
+                    "num": "1.",
+                    "text": "I have the honour to submit for your kind approval that an engineering survey was conducted on the bollard foundations at SLN Dockyard."
+                },
+                {
+                    "num": "2.",
+                    "text": "Total cost of departmental repair is estimated at Rs. 420,000.00."
+                }
+            ],
+            "complimentary_close": "I have the honour to be, Sir, Your obedient Servant,",
+            "signatory_name": "K A KAHANDAWA",
+            "signatory_rank": "Commander (CE)",
+            "signatory_appointment": "Command Civil Engineering Officer (East)",
+            "enclosures_list": [
+                "Annex A: Estimate BOQ"
+            ],
+            "copy_to_list": [
+                "Director General Civil Engineering, NHQ",
+                "Office Copy"
+            ],
+            "is_registered_outgoing": 1,
+            "registered_doc_id": "doc_20261023_182241_82b5",
+            "status": "Registered",
+            "created_at": "2026-10-23 21:52:41",
+            "updated_at": "2026-10-23 21:52:41"
+        }
+    ]
+}
