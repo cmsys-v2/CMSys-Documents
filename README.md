@@ -20,38 +20,29 @@
 - **Naval Minute Sheet Studio**: Real-time Sinhala & English transliteration, official navy minute sheet typography, auto-generated sequence numbering, and cross-linking to capital works.
 - **BR 7 Naval Letter Studio**: Formal naval correspondence generator strictly adhering to Book of Reference 7 (BR 7) protocol, formal naval salutations, hierarchical tone presets (Senior / Peer / Subordinate), and registered outgoing auto-dispatch.
 - **Master Naval File Registry**: Categorized file indexing with physical drawer/box location tracking, folio counts, and lifecycle management.
-- **Federated Ecosystem Integration**: Seamlessly shares real-time data with `cmsys-v2` (tactical work orders), `ce-admin-panel2025` (661 active sailors directory), and `cmsys-projects` (capital vote projects).
+- **Federated Ecosystem Integration**: Consolidated with `cmsys-v2` unified tactical command cloud, housing the 682 active sailors directory, 25 capital vote projects, logistics inventory, and document registry.
 
 ---
 
-## 🏛 Multi-Cluster Architecture
+## 🏛 Consolidated Cloud Architecture
 
 ```mermaid
 graph TB
-  subgraph Target["1. Primary Cloud Target: cmsys-documents"]
-    DOCS_RTDB[("cmsys-documents RTDB<br/>• /document_registry<br/>• /job_minutes<br/>• /naval_letters<br/>• /file_registry<br/>• /registry_prefixes<br/>• /minute_templates<br/>• /naval_letter_templates")]
+  subgraph Target["Unified Cloud Target: cmsys-v2"]
+    RTDB[("cmsys-v2 RTDB (asia-southeast1)<br/>• /document_registry<br/>• /job_minutes<br/>• /naval_letters<br/>• /file_registry<br/>• /registry_prefixes<br/>• /sailors (682 Active Roster)<br/>• /naval_projects (25 Capital Votes)<br/>• /work_orders & /logistics")]
   end
 
-  subgraph Core["2. CMSys Core: cmsys-v2"]
-    V2_RTDB[("cmsys-v2 RTDB<br/>• /job_minutes (Mirrored)<br/>• /work_orders & /job_cards")]
+  subgraph Clients["Terminal Clients & Naval Intranet"]
+    HUB["CMSys Documents Workstation"]
+    V2["CMSys V2 Field ERP"]
+    SP["SP V1 Capital Projects"]
+    LOG["CMSys Logistics"]
   end
 
-  subgraph Personnel["3. Personnel Master: ce-admin-panel2025"]
-    PERS_RTDB[("ce-admin-panel2025 RTDB<br/>• /sailors (661 Active Directory)")]
-  end
-
-  subgraph Projects["4. Projects Master: cmsys-projects"]
-    PRJ_RTDB[("cmsys-projects RTDB<br/>• /naval_projects (25 Capital Votes)")]
-  end
-
-  subgraph Clients["5. Terminal Clients"]
-    HUB["CMSys Documents Desktop & Desk Terminals"]
-  end
-
-  HUB <-->|"Real-time Bi-directional RTDB Sync"| DOCS_RTDB
-  DOCS_RTDB -->|"Mirrored Minutes to Work Orders"| V2_RTDB
-  PERS_RTDB -->|"Live Sailor Roster & Transliteration"| HUB
-  PRJ_RTDB -->|"Active Project Codes"| HUB
+  HUB <-->|"Real-time Bi-directional RTDB Sync"| RTDB
+  V2 <-->|"Tactical Work Orders & Realtime Updates"| RTDB
+  SP <-->|"Capital Projects & Procurements"| RTDB
+  LOG <-->|"Inventory & Requisitions"| RTDB
 ```
 
 ---
