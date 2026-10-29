@@ -1,12 +1,9 @@
 <?php
 /**
- * CMSys Documents — Central Configuration & Multi-Cluster Database Engine
- * Connects to:
+ * CMSys Documents — Central Configuration & Database Engine
+ * Consolidated Unified Firebase Architecture:
  *  1. Local MySQL: ncw_ps_db
- *  2. Primary Cloud Target: cmsys-documents (Firebase RTDB)
- *  3. Ecosystem Core: cmsys-v2 (Work Orders & Job Minutes)
- *  4. Personnel Master: ce-admin-panel2025 (661 Sailors Master Feed)
- *  5. Capital Projects Master: cmsys-projects (25 Capital Projects Feed)
+ *  2. Consolidated Cloud Target: cmsys-v2 (Firebase RTDB asia-southeast1)
  */
 
 // Error handling & headers
@@ -192,7 +189,7 @@ function firebaseDelete($baseUrl, $path, $timeout = 3) {
     return $res['code'] < 400;
 }
 
-// Determine active target URL for cmsys-documents RTDB (Probing Asia vs US vs Direct)
+// Determine active target URL for cmsys-v2 RTDB (Probing Asia vs US vs Direct)
 function getDocsFirebaseUrl() {
     static $activeUrl = null;
     if ($activeUrl !== null) return $activeUrl;
@@ -222,9 +219,9 @@ function syncToEcosystemFirebase($collection, $id, $data) {
     $results = [];
     $docsUrl = getDocsFirebaseUrl();
 
-    // 1. Sync to Primary Target (cmsys-documents)
+    // 1. Sync to Primary Target (cmsys-v2)
     $docsRes = firebasePatch($docsUrl, "{$collection}/{$id}", $data);
-    $results['cmsys-documents'] = $docsRes ? 'OK' : 'Pending Activation';
+    $results['cmsys-v2'] = $docsRes ? 'OK' : 'Pending Activation';
 
     // 2. Synchronize Minute Sheets & Work Orders with CMSys V2 Core (cmsys-v2)
     $isMinuteSheet = ($collection === 'job_minutes') ||

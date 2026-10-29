@@ -1,15 +1,13 @@
 /**
  * Sri Lanka Navy — CMSys Documents Firebase Seed & Deployment Script
  * Seeds the complete database topology, initial registry entries, file index,
- * prefixes, minute sheet templates, and Navy BR 7 letter templates to cmsys-documents RTDB.
+ * prefixes, minute sheet templates, and Navy BR 7 letter templates to cmsys-v2 RTDB.
  */
 
 const https = require('https');
 
 const DB_ENDPOINTS = [
-    'https://cmsys-documents-default-rtdb.asia-southeast1.firebasedatabase.app',
-    'https://cmsys-documents-default-rtdb.firebaseio.com',
-    'https://cmsys-documents.firebaseio.com'
+    'https://cmsys-v2-default-rtdb.asia-southeast1.firebasedatabase.app'
 ];
 
 function httpRequest(url, method, data) {
@@ -48,7 +46,7 @@ function httpRequest(url, method, data) {
 
 async function runSeed() {
     console.log("=== Sri Lanka Navy CMSys Documents — Firebase Seeder ===");
-    console.log("Targeting Firebase Project: cmsys-documents\n");
+    console.log("Targeting Firebase Project: cmsys-v2\n");
 
     let activeEndpoint = null;
     for (const ep of DB_ENDPOINTS) {
@@ -64,8 +62,8 @@ async function runSeed() {
     }
 
     if (!activeEndpoint) {
-        console.log("\n[Notice] Realtime Database has not been initialized yet in Firebase Console for cmsys-documents.");
-        console.log("Please create Realtime Database at: https://console.firebase.google.com/u/4/project/cmsys-documents/overview");
+        console.log("\n[Notice] Realtime Database has not been initialized yet in Firebase Console for cmsys-v2.");
+        console.log("Please create Realtime Database at: https://console.firebase.google.com/u/4/project/cmsys-v2/overview");
         console.log("Select location: 'asia-southeast1' (Singapore) and click 'Create Database'.\n");
         activeEndpoint = DB_ENDPOINTS[0]; // Proceed to attempt write to Asia-Southeast1
     }
@@ -77,7 +75,7 @@ async function runSeed() {
             system: "Sri Lanka Navy Civil Engineering — CMSys Documents",
             version: "1.0.0",
             status: "online",
-            project: "cmsys-documents",
+            project: "cmsys-v2",
             ecosystem: "CMSys Interconnected Network",
             last_sync: new Date().toISOString()
         },
