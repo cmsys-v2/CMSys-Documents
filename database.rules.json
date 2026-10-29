@@ -2,6 +2,62 @@
   "rules": {
     ".read": true,
     ".write": true,
+    "work_orders": {
+      ".indexOn": ["zone", "status", "trade", "created_at", "priority"]
+    },
+    "job_cards": {
+      ".indexOn": ["project_id", "status", "job_number", "date", "assigned_trade"]
+    },
+    "daily_allocations": {
+      ".indexOn": ["date", "sailor_id", "official_number", "trade", "zone"]
+    },
+    "sailors": {
+      ".indexOn": ["official_number", "trade", "category", "status", "current_zone", "isZoneTeam"]
+    },
+    "availability": {
+      ".indexOn": ["official_number", "type", "date", "from_date", "to_date", "status"]
+    },
+    "special_projects": {
+      ".indexOn": ["id", "code", "category", "status", "start_date", "end_date"]
+    },
+    "naval_projects": {
+      ".indexOn": ["id", "code", "voteNumber", "status", "priority", "projectType", "startDate", "endDate"]
+    },
+    "procurement_files": {
+      ".indexOn": ["id", "projectId", "projectCode", "voteNumber", "prNumber", "presentPosition", "supplier", "date"]
+    },
+    "special_project_attachments": {
+      ".indexOn": ["project_id", "official_number", "trade", "status", "from_date", "to_date"]
+    },
+    "attachments": {
+      ".indexOn": ["project_id", "official_number", "trade", "status"]
+    },
+    "out_projects": {
+      ".indexOn": ["id", "name", "status", "zone"]
+    },
+    "housing_projects": {
+      ".indexOn": ["id", "name", "status", "zone"]
+    },
+    "other_bases": {
+      ".indexOn": ["id", "name", "status"]
+    },
+    "inventory": {
+      ".indexOn": ["item_code", "category", "zone_id", "status"]
+    },
+    "nav254_vouchers": {
+      ".indexOn": ["voucher_no", "issuing_unit", "receiving_unit", "date"]
+    },
+    "logistics": {
+      "projects": {
+        ".indexOn": ["id", "vote", "status"]
+      },
+      "storeitems": {
+        ".indexOn": ["id", "zone", "category"]
+      },
+      "procurementfiles": {
+        ".indexOn": ["id", "fileNumber", "status"]
+      }
+    },
     "document_registry": {
       ".indexOn": [
         "id",
@@ -78,16 +134,25 @@
       ]
     },
     "system_settings": {
-      ".indexOn": [
-        "updated_at"
-      ]
+      ".indexOn": ["updated_at"]
     },
     "system_status": {
-      ".indexOn": [
-        "system",
-        "version",
-        "last_sync"
-      ]
+      ".indexOn": ["system", "version", "last_sync", "status"]
+    },
+    "weather_logs": {
+      ".indexOn": ["project_id", "date"]
+    },
+    "officers": {
+      ".indexOn": ["official_number", "id", "name", "rank", "directorate", "department"]
+    },
+    "user_profiles": {
+      ".indexOn": ["official_number", "id", "name", "role", "username", "department"]
+    },
+    "cmsys_absorption": {
+      ".indexOn": ["status", "timestamp"]
+    },
+    "cmsys_absorption_history": {
+      ".indexOn": ["published_at"]
     }
   }
 }

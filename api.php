@@ -1,7 +1,7 @@
 <?php
 /**
  * CMSys Documents — Master Central API
- * Full Multi-Cluster Firebase Synchronization (cmsys-documents, cmsys-v2, ce-admin-panel2025, cmsys-projects)
+ * Full Multi-Cluster Firebase Synchronization (cmsys-v2, cmsys-v2, cmsys-v2, cmsys-v2)
  * Handles:
  *  1. Document Registry (4 Sections: CCED Writer, Admin, Drawing, Minute Sheet)
  *  2. Pre-determined Outgoing Sequential Prefix Engine
@@ -141,7 +141,7 @@ switch ($action) {
                 }
             }
 
-            // Fallback to Firebase (cmsys-documents) if list is empty
+            // Fallback to Firebase (cmsys-v2) if list is empty
             if (empty($list)) {
                 $docsUrl = getDocsFirebaseUrl();
                 $fbData = firebaseGet($docsUrl, 'document_registry');
@@ -534,7 +534,7 @@ switch ($action) {
                 $stmt->execute([$id, $section, $category, $flowType, $pattern, $seq, $padding, $sep, $desc, $isDef]);
             }
 
-            // Sync to cmsys-documents
+            // Sync to cmsys-v2
             $docsUrl = getDocsFirebaseUrl();
             firebasePatch($docsUrl, "registry_prefixes/{$id}", [
                 'id' => $id, 'office_section' => $section, 'category' => $category,
@@ -1000,7 +1000,7 @@ switch ($action) {
                 ]);
             }
 
-            // Sync to cmsys-documents RTDB
+            // Sync to cmsys-v2 RTDB
             $docsUrl = getDocsFirebaseUrl();
             firebasePatch($docsUrl, "naval_letters/{$id}", [
                 'id' => $id, 'letter_ref' => $letterRef, 'file_no' => $fileNo,
@@ -1328,7 +1328,7 @@ switch ($action) {
             'stats' => []
         ];
 
-        // If sailors list is empty or refresh requested, pull from ce-admin-panel2025
+        // If sailors list is empty or refresh requested, pull from cmsys-v2
         if (empty($meta['sailors']) || $forceRefresh) {
             $sailorsFeed = firebaseGet(FB_SAILORS_DB_URL, 'sailors', 3);
             if (is_array($sailorsFeed)) {
@@ -1353,7 +1353,7 @@ switch ($action) {
             }
         }
 
-        // If projects list is empty or refresh requested, pull from cmsys-projects
+        // If projects list is empty or refresh requested, pull from cmsys-v2
         if (empty($meta['projects']) || $forceRefresh) {
             $prjFeed = firebaseGet(FB_PROJECTS_DB_URL, 'naval_projects', 3);
             if (is_array($prjFeed)) {
@@ -1410,12 +1410,12 @@ switch ($action) {
             'clusters' => []
         ];
 
-        // 1. Primary: cmsys-documents
+        // 1. Primary: cmsys-v2
         $docsUrl = getDocsFirebaseUrl();
         $t0 = microtime(true);
         $resDocs = firebaseRequest($docsUrl . '/system_status', 'GET', null, 2);
         $latencyDocs = round((microtime(true) - $t0) * 1000);
-        $status['clusters']['cmsys-documents'] = [
+        $status['clusters']['cmsys-v2-docs'] = [
             'project_id' => FB_DOCS_PROJECT_ID,
             'endpoint' => $docsUrl,
             'http_code' => $resDocs['code'],
@@ -1435,11 +1435,11 @@ switch ($action) {
             'online' => $resCore['code'] < 400 || $resCore['code'] === 401
         ];
 
-        // 3. Personnel: ce-admin-panel2025
+        // 3. Personnel: cmsys-v2
         $t0 = microtime(true);
         $resSailors = firebaseRequest(FB_SAILORS_DB_URL . '/sailors', 'GET', null, 2);
         $latencySailors = round((microtime(true) - $t0) * 1000);
-        $status['clusters']['ce-admin-panel2025'] = [
+        $status['clusters']['cmsys-v2-sailors'] = [
             'project_id' => FB_SAILORS_PROJECT_ID,
             'endpoint' => FB_SAILORS_DB_URL,
             'http_code' => $resSailors['code'],
@@ -1447,11 +1447,11 @@ switch ($action) {
             'online' => $resSailors['code'] === 200
         ];
 
-        // 4. Projects: cmsys-projects
+        // 4. Projects: cmsys-v2
         $t0 = microtime(true);
         $resProjects = firebaseRequest(FB_PROJECTS_DB_URL . '/naval_projects', 'GET', null, 2);
         $latencyProjects = round((microtime(true) - $t0) * 1000);
-        $status['clusters']['cmsys-projects'] = [
+        $status['clusters']['cmsys-v2-projects'] = [
             'project_id' => FB_PROJECTS_PROJECT_ID,
             'endpoint' => FB_PROJECTS_DB_URL,
             'http_code' => $resProjects['code'],
@@ -1463,7 +1463,7 @@ switch ($action) {
         break;
 
     // =========================================================================
-    // 9. ONE-CLICK BULK SEED TO CLOUD (cmsys-documents)
+    // 9. ONE-CLICK BULK SEED TO CLOUD (cmsys-v2)
     // =========================================================================
     case 'seed_cloud':
         $docsUrl = getDocsFirebaseUrl();
