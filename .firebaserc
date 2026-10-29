@@ -1,8 +1,6 @@
 {
   "projects": {
-    "default": "cmsys-v2",
-    "cmsys-v2": "cmsys-v2",
-    "cmsys-documents": "cmsys-documents"
+    "default": "cmsys-v2"
   },
   "targets": {
     "cmsys-v2": {
