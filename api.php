@@ -1404,6 +1404,7 @@ switch ($action) {
     // =========================================================================
     // 8. ECOSYSTEM FIREBASE HEALTH CHECK & LIVE STATUS
     // =========================================================================
+    case 'check_ecosystem':
     case 'sync_status':
         $status = [
             'timestamp' => date('c'),
