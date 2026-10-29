@@ -1,53 +1,160 @@
 {
   "rules": {
-    ".read": true,
-    ".write": true,
+    ".read": false,
+    ".write": false,
     "work_orders": {
+      ".read": true,
+      ".write": true,
       ".indexOn": ["zone", "status", "trade", "created_at", "priority"]
     },
     "job_cards": {
+      ".read": true,
+      ".write": true,
       ".indexOn": ["project_id", "status", "job_number", "date", "assigned_trade"]
     },
     "daily_allocations": {
+      ".read": true,
+      ".write": true,
       ".indexOn": ["date", "sailor_id", "official_number", "trade", "zone"]
     },
     "sailors": {
+      ".read": true,
+      ".write": true,
       ".indexOn": ["official_number", "trade", "category", "status", "current_zone", "isZoneTeam"]
     },
     "availability": {
+      ".read": true,
+      ".write": true,
       ".indexOn": ["official_number", "type", "date", "from_date", "to_date", "status"]
     },
     "special_projects": {
+      ".read": true,
+      ".write": true,
       ".indexOn": ["id", "code", "category", "status", "start_date", "end_date"]
     },
     "naval_projects": {
+      ".read": true,
+      ".write": true,
       ".indexOn": ["id", "code", "voteNumber", "status", "priority", "projectType", "startDate", "endDate"]
     },
     "procurement_files": {
+      ".read": true,
+      ".write": true,
       ".indexOn": ["id", "projectId", "projectCode", "voteNumber", "prNumber", "presentPosition", "supplier", "date"]
     },
     "special_project_attachments": {
+      ".read": true,
+      ".write": true,
       ".indexOn": ["project_id", "official_number", "trade", "status", "from_date", "to_date"]
     },
     "attachments": {
+      ".read": true,
+      ".write": true,
       ".indexOn": ["project_id", "official_number", "trade", "status"]
     },
     "out_projects": {
+      ".read": true,
+      ".write": true,
       ".indexOn": ["id", "name", "status", "zone"]
     },
     "housing_projects": {
+      ".read": true,
+      ".write": true,
       ".indexOn": ["id", "name", "status", "zone"]
     },
     "other_bases": {
+      ".read": true,
+      ".write": true,
       ".indexOn": ["id", "name", "status"]
     },
     "inventory": {
+      ".read": true,
+      ".write": true,
       ".indexOn": ["item_code", "category", "zone_id", "status"]
     },
+    "inventory_purchase_origins": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["id", "source"]
+    },
+    "stock_transactions": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["item_code", "transaction_type", "date"]
+    },
+    "locations": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["id", "zone", "name"]
+    },
+    "estimates": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["id", "status", "created_at"]
+    },
+    "maintenance_records": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["id", "status", "equipment_id"]
+    },
+    "approved_projects": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["id", "status"]
+    },
+    "precast_batches": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["id", "batch_number", "status"]
+    },
+    "temp_issues": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["id", "date"]
+    },
+    "temp_drafts": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["id", "created_at"]
+    },
+    "board_entries": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["id", "date"]
+    },
+    "performance_awards": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["official_number", "date"]
+    },
+    "approved_pending_jobs": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["id", "status"]
+    },
+    "cmsys_logistics_sync": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["synced_at"]
+    },
+    "settings": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["updated_at"]
+    },
+    "leave_requests": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["official_number", "status", "from_date"]
+    },
     "nav254_vouchers": {
+      ".read": true,
+      ".write": true,
       ".indexOn": ["voucher_no", "issuing_unit", "receiving_unit", "date"]
     },
     "logistics": {
+      ".read": true,
+      ".write": true,
       "projects": {
         ".indexOn": ["id", "vote", "status"]
       },
@@ -59,6 +166,8 @@
       }
     },
     "document_registry": {
+      ".read": true,
+      ".write": true,
       ".indexOn": [
         "id",
         "office_section",
@@ -76,6 +185,8 @@
       ]
     },
     "job_minutes": {
+      ".read": true,
+      ".write": true,
       ".indexOn": [
         "id",
         "ref_no",
@@ -88,6 +199,8 @@
       ]
     },
     "naval_letters": {
+      ".read": true,
+      ".write": true,
       ".indexOn": [
         "id",
         "letter_ref",
@@ -101,6 +214,8 @@
       ]
     },
     "file_registry": {
+      ".read": true,
+      ".write": true,
       ".indexOn": [
         "id",
         "file_no",
@@ -110,6 +225,8 @@
       ]
     },
     "registry_prefixes": {
+      ".read": true,
+      ".write": true,
       ".indexOn": [
         "id",
         "office_section",
@@ -119,6 +236,8 @@
       ]
     },
     "minute_templates": {
+      ".read": true,
+      ".write": true,
       ".indexOn": [
         "id",
         "category",
@@ -126,6 +245,8 @@
       ]
     },
     "naval_letter_templates": {
+      ".read": true,
+      ".write": true,
       ".indexOn": [
         "id",
         "category",
@@ -134,24 +255,38 @@
       ]
     },
     "system_settings": {
+      ".read": true,
+      ".write": true,
       ".indexOn": ["updated_at"]
     },
     "system_status": {
+      ".read": true,
+      ".write": true,
       ".indexOn": ["system", "version", "last_sync", "status"]
     },
     "weather_logs": {
+      ".read": true,
+      ".write": true,
       ".indexOn": ["project_id", "date"]
     },
     "officers": {
+      ".read": true,
+      ".write": true,
       ".indexOn": ["official_number", "id", "name", "rank", "directorate", "department"]
     },
     "user_profiles": {
+      ".read": true,
+      ".write": true,
       ".indexOn": ["official_number", "id", "name", "role", "username", "department"]
     },
     "cmsys_absorption": {
+      ".read": true,
+      ".write": true,
       ".indexOn": ["status", "timestamp"]
     },
     "cmsys_absorption_history": {
+      ".read": true,
+      ".write": true,
       ".indexOn": ["published_at"]
     }
   }
