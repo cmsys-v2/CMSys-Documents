@@ -2,6 +2,66 @@
   "rules": {
     ".read": true,
     ".write": true,
+    "sailors": {
+      ".indexOn": ["official_number", "trade", "category", "status", "rank", "zone_assigned"]
+    },
+    "availability": {
+      ".indexOn": ["date", "official_number", "status"]
+    },
+    "work_orders": {
+      ".indexOn": ["zone", "status", "trade", "priority", "created_at"]
+    },
+    "job_cards": {
+      ".indexOn": ["project_id", "status", "job_number", "zone", "assigned_officer"]
+    },
+    "daily_allocations": {
+      ".indexOn": ["date", "sailor_id", "official_number", "trade", "zone"]
+    },
+    "inventory": {
+      ".indexOn": ["item_code", "category", "status"]
+    },
+    "estimates": {
+      ".indexOn": ["estimate_no", "project_id", "status"]
+    },
+    "locations": {
+      ".indexOn": ["zone_id", "code"]
+    },
+    "out_projects": {
+      ".indexOn": ["id", "name", "status"]
+    },
+    "housing_projects": {
+      ".indexOn": ["id", "name", "status"]
+    },
+    "nav254_vouchers": {
+      ".indexOn": ["voucher_no", "date", "status"]
+    },
+    "lmd_records": {
+      ".indexOn": ["record_id", "date"]
+    },
+    "naval_projects": {
+      ".indexOn": ["id", "code", "voteNumber", "status", "priority", "projectType", "startDate", "endDate"]
+    },
+    "procurement_files": {
+      ".indexOn": ["id", "projectId", "projectCode", "voteNumber", "prNumber", "presentPosition", "supplier", "date"]
+    },
+    "special_projects": {
+      ".indexOn": ["id", "code", "category", "status", "start_date", "end_date"]
+    },
+    "special_project_attachments": {
+      ".indexOn": ["project_id", "official_number", "trade", "status", "from_date", "to_date"]
+    },
+    "projects": {
+      ".indexOn": ["id", "code", "category", "status"]
+    },
+    "attachments": {
+      ".indexOn": ["project_id", "official_number", "trade", "status"]
+    },
+    "cmsys_absorption": {
+      ".indexOn": ["status", "timestamp"]
+    },
+    "cmsys_absorption_history": {
+      ".indexOn": ["published_at"]
+    },
     "document_registry": {
       ".indexOn": [
         "id",
