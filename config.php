@@ -35,33 +35,37 @@ define('DB_NAME', 'ncw_ps_db');
 define('DB_CHARSET', 'utf8mb4');
 
 // =============================================
-// CMSys ECOSYSTEM MULTI-FIREBASE CLUSTERS
+// CONSOLIDATED CMSys UNIFIED FIREBASE (cmsys-v2)
 // =============================================
+define('FB_TARGET_PROJECT_ID', 'cmsys-v2');
+define('FB_TARGET_API_KEY',    'AIzaSyD2taQsUz26yfLoqnFgs-ED6WcFveUXS8w');
+define('FB_TARGET_DB_URL',     'https://cmsys-v2-default-rtdb.asia-southeast1.firebasedatabase.app');
+define('FB_TARGET_AUTH_DOMAIN','cmsys-v2.firebaseapp.com');
 
-// 1. Primary Dedicated Document System Firebase (cmsys-documents)
-define('FB_DOCS_PROJECT_ID',  'cmsys-documents');
-define('FB_DOCS_DB_URL_ASIA', 'https://cmsys-documents-default-rtdb.asia-southeast1.firebasedatabase.app');
-define('FB_DOCS_DB_URL_US',   'https://cmsys-documents-default-rtdb.firebaseio.com');
-define('FB_DOCS_DB_URL_DIRECT', 'https://cmsys-documents.firebaseio.com');
-define('FB_DOCS_AUTH_DOMAIN', 'cmsys-documents.firebaseapp.com');
+// 1. Primary Dedicated Document System Firebase (Consolidated to cmsys-v2)
+define('FB_DOCS_PROJECT_ID',   FB_TARGET_PROJECT_ID);
+define('FB_DOCS_DB_URL_ASIA',  FB_TARGET_DB_URL);
+define('FB_DOCS_DB_URL_US',    FB_TARGET_DB_URL);
+define('FB_DOCS_DB_URL_DIRECT',FB_TARGET_DB_URL);
+define('FB_DOCS_AUTH_DOMAIN',  FB_TARGET_AUTH_DOMAIN);
 
 // 2. Core CMSys V2 Logistics Platform (cmsys-v2) for Zone & Workshop Job Minutes
-define('FB_CORE_PROJECT_ID',  'cmsys-v2');
-define('FB_CORE_API_KEY',     'AIzaSyDpxQzPBylQeLTXmgiF6GSVtGG_FrIo900');
-define('FB_CORE_DB_URL',      'https://cmsys-v2-default-rtdb.asia-southeast1.firebasedatabase.app');
-define('FB_CORE_AUTH_DOMAIN', 'cmsys-v2.firebaseapp.com');
+define('FB_CORE_PROJECT_ID',   FB_TARGET_PROJECT_ID);
+define('FB_CORE_API_KEY',      FB_TARGET_API_KEY);
+define('FB_CORE_DB_URL',       FB_TARGET_DB_URL);
+define('FB_CORE_AUTH_DOMAIN',  FB_TARGET_AUTH_DOMAIN);
 
-// 3. Personnel Master (ce-admin-panel2025) for 661 Active Sailors
-define('FB_SAILORS_PROJECT_ID', 'ce-admin-panel2025');
-define('FB_SAILORS_DB_URL',     'https://ce-admin-panel2025-default-rtdb.firebaseio.com');
+// 3. Personnel Master for Active Sailors (Consolidated to cmsys-v2)
+define('FB_SAILORS_PROJECT_ID',FB_TARGET_PROJECT_ID);
+define('FB_SAILORS_DB_URL',    FB_TARGET_DB_URL);
 
-// 4. Dedicated Projects Master (cmsys-projects) for 25 Capital Vote Projects
-define('FB_PROJECTS_PROJECT_ID', 'cmsys-projects');
-define('FB_PROJECTS_DB_URL',     'https://cmsys-projects-default-rtdb.asia-southeast1.firebasedatabase.app');
+// 4. Dedicated Projects Master for Capital Projects (Consolidated to cmsys-v2)
+define('FB_PROJECTS_PROJECT_ID',FB_TARGET_PROJECT_ID);
+define('FB_PROJECTS_DB_URL',     FB_TARGET_DB_URL);
 
 // Backward Compatibility Aliases
-define('FB_PROJECT_ID', FB_DOCS_PROJECT_ID);
-define('FB_DB_URL',     FB_DOCS_DB_URL_ASIA);
+define('FB_PROJECT_ID', FB_TARGET_PROJECT_ID);
+define('FB_DB_URL',     FB_TARGET_DB_URL);
 define('FB_AUTH_SECRET', '');
 
 // Application Metadata
