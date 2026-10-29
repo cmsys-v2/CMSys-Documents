@@ -2,50 +2,14 @@
   "rules": {
     ".read": true,
     ".write": true,
-    "sailors": {
-      ".indexOn": ["official_number", "trade", "category", "status", "rank", "zone_assigned"]
-    },
-    "availability": {
-      ".indexOn": ["date", "official_number", "status"]
-    },
-    "work_orders": {
-      ".indexOn": ["zone", "status", "trade", "priority", "created_at"]
-    },
-    "job_cards": {
-      ".indexOn": ["project_id", "status", "job_number", "zone", "assigned_officer"]
-    },
-    "daily_allocations": {
-      ".indexOn": ["date", "sailor_id", "official_number", "trade", "zone"]
-    },
-    "inventory": {
-      ".indexOn": ["item_code", "category", "status"]
-    },
-    "estimates": {
-      ".indexOn": ["estimate_no", "project_id", "status"]
-    },
-    "locations": {
-      ".indexOn": ["zone_id", "code"]
-    },
-    "out_projects": {
-      ".indexOn": ["id", "name", "status"]
-    },
-    "housing_projects": {
-      ".indexOn": ["id", "name", "status"]
-    },
-    "nav254_vouchers": {
-      ".indexOn": ["voucher_no", "date", "status"]
-    },
-    "lmd_records": {
-      ".indexOn": ["record_id", "date"]
+    "special_projects": {
+      ".indexOn": ["id", "code", "category", "status", "start_date", "end_date"]
     },
     "naval_projects": {
       ".indexOn": ["id", "code", "voteNumber", "status", "priority", "projectType", "startDate", "endDate"]
     },
     "procurement_files": {
       ".indexOn": ["id", "projectId", "projectCode", "voteNumber", "prNumber", "presentPosition", "supplier", "date"]
-    },
-    "special_projects": {
-      ".indexOn": ["id", "code", "category", "status", "start_date", "end_date"]
     },
     "special_project_attachments": {
       ".indexOn": ["project_id", "official_number", "trade", "status", "from_date", "to_date"]
@@ -56,98 +20,69 @@
     "attachments": {
       ".indexOn": ["project_id", "official_number", "trade", "status"]
     },
-    "cmsys_absorption": {
-      ".indexOn": ["status", "timestamp"]
+    "job_cards": {
+      ".indexOn": ["project_id", "status", "job_number", "zone", "location", "trade"]
     },
-    "cmsys_absorption_history": {
-      ".indexOn": ["published_at"]
+    "documents": {
+      ".indexOn": ["project_id", "type", "date"]
+    },
+    "weather_logs": {
+      ".indexOn": ["project_id", "date"]
+    },
+    "work_orders": {
+      ".indexOn": ["zone", "status", "trade", "created_at"]
+    },
+    "daily_allocations": {
+      ".indexOn": ["date", "sailor_id", "official_number", "project_id"]
+    },
+    "sailors": {
+      ".indexOn": ["official_number", "trade", "category", "status", "rank"]
+    },
+    "sd_office_data": {
+      ".indexOn": ["official_number", "trade", "status"]
+    },
+    "sailor_project_history": {
+      ".indexOn": ["official_number", "project_id", "date"]
+    },
+    "daily_tasks": {
+      ".indexOn": ["date", "official_number", "status"]
+    },
+    "temp_drafts": {
+      ".indexOn": ["updated_at", "type"]
+    },
+    "inventory": {
+      ".indexOn": ["item_code", "category", "location", "status"]
+    },
+    "estimates": {
+      ".indexOn": ["estimate_no", "project_id", "status"]
     },
     "document_registry": {
-      ".indexOn": [
-        "id",
-        "office_section",
-        "flow_type",
-        "ref_no",
-        "file_no",
-        "date_recorded",
-        "date_letter",
-        "present_position",
-        "directed_to",
-        "directed_type",
-        "project_id",
-        "priority",
-        "status"
-      ]
+      ".indexOn": ["id", "office_section", "flow_type", "ref_no", "file_no", "date_recorded", "date_letter", "present_position", "directed_to", "directed_type", "project_id", "priority", "status"]
     },
     "job_minutes": {
-      ".indexOn": [
-        "id",
-        "ref_no",
-        "directed_to",
-        "directed_type",
-        "project_id",
-        "date_received",
-        "position",
-        "priority"
-      ]
+      ".indexOn": ["id", "ref_no", "directed_to", "directed_type", "project_id", "date_received", "position", "priority"]
     },
     "naval_letters": {
-      ".indexOn": [
-        "id",
-        "letter_ref",
-        "file_no",
-        "letter_date",
-        "security_class",
-        "precedence",
-        "br7_tone",
-        "status",
-        "is_registered_outgoing"
-      ]
+      ".indexOn": ["id", "letter_ref", "file_no", "letter_date", "security_class", "precedence", "br7_tone", "status", "is_registered_outgoing"]
     },
     "file_registry": {
-      ".indexOn": [
-        "id",
-        "file_no",
-        "office_section",
-        "category",
-        "status"
-      ]
+      ".indexOn": ["id", "file_no", "office_section", "category", "status"]
     },
     "registry_prefixes": {
-      ".indexOn": [
-        "id",
-        "office_section",
-        "category",
-        "flow_type",
-        "is_default"
-      ]
+      ".indexOn": ["id", "office_section", "category", "flow_type", "is_default"]
     },
     "minute_templates": {
-      ".indexOn": [
-        "id",
-        "category",
-        "lang"
-      ]
+      ".indexOn": ["id", "category", "lang"]
     },
     "naval_letter_templates": {
-      ".indexOn": [
-        "id",
-        "category",
-        "security_class",
-        "br7_tone"
-      ]
+      ".indexOn": ["id", "category", "security_class", "br7_tone"]
     },
     "system_settings": {
-      ".indexOn": [
-        "updated_at"
-      ]
+      ".indexOn": ["updated_at"]
     },
     "system_status": {
-      ".indexOn": [
-        "system",
-        "version",
-        "last_sync"
-      ]
+      ".read": true,
+      ".write": true
     }
   }
 }
